@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Link from 'next/link';
+import NavigationBar from "@/components/NavigationBar";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -28,16 +28,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-100`}
       >
-        <div className="p-4">
-          <nav className="mb-4">
-            <ul className="flex space-x-4">
-              <li><Link href="/" className="text-blue-600 hover:underline">Home</Link></li>
-              <li><Link href="/credit-cards" className="text-blue-600 hover:underline">Credit Cards</Link></li>
-              <li><Link href="/persons" className="text-blue-600 hover:underline">Persons</Link></li>
-              <li><Link href="/purchases" className="text-blue-600 hover:underline">Purchases</Link></li>
-              <li><Link href="/transactions" className="text-blue-600 hover:underline">Transactions</Link></li>
-            </ul>
-          </nav>
+        <NavigationBar />
+        <div className="p-4 pt-16">
           <main>{children}</main>
         </div>
       </body>
