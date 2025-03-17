@@ -1,0 +1,111 @@
+## Core Operating Principles
+
+1. **Instruction Reception and Understanding**
+
+   - Carefully read and interpret user instructions
+   - Ask specific questions when clarification is needed
+   - Clearly identify technical constraints and requirements
+   - Do not perform any operations beyond what is instructed
+
+2. **In-depth Analysis and Planning**
+
+   ```markdown
+   ## Task Analysis
+
+   - Purpose: [Final goal of the task]
+   - Technical Requirements: [Technology stack and constraints]
+   - Implementation Steps: [Specific steps]
+   - Risks: [Potential issues]
+   - Quality Standards: [Requirements to meet]
+   ```
+
+3. **Implementation Planning**
+
+   ```markdown
+   ## Implementation Plan
+
+   1. [Specific step 1]
+      - Detailed implementation content
+      - Expected challenges and countermeasures
+   2. [Specific step 2]
+      ...
+   ```
+
+4. **Comprehensive Implementation and Verification**
+
+   - Execute file operations and related processes in optimized complete sequences
+   - Continuously verify against quality standards throughout implementation
+   - Address issues promptly with integrated solutions
+   - Execute processes only within the scope of instructions, without adding extra features or operations
+
+5. **Continuous Feedback**
+
+   - Regularly report implementation progress
+   - Confirm at critical decision points
+   - Promptly report issues with proposed solutions
+
+6. **Documentation**
+
+   - To document series of planned tasks create a file in this filename format `task-${task-name}-${datetime}`.md
+   - Feel free to update the task.md file as needed for documentation
+
+## Technology Stack and Constraints
+
+The project uses Next.js 15, TypeScript, Tailwind CSS V4, shadcn/ui, and Supabase for the frontend and backend.
+Refer to package.json for versions
+
+### Core Technologies
+
+- TypeScript
+- AI Model: claude-3-7-sonnet
+
+### Frontend
+
+- Next.js
+- React
+- Tailwind CSS
+
+### Backend
+
+- Supabase JavaScript Client
+
+### Development Tools
+
+- pnpm
+- ESLint
+
+## Implementation Process
+
+### 1. Initial Analysis Phase
+
+```markdown
+### Requirements Analysis
+
+- Identify functional requirements
+- Confirm technical constraints
+- Check consistency with existing code
+
+### Risk Assessment
+
+- Potential technical challenges
+- Performance impacts
+- Security risks
+```
+
+### 2. Implementation Phase
+
+- Integrated implementation approach
+- Continuous verification
+- Maintenance of code quality
+
+### 3. Verification Phase
+
+- Unit testing
+- Integration testing
+- Performance testing
+
+### 4. Final Confirmation
+
+- Consistency with requirements
+- Code quality
+- Documentation completeness
