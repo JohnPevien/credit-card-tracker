@@ -57,6 +57,7 @@ export interface Transaction {
   date: string;
   amount: number;
   description: string;
+  paid: boolean;
   created_at?: string;
   credit_cards?: CreditCard;
   persons?: Person;
