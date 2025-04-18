@@ -13,6 +13,8 @@ export default function PurchaseDetailPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [updatingId, setUpdatingId] = useState<string | null>(null); // For loading state per transaction
+
 
   useEffect(() => {
     async function loadPurchaseData() {
@@ -82,6 +84,21 @@ export default function PurchaseDetailPage() {
   // Format date to a more readable format
   function formatDate(dateString: string) {
     return new Date(dateString).toLocaleDateString();
+  }
+
+  // Handler to update paid status
+  async function handlePaidChange(transactionId: string, paid: boolean) {
+    setUpdatingId(transactionId);
+    const { error } = await supabase
+      .from('transactions')
+      .update({ paid })
+      .eq('id', transactionId);
+    if (!error) {
+      setTransactions((prev) =>
+        prev.map((t) => t.id === transactionId ? { ...t, paid } : t)
+      );
+    }
+    setUpdatingId(null);
   }
 
   if (loading) {
@@ -177,6 +194,19 @@ export default function PurchaseDetailPage() {
         keyField="id"
         emptyMessage="No transactions found"
         columns={[
+          {
+            header: "Paid",
+            cell: (transaction) => (
+              <input
+                type="checkbox"
+                checked={!!transaction.paid}
+                disabled={updatingId === transaction.id}
+                onChange={(e) => handlePaidChange(transaction.id, e.target.checked)}
+                className="w-5 h-5 accent-green-500"
+                aria-label={transaction.paid ? "Mark as unpaid" : "Mark as paid"}
+              />
+            ),
+          },
           {
             header: "Date",
             cell: (transaction) => formatDate(transaction.date),
