@@ -34,6 +34,7 @@ export interface Purchase {
   credit_card_id: string;
   person_id: string;
   purchase_date: string;
+  billing_start_date?: string;
   total_amount: number;
   description: string;
   num_installments: number;
