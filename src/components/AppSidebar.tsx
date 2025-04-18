@@ -44,7 +44,7 @@ export default function AppSidebar() {
   return (
     <Sidebar open={open} setOpen={setOpen} animate={true}>
       <SidebarBody className="flex flex-col gap-4">
-        <div className="flex items-center gap-2 mb-6">
+        <div className="flex items-center gap-2 mb-6 cursor-pointer" onClick={() => setOpen(!open)}>
           <CreditCard className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
         </div>
 
