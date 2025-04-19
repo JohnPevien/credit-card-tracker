@@ -135,7 +135,7 @@ export default function PurchaseDetailPage() {
   }
 
   return (
-    <div>
+    <div className="container space-y-5 mx-auto">
       <div className="mb-4">
         <Link href="/purchases" className="hover:underline">
           &larr; Back to Purchases
