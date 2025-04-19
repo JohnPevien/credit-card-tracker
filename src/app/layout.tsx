@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Link from 'next/link';
+import AppSidebar from "@/components/AppSidebar";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -24,21 +24,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-100`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="p-4">
-          <nav className="mb-4">
-            <ul className="flex space-x-4">
-              <li><Link href="/" className="text-blue-600 hover:underline">Home</Link></li>
-              <li><Link href="/credit-cards" className="text-blue-600 hover:underline">Credit Cards</Link></li>
-              <li><Link href="/persons" className="text-blue-600 hover:underline">Persons</Link></li>
-              <li><Link href="/purchases" className="text-blue-600 hover:underline">Purchases</Link></li>
-              <li><Link href="/transactions" className="text-blue-600 hover:underline">Transactions</Link></li>
-            </ul>
-          </nav>
-          <main>{children}</main>
+        <div className="flex h-screen w-full overflow-hidden">
+          <AppSidebar />
+          <div className="flex-1 overflow-auto">
+            <main className="p-6">{children}</main>
+          </div>
         </div>
       </body>
     </html>
