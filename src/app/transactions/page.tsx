@@ -17,6 +17,15 @@ export default function TransactionsPage() {
     description: "",
     purchase_id: "",
   });
+  const [filterPerson, setFilterPerson] = useState<string>("");
+  const [filterCard, setFilterCard] = useState<string>("");
+  const [filterDescription, setFilterDescription] = useState<string>("");
+
+  const clearFilters = () => {
+    setFilterPerson("");
+    setFilterCard("");
+    setFilterDescription("");
+  };
 
   useEffect(() => {
     loadTransactions();
@@ -155,15 +164,72 @@ export default function TransactionsPage() {
     return amount < 0;
   }
 
+  const filteredTransactions = transactions.filter((tr) => {
+    const matchesPerson = filterPerson
+      ? tr.expand?.person?.id === filterPerson
+      : true;
+    const matchesCard = filterCard
+      ? tr.expand?.credit_card?.id === filterCard
+      : true;
+    const matchesDescription = filterDescription
+      ? tr.description.toLowerCase().includes(filterDescription.toLowerCase())
+      : true;
+    return matchesPerson && matchesCard && matchesDescription;
+  });
+
   return (
-    <div>
+    <div className="container space-y-5 mx-auto">
       <h1 className="text-2xl font-bold mb-4">Transactions</h1>
       <button onClick={openAddModal} className="btn btn-primary">
         Add Transaction
       </button>
-
+      <div className="flex gap-4 mb-4 max-w-3xl">
+        <div className="fieldset">
+          <label className="block mb-1">Person:</label>
+          <select
+            value={filterPerson}
+            onChange={(e) => setFilterPerson(e.target.value)}
+            className="select select-bordered w-full"
+          >
+            <option value="">All</option>
+            {persons.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="fieldset">
+          <label className="block mb-1">Card:</label>
+          <select
+            value={filterCard}
+            onChange={(e) => setFilterCard(e.target.value)}
+            className="select select-bordered w-full"
+          >
+            <option value="">All</option>
+            {creditCards.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.credit_card_name || c.issuer} **** {c.last_four_digits}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="fieldset">
+          <label className="block mb-1">Description:</label>
+          <input
+            type="text"
+            value={filterDescription}
+            onChange={(e) => setFilterDescription(e.target.value)}
+            placeholder="Search description"
+            className="input input-bordered w-full"
+          />
+        </div>
+        <button onClick={clearFilters} className="self-end btn btn-secondary">
+          Clear Filters
+        </button>
+      </div>
       <DataTable
-        data={transactions}
+        data={filteredTransactions}
         keyField="id"
         emptyMessage="No transactions found"
         className="overflow-x-auto"
@@ -214,11 +280,6 @@ export default function TransactionsPage() {
               transaction.expand?.person?.name || "Unknown",
           },
           {
-            header: "Type",
-            cell: (transaction) =>
-              transaction.amount < 0 ? "Payment" : "Purchase",
-          },
-          {
             header: "Purchase",
             cell: (transaction) =>
               transaction.expand?.purchase ? (
@@ -246,7 +307,7 @@ export default function TransactionsPage() {
                   name="credit_card_id"
                   value={formData.credit_card_id}
                   onChange={handleInputChange}
-                  className="w-full p-2 border rounded"
+                  className="select select-bordered w-full"
                   required
                 >
                   {creditCards.map((card) => (
@@ -264,7 +325,7 @@ export default function TransactionsPage() {
                   name="person_id"
                   value={formData.person_id}
                   onChange={handleInputChange}
-                  className="w-full p-2 border rounded"
+                  className="select select-bordered w-full"
                   required
                 >
                   {persons.map((person) => (
@@ -281,7 +342,7 @@ export default function TransactionsPage() {
                   name="date"
                   value={formData.date}
                   onChange={handleInputChange}
-                  className="w-full p-2 border rounded"
+                  className="input input-bordered w-full"
                   required
                 />
               </div>
@@ -294,7 +355,7 @@ export default function TransactionsPage() {
                   name="amount"
                   value={formData.amount}
                   onChange={handleInputChange}
-                  className="w-full p-2 border rounded"
+                  className="input input-bordered w-full"
                   step="0.01"
                   required
                   placeholder="Use negative value for payments"
@@ -310,7 +371,7 @@ export default function TransactionsPage() {
                   name="description"
                   value={formData.description}
                   onChange={handleInputChange}
-                  className="w-full p-2 border rounded"
+                  className="textarea textarea-bordered w-full"
                   required
                   placeholder="E.g., 'Monthly payment' or 'Refund'"
                 ></textarea>
