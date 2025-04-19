@@ -98,7 +98,7 @@ export default function PersonsPage() {
   }
 
   return (
-    <div>
+    <div className="container space-y-5 mx-auto">
       <h1 className="text-2xl font-bold mb-4">Persons</h1>
       <button onClick={openAddModal} className="btn btn-primary">
         Add Person
@@ -152,9 +152,7 @@ export default function PersonsPage() {
                   onChange={handleChange}
                   className="w-full p-2 border rounded"
                 />
-                {errors.name && (
-                  <p className="text-sm mt-1">{errors.name}</p>
-                )}
+                {errors.name && <p className="text-sm mt-1">{errors.name}</p>}
               </div>
               <div className="flex justify-end space-x-2">
                 <button

@@ -203,7 +203,7 @@ export default function PurchasesPage() {
   }
 
   return (
-    <div>
+    <div className="container space-y-5 mx-auto">
       <h1 className="text-2xl font-bold mb-4">Purchases</h1>
       <button onClick={openAddModal} className="btn btn-primary">
         Add Purchase
@@ -350,9 +350,7 @@ export default function PurchasesPage() {
                 ></textarea>
               </div>
               <div className="mb-4">
-                <label className="block mb-1">
-                  Number of Installments
-                </label>
+                <label className="block mb-1">Number of Installments</label>
                 <input
                   type="number"
                   name="num_installments"
@@ -371,15 +369,11 @@ export default function PurchasesPage() {
                   onChange={handleInputChange}
                   className="mr-2"
                 />
-                <label>
-                  Buy Now Pay Later (BNPL)
-                </label>
+                <label>Buy Now Pay Later (BNPL)</label>
               </div>
               {formData.is_bnpl && (
                 <div className="mb-4">
-                  <label className="block mb-1">
-                    Billing Start Date
-                  </label>
+                  <label className="block mb-1">Billing Start Date</label>
                   <input
                     type="date"
                     name="billing_start_date"
