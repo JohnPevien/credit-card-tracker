@@ -9,16 +9,16 @@ export default function PersonsPage() {
   const [persons, setPersons] = useState<Person[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPerson, setEditingPerson] = useState<Person | null>(null);
-  
+
   const {
     values: formData,
     handleChange,
     errors,
     validate,
     reset,
-    setValues
+    setValues,
   } = useZodForm(personSchema, {
-    name: ""
+    name: "",
   });
 
   useEffect(() => {
@@ -54,14 +54,14 @@ export default function PersonsPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    
+
     // Validate form data using Zod
     const isValid = validate();
-    
+
     if (!isValid) {
       return;
     }
-    
+
     try {
       if (editingPerson) {
         const { error } = await supabase
@@ -71,7 +71,9 @@ export default function PersonsPage() {
 
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("persons").insert({ name: formData.name });
+        const { error } = await supabase
+          .from("persons")
+          .insert({ name: formData.name });
 
         if (error) throw error;
       }
@@ -98,10 +100,7 @@ export default function PersonsPage() {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-4">Persons</h1>
-      <button
-        onClick={openAddModal}
-        className="mb-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-      >
+      <button onClick={openAddModal} className="btn btn-primary">
         Add Person
       </button>
 
@@ -121,13 +120,13 @@ export default function PersonsPage() {
               <>
                 <button
                   onClick={() => openEditModal(person)}
-                  className="text-blue-500 hover:text-blue-700 mr-2"
+                  className="mr-2 hover:underline"
                 >
                   Edit
                 </button>
                 <button
                   onClick={() => handleDelete(person.id)}
-                  className="text-red-500 hover:text-red-700"
+                  className="hover:underline"
                 >
                   Delete
                 </button>
@@ -138,8 +137,8 @@ export default function PersonsPage() {
       />
 
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="p-6 rounded-lg shadow-lg w-full max-w-md">
             <h2 className="text-xl font-bold mb-4">
               {editingPerson ? "Edit Person" : "Add Person"}
             </h2>
@@ -154,7 +153,7 @@ export default function PersonsPage() {
                   className="w-full p-2 border rounded"
                 />
                 {errors.name && (
-                  <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+                  <p className="text-sm mt-1">{errors.name}</p>
                 )}
               </div>
               <div className="flex justify-end space-x-2">
@@ -165,10 +164,7 @@ export default function PersonsPage() {
                 >
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
+                <button type="submit" className="btn btn-primary">
                   Save
                 </button>
               </div>

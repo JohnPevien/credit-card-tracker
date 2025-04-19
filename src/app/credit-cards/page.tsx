@@ -166,10 +166,7 @@ export default function CreditCardsPage() {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-4">Credit Cards</h1>
-      <button
-        onClick={openAddModal}
-        className="mb-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-      >
+      <button onClick={openAddModal} className="btn btn-primary">
         Add Credit Card
       </button>
 
@@ -229,8 +226,8 @@ export default function CreditCardsPage() {
       />
 
       {isAddModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className=" p-6 rounded-lg shadow-lg w-full max-w-md">
             <h2 className="text-xl font-bold mb-4">
               {editingCard ? "Edit Credit Card" : "Add Credit Card"}
             </h2>
@@ -245,9 +242,7 @@ export default function CreditCardsPage() {
                   className="w-full p-2 border rounded"
                 />
                 {errors.credit_card_name && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.credit_card_name}
-                  </p>
+                  <p className="text-sm mt-1">{errors.credit_card_name}</p>
                 )}
               </div>
 
@@ -262,9 +257,7 @@ export default function CreditCardsPage() {
                   maxLength={4}
                 />
                 {errors.last_four_digits && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.last_four_digits}
-                  </p>
+                  <p className="text-sm mt-1">{errors.last_four_digits}</p>
                 )}
               </div>
 
@@ -278,9 +271,7 @@ export default function CreditCardsPage() {
                   className="w-full p-2 border rounded"
                 />
                 {errors.cardholder_name && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.cardholder_name}
-                  </p>
+                  <p className="text-sm mt-1">{errors.cardholder_name}</p>
                 )}
               </div>
 
@@ -298,7 +289,7 @@ export default function CreditCardsPage() {
                   className="w-full"
                 />
                 {errors.issuer && (
-                  <p className="text-red-500 text-sm mt-1">{errors.issuer}</p>
+                  <p className="text-sm mt-1">{errors.issuer}</p>
                 )}
               </div>
 
@@ -330,9 +321,7 @@ export default function CreditCardsPage() {
                     className="w-full"
                   />
                   {errors.principal_card_id && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.principal_card_id}
-                    </p>
+                    <p className="text-sm mt-1">{errors.principal_card_id}</p>
                   )}
                 </div>
               )}
@@ -341,14 +330,11 @@ export default function CreditCardsPage() {
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="px-4 py-2 border rounded"
+                  className="btn btn-secondary"
                 >
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
+                <button type="submit" className="btn btn-primary">
                   Save
                 </button>
               </div>
