@@ -68,22 +68,20 @@ export default function Home() {
           <Link
             key={index}
             href={card.href}
-            className="bg-white shadow rounded-lg p-6 hover:shadow-md transition-shadow"
+            className="shadow bg-primary rounded-lg p-6 hover:shadow-md transition-shadow"
           >
-            <h2 className="text-xl font-bold mb-2 text-gray-800">
-              {card.title}
-            </h2>
-            <p className="text-gray-800">{card.description}</p>
+            <h2 className="text-xl font-bold mb-2 ">{card.title}</h2>
+            <p className="">{card.description}</p>
           </Link>
         ))}
       </div>
 
-      <div className="bg-white shadow rounded-lg p-6">
-        <h2 className="text-xl font-bold mb-4 text-gray-800">How It Works</h2>
-        <ul className="list-disc pl-5 space-y-2 text-gray-800">
+      <div className=" shadow rounded-lg p-6">
+        <h2 className="text-xl font-bold mb-4 ">How It Works</h2>
+        <ul className="list-disc pl-5 space-y-2 ">
           {howItWorksItems.map((item, index) => (
             <li key={index}>
-              <strong className="text-gray-800">{item.title}:</strong>
+              <strong className="">{item.title}:</strong>
               {item.title === "Supplementary Cards" || item.title === "BNPL"
                 ? " "
                 : " "}

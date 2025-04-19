@@ -33,7 +33,7 @@ export default function DataTable<T>({
   className,
 }: DataTableProps<T>) {
   return (
-    <div className={`bg-white rounded-lg shadow overflow-hidden ${className}`}>
+    <div className={`overflow-x-auto ${className}`}>
       <Table>
         <TableHeader>
           <TableRow>

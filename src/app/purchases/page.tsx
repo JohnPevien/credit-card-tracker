@@ -30,24 +30,27 @@ export default function PurchasesPage() {
     try {
       const { data, error } = await supabase
         .from("purchases")
-        .select(`
+        .select(
+          `
           *,
           credit_cards:credit_card_id(*),
           persons:person_id(*)
-        `)
-        .order('purchase_date', { ascending: false });
-        
+        `
+        )
+        .order("purchase_date", { ascending: false });
+
       if (error) throw error;
-      
+
       // Transform data to match expected format with expand property
-      const recordsWithExpand = data?.map(purchase => ({
-        ...purchase,
-        expand: {
-          credit_card: purchase.credit_cards,
-          person: purchase.persons
-        }
-      })) || [];
-      
+      const recordsWithExpand =
+        data?.map((purchase) => ({
+          ...purchase,
+          expand: {
+            credit_card: purchase.credit_cards,
+            person: purchase.persons,
+          },
+        })) || [];
+
       setPurchases(recordsWithExpand);
     } catch (error) {
       console.error("Error loading purchases:", error);
@@ -56,23 +59,22 @@ export default function PurchasesPage() {
 
   async function loadCreditCards() {
     try {
-      const { data, error } = await supabase
-        .from("credit_cards")
-        .select(`
+      const { data, error } = await supabase.from("credit_cards").select(`
           *,
           principal_card:principal_card_id(*)
         `);
-      
+
       if (error) throw error;
-      
+
       // Transform data to match expected format with expand property
-      const recordsWithExpand = data?.map(card => ({
-        ...card,
-        expand: {
-          principal_card: card.principal_card
-        }
-      })) || [];
-      
+      const recordsWithExpand =
+        data?.map((card) => ({
+          ...card,
+          expand: {
+            principal_card: card.principal_card,
+          },
+        })) || [];
+
       setCreditCards(recordsWithExpand);
     } catch (error) {
       console.error("Error loading credit cards:", error);
@@ -81,10 +83,8 @@ export default function PurchasesPage() {
 
   async function loadPersons() {
     try {
-      const { data, error } = await supabase
-        .from("persons")
-        .select('*');
-        
+      const { data, error } = await supabase.from("persons").select("*");
+
       if (error) throw error;
       setPersons(data || []);
     } catch (error) {
@@ -137,7 +137,9 @@ export default function PurchasesPage() {
     try {
       const purchaseData = {
         ...formData,
-        billing_start_date: formData.is_bnpl ? formData.billing_start_date : undefined,
+        billing_start_date: formData.is_bnpl
+          ? formData.billing_start_date
+          : undefined,
         total_amount: parseFloat(formData.total_amount),
         num_installments: parseInt(formData.num_installments),
       };
@@ -147,13 +149,13 @@ export default function PurchasesPage() {
         .from("purchases")
         .insert(purchaseData)
         .select();
-      
+
       if (purchaseError) throw purchaseError;
-      
+
       if (!purchaseResult || purchaseResult.length === 0) {
         throw new Error("Failed to create purchase");
       }
-      
+
       const purchase = purchaseResult[0];
 
       // Create the transactions for installments
@@ -184,7 +186,7 @@ export default function PurchasesPage() {
                 : formData.description,
             purchase_id: purchase.id,
           });
-          
+
         if (transactionError) throw transactionError;
       }
 
@@ -203,10 +205,7 @@ export default function PurchasesPage() {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-4">Purchases</h1>
-      <button
-        onClick={openAddModal}
-        className="mb-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-      >
+      <button onClick={openAddModal} className="btn btn-primary">
         Add Purchase
       </button>
 
@@ -230,19 +229,18 @@ export default function PurchasesPage() {
           },
           {
             header: "Card",
-            cell: (purchase) => (
+            cell: (purchase) =>
               purchase.expand?.credit_card ? (
                 <span>
                   {purchase.expand.credit_card.credit_card_name ||
                     purchase.expand.credit_card.last_four_digits}
                   {purchase.expand.credit_card.is_supplementary &&
-                    purchase.expand.credit_card.expand
-                      ?.principal_card && (
-                      <span className="text-xs text-gray-500 block">
+                    purchase.expand.credit_card.expand?.principal_card && (
+                      <span className="text-xs block">
                         (Supplementary of{" "}
                         {
-                          purchase.expand.credit_card.expand
-                            .principal_card.credit_card_name
+                          purchase.expand.credit_card.expand.principal_card
+                            .credit_card_name
                         }
                         )
                       </span>
@@ -250,8 +248,7 @@ export default function PurchasesPage() {
                 </span>
               ) : (
                 "Unknown Card"
-              )
-            ),
+              ),
           },
           {
             header: "Person",
@@ -263,14 +260,14 @@ export default function PurchasesPage() {
           },
           {
             header: "BNPL",
-            cell: (purchase) => purchase.is_bnpl ? "Yes" : "No",
+            cell: (purchase) => (purchase.is_bnpl ? "Yes" : "No"),
           },
           {
             header: "Details",
             cell: (purchase) => (
               <Link
                 href={`/purchases/${purchase.id}`}
-                className="text-blue-500 hover:underline"
+                className="hover:underline"
               >
                 View
               </Link>
@@ -280,12 +277,12 @@ export default function PurchasesPage() {
       />
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <div className="rounded-lg p-6 max-w-md w-full">
             <h2 className="text-xl font-semibold mb-4">Add Purchase</h2>
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
-                <label className="block text-gray-700 mb-1">Credit Card</label>
+                <label className="block mb-1">Credit Card</label>
                 <select
                   name="credit_card_id"
                   value={formData.credit_card_id}
@@ -303,7 +300,7 @@ export default function PurchasesPage() {
                 </select>
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 mb-1">Person</label>
+                <label className="block mb-1">Person</label>
                 <select
                   name="person_id"
                   value={formData.person_id}
@@ -319,7 +316,7 @@ export default function PurchasesPage() {
                 </select>
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 mb-1">Date</label>
+                <label className="block mb-1">Date</label>
                 <input
                   type="date"
                   name="purchase_date"
@@ -330,7 +327,7 @@ export default function PurchasesPage() {
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 mb-1">Total Amount</label>
+                <label className="block mb-1">Total Amount</label>
                 <input
                   type="number"
                   name="total_amount"
@@ -343,7 +340,7 @@ export default function PurchasesPage() {
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 mb-1">Description</label>
+                <label className="block mb-1">Description</label>
                 <textarea
                   name="description"
                   value={formData.description}
@@ -353,7 +350,7 @@ export default function PurchasesPage() {
                 ></textarea>
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 mb-1">
+                <label className="block mb-1">
                   Number of Installments
                 </label>
                 <input
@@ -374,13 +371,15 @@ export default function PurchasesPage() {
                   onChange={handleInputChange}
                   className="mr-2"
                 />
-                <label className="text-gray-700">
+                <label>
                   Buy Now Pay Later (BNPL)
                 </label>
               </div>
               {formData.is_bnpl && (
                 <div className="mb-4">
-                  <label className="block text-gray-700 mb-1">Billing Start Date</label>
+                  <label className="block mb-1">
+                    Billing Start Date
+                  </label>
                   <input
                     type="date"
                     name="billing_start_date"
@@ -395,14 +394,11 @@ export default function PurchasesPage() {
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-100"
+                  className="btn btn-secondary"
                 >
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
+                <button type="submit" className="btn btn-primary">
                   Save
                 </button>
               </div>

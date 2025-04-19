@@ -28,26 +28,29 @@ export default function TransactionsPage() {
     try {
       const { data, error } = await supabase
         .from("transactions")
-        .select(`
+        .select(
+          `
           *,
           credit_cards:credit_card_id(*),
           persons:person_id(*),
           purchases:purchase_id(*)
-        `)
-        .order('date', { ascending: false });
-        
+        `
+        )
+        .order("date", { ascending: false });
+
       if (error) throw error;
-      
+
       // Transform data to match expected format with expand property
-      const recordsWithExpand = data?.map(transaction => ({
-        ...transaction,
-        expand: {
-          credit_card: transaction.credit_cards,
-          person: transaction.persons,
-          purchase: transaction.purchases
-        }
-      })) || [];
-      
+      const recordsWithExpand =
+        data?.map((transaction) => ({
+          ...transaction,
+          expand: {
+            credit_card: transaction.credit_cards,
+            person: transaction.persons,
+            purchase: transaction.purchases,
+          },
+        })) || [];
+
       setTransactions(recordsWithExpand);
     } catch (error) {
       console.error("Error loading transactions:", error);
@@ -56,23 +59,22 @@ export default function TransactionsPage() {
 
   async function loadCreditCards() {
     try {
-      const { data, error } = await supabase
-        .from("credit_cards")
-        .select(`
+      const { data, error } = await supabase.from("credit_cards").select(`
           *,
           principal_card:principal_card_id(*)
         `);
-      
+
       if (error) throw error;
-      
+
       // Transform data to match expected format with expand property
-      const recordsWithExpand = data?.map(card => ({
-        ...card,
-        expand: {
-          principal_card: card.principal_card
-        }
-      })) || [];
-      
+      const recordsWithExpand =
+        data?.map((card) => ({
+          ...card,
+          expand: {
+            principal_card: card.principal_card,
+          },
+        })) || [];
+
       setCreditCards(recordsWithExpand);
     } catch (error) {
       console.error("Error loading credit cards:", error);
@@ -81,10 +83,8 @@ export default function TransactionsPage() {
 
   async function loadPersons() {
     try {
-      const { data, error } = await supabase
-        .from("persons")
-        .select('*');
-        
+      const { data, error } = await supabase.from("persons").select("*");
+
       if (error) throw error;
       setPersons(data || []);
     } catch (error) {
@@ -135,9 +135,9 @@ export default function TransactionsPage() {
       const { error } = await supabase
         .from("transactions")
         .insert(transactionData);
-      
+
       if (error) throw error;
-      
+
       closeModal();
       loadTransactions();
     } catch (error) {
@@ -158,10 +158,7 @@ export default function TransactionsPage() {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-4">Transactions</h1>
-      <button
-        onClick={openAddModal}
-        className="mb-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-      >
+      <button onClick={openAddModal} className="btn btn-primary">
         Add Transaction
       </button>
 
@@ -182,7 +179,7 @@ export default function TransactionsPage() {
           {
             header: "Amount",
             cell: (transaction) => (
-              <span className={isPayment(transaction.amount) ? "text-green-600" : "text-red-600"}>
+              <span>
                 ${Math.abs(transaction.amount).toFixed(2)}
                 {isPayment(transaction.amount) ? " (payment)" : ""}
               </span>
@@ -190,49 +187,57 @@ export default function TransactionsPage() {
           },
           {
             header: "Card",
-            cell: (transaction) => (
+            cell: (transaction) =>
               transaction.expand?.credit_card ? (
                 <span>
-                  {transaction.expand.credit_card.credit_card_name || transaction.expand.credit_card.issuer} *{transaction.expand.credit_card.last_four_digits}
-                  {transaction.expand.credit_card.is_supplementary && transaction.expand.credit_card.expand?.principal_card && (
-                    <span className="text-xs text-gray-500 block">
-                      Supplementary of {transaction.expand.credit_card.expand.principal_card.credit_card_name}
-                    </span>
-                  )}
+                  {transaction.expand.credit_card.credit_card_name ||
+                    transaction.expand.credit_card.issuer}{" "}
+                  *{transaction.expand.credit_card.last_four_digits}
+                  {transaction.expand.credit_card.is_supplementary &&
+                    transaction.expand.credit_card.expand?.principal_card && (
+                      <span className="text-xs text-gray-500 block">
+                        Supplementary of{" "}
+                        {
+                          transaction.expand.credit_card.expand.principal_card
+                            .credit_card_name
+                        }
+                      </span>
+                    )}
                 </span>
               ) : (
                 "Unknown Card"
-              )
-            ),
+              ),
           },
           {
             header: "Person",
-            cell: (transaction) => transaction.expand?.person?.name || "Unknown",
+            cell: (transaction) =>
+              transaction.expand?.person?.name || "Unknown",
           },
           {
             header: "Type",
-            cell: (transaction) => (
-              transaction.amount < 0 ? "Payment" : "Purchase"
-            ),
+            cell: (transaction) =>
+              transaction.amount < 0 ? "Payment" : "Purchase",
           },
           {
             header: "Purchase",
-            cell: (transaction) => (
+            cell: (transaction) =>
               transaction.expand?.purchase ? (
-                <Link href={`/purchases/${transaction.purchase_id}`} className="text-blue-500 hover:underline">
+                <Link
+                  href={`/purchases/${transaction.purchase_id}`}
+                  className="text-blue-500 hover:underline"
+                >
                   View
                 </Link>
               ) : (
                 "N/A"
-              )
-            ),
+              ),
           },
         ]}
       />
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <div className="rounded-lg p-6 max-w-md w-full">
             <h2 className="text-xl font-semibold mb-4">Add Transaction</h2>
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
@@ -314,14 +319,11 @@ export default function TransactionsPage() {
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-100"
+                  className="btn btn-secondary"
                 >
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
+                <button type="submit" className="btn btn-primary">
                   Save
                 </button>
               </div>
