@@ -230,7 +230,7 @@ export default function PurchasesPage() {
       <button onClick={openAddModal} className="btn btn-primary">
         Add Purchase
       </button>
-      <div className="flex gap-4 mb-4 max-w-3xl">
+      <div className="flex gap-4 mb-4 max-w-5xl">
         <div className="fieldset">
           <label className="block mb-1">Person:</label>
           <select
@@ -271,7 +271,7 @@ export default function PurchasesPage() {
             className="input input-bordered w-full"
           />
         </div>
-        <button onClick={clearFilters} className="self-end btn btn-secondary">
+        <button onClick={clearFilters} className="self-end btn btn-secondary mb-1">
           Clear Filters
         </button>
       </div>
