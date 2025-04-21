@@ -20,11 +20,15 @@ export default function TransactionsPage() {
   const [filterPerson, setFilterPerson] = useState<string>("");
   const [filterCard, setFilterCard] = useState<string>("");
   const [filterDescription, setFilterDescription] = useState<string>("");
+  const [filterFrom, setFilterFrom] = useState<string>("");
+  const [filterTo, setFilterTo] = useState<string>("");
 
   const clearFilters = () => {
     setFilterPerson("");
     setFilterCard("");
     setFilterDescription("");
+    setFilterFrom("");
+    setFilterTo("");
   };
 
   useEffect(() => {
@@ -174,7 +178,9 @@ export default function TransactionsPage() {
     const matchesDescription = filterDescription
       ? tr.description.toLowerCase().includes(filterDescription.toLowerCase())
       : true;
-    return matchesPerson && matchesCard && matchesDescription;
+    const matchesFrom = filterFrom ? new Date(tr.date) >= new Date(filterFrom) : true;
+    const matchesTo = filterTo ? new Date(tr.date) <= new Date(filterTo) : true;
+    return matchesPerson && matchesCard && matchesDescription && matchesFrom && matchesTo;
   });
 
   return (
@@ -224,7 +230,26 @@ export default function TransactionsPage() {
             className="input input-bordered w-full"
           />
         </div>
-        <button onClick={clearFilters} className="self-end btn btn-secondary">
+        <div className="fieldset">
+          <label className="block mb-1">Date Range:</label>
+          <div className="flex gap-2">
+            <input
+              type="date"
+              value={filterFrom}
+              onChange={e => setFilterFrom(e.target.value)}
+              className="input input-bordered w-full"
+              placeholder="From"
+            />
+            <input
+              type="date"
+              value={filterTo}
+              onChange={e => setFilterTo(e.target.value)}
+              className="input input-bordered w-full"
+              placeholder="To"
+            />
+          </div>
+        </div>
+        <button onClick={clearFilters} className="self-end btn btn-secondary mb-1">
           Clear Filters
         </button>
       </div>
