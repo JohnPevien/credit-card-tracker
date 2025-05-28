@@ -19,6 +19,15 @@ export default function PurchasesPage() {
     num_installments: "1",
     is_bnpl: false,
   });
+  const [filterPerson, setFilterPerson] = useState<string>("");
+  const [filterCard, setFilterCard] = useState<string>("");
+  const [filterDescription, setFilterDescription] = useState<string>("");
+
+  const clearFilters = () => {
+    setFilterPerson("");
+    setFilterCard("");
+    setFilterDescription("");
+  };
 
   useEffect(() => {
     loadPurchases();
@@ -202,15 +211,73 @@ export default function PurchasesPage() {
     return new Date(dateString).toLocaleDateString();
   }
 
+  const filteredPurchases = purchases.filter((purchase) => {
+    const matchesPerson = filterPerson
+      ? purchase.expand?.person?.id === filterPerson
+      : true;
+    const matchesCard = filterCard
+      ? purchase.expand?.credit_card?.id === filterCard
+      : true;
+    const matchesDescription = filterDescription
+      ? purchase.description.toLowerCase().includes(filterDescription.toLowerCase())
+      : true;
+    return matchesPerson && matchesCard && matchesDescription;
+  });
+
   return (
-    <div>
+    <div className="container space-y-5 mx-auto">
       <h1 className="text-2xl font-bold mb-4">Purchases</h1>
       <button onClick={openAddModal} className="btn btn-primary">
         Add Purchase
       </button>
+      <div className="flex gap-4 mb-4 max-w-5xl">
+        <div className="fieldset">
+          <label className="block mb-1">Person:</label>
+          <select
+            value={filterPerson}
+            onChange={(e) => setFilterPerson(e.target.value)}
+            className="select select-bordered w-full"
+          >
+            <option value="">All</option>
+            {persons.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="fieldset">
+          <label className="block mb-1">Card:</label>
+          <select
+            value={filterCard}
+            onChange={(e) => setFilterCard(e.target.value)}
+            className="select select-bordered w-full"
+          >
+            <option value="">All</option>
+            {creditCards.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.credit_card_name || c.issuer} **** {c.last_four_digits}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="fieldset">
+          <label className="block mb-1">Description:</label>
+          <input
+            type="text"
+            value={filterDescription}
+            onChange={(e) => setFilterDescription(e.target.value)}
+            placeholder="Search description"
+            className="input input-bordered w-full"
+          />
+        </div>
+        <button onClick={clearFilters} className="self-end btn btn-secondary mb-1">
+          Clear Filters
+        </button>
+      </div>
 
       <DataTable
-        data={purchases}
+        data={filteredPurchases}
         keyField="id"
         emptyMessage="No purchases found"
         className="overflow-x-auto"
@@ -350,9 +417,7 @@ export default function PurchasesPage() {
                 ></textarea>
               </div>
               <div className="mb-4">
-                <label className="block mb-1">
-                  Number of Installments
-                </label>
+                <label className="block mb-1">Number of Installments</label>
                 <input
                   type="number"
                   name="num_installments"
@@ -371,15 +436,11 @@ export default function PurchasesPage() {
                   onChange={handleInputChange}
                   className="mr-2"
                 />
-                <label>
-                  Buy Now Pay Later (BNPL)
-                </label>
+                <label>Buy Now Pay Later (BNPL)</label>
               </div>
               {formData.is_bnpl && (
                 <div className="mb-4">
-                  <label className="block mb-1">
-                    Billing Start Date
-                  </label>
+                  <label className="block mb-1">Billing Start Date</label>
                   <input
                     type="date"
                     name="billing_start_date"

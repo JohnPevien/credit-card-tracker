@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { supabase, CreditCard } from "../lib/supabase";
+import { supabase, CreditCard } from "@/lib/supabase";
 import DataTable from "@/components/DataTable";
 import { FormSelect } from "@/components/FormSelect";
 import { refinedCreditCardSchema } from "@/lib/schemas";
@@ -164,7 +164,7 @@ export default function CreditCardsPage() {
   }
 
   return (
-    <div>
+    <div className="container space-y-5 mx-auto">
       <h1 className="text-2xl font-bold mb-4">Credit Cards</h1>
       <button onClick={openAddModal} className="btn btn-primary">
         Add Credit Card
