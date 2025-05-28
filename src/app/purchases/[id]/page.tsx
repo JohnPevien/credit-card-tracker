@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { supabase, Purchase, Transaction } from "../../lib/supabase";
+import { supabase, Purchase, Transaction } from "@/lib/supabase";
 import DataTable from "@/components/DataTable";
 
 export default function PurchaseDetailPage() {

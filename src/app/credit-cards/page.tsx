@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { supabase, CreditCard } from "../lib/supabase";
+import { supabase, CreditCard } from "@/lib/supabase";
 import DataTable from "@/components/DataTable";
 import { FormSelect } from "@/components/FormSelect";
 import { refinedCreditCardSchema } from "@/lib/schemas";
