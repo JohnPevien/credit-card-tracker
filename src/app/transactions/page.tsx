@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase, Transaction, CreditCard, Person } from "../lib/supabase";
+import { supabase, Transaction, CreditCard, Person } from "@/lib/supabase";
 import DataTable from "@/components/DataTable";
 
 export default function TransactionsPage() {

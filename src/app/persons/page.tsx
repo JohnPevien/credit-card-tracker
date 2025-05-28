@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { supabase, Person } from "../lib/supabase";
+import { supabase, Person } from "@/lib/supabase";
 import DataTable from "@/components/DataTable";
 import { personSchema } from "@/lib/schemas";
 import { useZodForm } from "@/lib/hooks/useZodForm";
