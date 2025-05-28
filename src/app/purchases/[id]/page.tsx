@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { supabase, Purchase, Transaction } from "../../lib/supabase";
+import { supabase, Purchase, Transaction } from "@/lib/supabase";
 import DataTable from "@/components/DataTable";
 
 export default function PurchaseDetailPage() {
@@ -135,7 +136,7 @@ export default function PurchaseDetailPage() {
   }
 
   return (
-    <div>
+    <div className="container space-y-5 mx-auto">
       <div className="mb-4">
         <Link href="/purchases" className="hover:underline">
           &larr; Back to Purchases
@@ -149,15 +150,15 @@ export default function PurchaseDetailPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div>
-            <p >Date</p>
+            <p>Date</p>
             <p className="font-medium">{formatDate(purchase.purchase_date)}</p>
           </div>
           <div>
-            <p >Total Amount</p>
+            <p>Total Amount</p>
             <p className="font-medium">${purchase.total_amount.toFixed(2)}</p>
           </div>
           <div>
-            <p >Credit Card</p>
+            <p>Credit Card</p>
             <p className="font-medium">
               {purchase.expand?.credit_card ? (
                 <span>
@@ -165,9 +166,7 @@ export default function PurchaseDetailPage() {
                     purchase.expand.credit_card.issuer}{" "}
                   **** {purchase.expand.credit_card.last_four_digits}
                   {purchase.expand.credit_card.is_supplementary && (
-                    <span className="text-sm block">
-                      Supplementary Card
-                    </span>
+                    <span className="text-sm block">Supplementary Card</span>
                   )}
                 </span>
               ) : (
@@ -176,7 +175,7 @@ export default function PurchaseDetailPage() {
             </p>
           </div>
           <div>
-            <p >Person</p>
+            <p>Person</p>
             <p className="font-medium">
               {purchase.expand?.person
                 ? purchase.expand.person.name
@@ -184,11 +183,11 @@ export default function PurchaseDetailPage() {
             </p>
           </div>
           <div>
-            <p >Installments</p>
+            <p>Installments</p>
             <p className="font-medium">{purchase.num_installments}</p>
           </div>
           <div>
-            <p >Buy Now Pay Later</p>
+            <p>Buy Now Pay Later</p>
             <p className="font-medium">{purchase.is_bnpl ? "Yes" : "No"}</p>
           </div>
         </div>
@@ -239,9 +238,7 @@ export default function PurchaseDetailPage() {
                     transaction.expand.credit_card.issuer}{" "}
                   **** {transaction.expand.credit_card.last_four_digits}
                   {transaction.expand.credit_card.is_supplementary && (
-                    <span className="text-sm block">
-                      Supplementary Card
-                    </span>
+                    <span className="text-sm block">Supplementary Card</span>
                   )}
                 </span>
               ) : (
