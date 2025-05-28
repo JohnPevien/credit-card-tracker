@@ -152,7 +152,7 @@ export default function PurchasesPage() {
           ? formData.billing_start_date
           : undefined,
         total_amount: parseFloat(formData.total_amount),
-        num_installments: parseInt(formData.num_installments),
+        num_installments: Math.max(1, parseInt(formData.num_installments)), // ensure value is at least 1
       };
 
       // Insert the purchase and get back the ID
