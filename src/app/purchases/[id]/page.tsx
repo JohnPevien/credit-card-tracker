@@ -89,10 +89,7 @@ export default function PurchaseDetailPage() {
     }
   }, [id]);
 
-  // Format date to a more readable format
-  function formatDate(dateString: string) {
-    return new Date(dateString).toLocaleDateString();
-  }
+
 
   // Handler to update paid status
   async function handlePaidChange(transactionId: string, paid: boolean) {

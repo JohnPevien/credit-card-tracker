@@ -158,10 +158,7 @@ export default function TransactionsPage() {
     }
   }
 
-  // Format date to a more readable format
-  function formatDate(dateString: string) {
-    return new Date(dateString).toLocaleDateString();
-  }
+
 
   // Determine if a transaction is a payment (negative amount)
   function isPayment(amount: number) {
