@@ -18,6 +18,7 @@ export default function PurchasesPage() {
     description: "",
     num_installments: "1",
     is_bnpl: false,
+    use_billing_start_date: false,
   });
   const [filterPerson, setFilterPerson] = useState<string>("");
   const [filterCard, setFilterCard] = useState<string>("");
@@ -111,6 +112,7 @@ export default function PurchasesPage() {
       description: "",
       num_installments: "1",
       is_bnpl: false,
+      use_billing_start_date: false,
     });
     setIsModalOpen(true);
   }
@@ -146,7 +148,7 @@ export default function PurchasesPage() {
     try {
       const purchaseData = {
         ...formData,
-        billing_start_date: formData.is_bnpl
+        billing_start_date: formData.use_billing_start_date
           ? formData.billing_start_date
           : undefined,
         total_amount: parseFloat(formData.total_amount),
@@ -173,7 +175,7 @@ export default function PurchasesPage() {
 
       for (let i = 0; i < purchaseData.num_installments; i++) {
         // Calculate the transaction date
-        const startDate = formData.billing_start_date
+        const startDate = formData.use_billing_start_date
           ? new Date(formData.billing_start_date)
           : new Date(formData.purchase_date);
         const transactionDate = new Date(startDate);
@@ -438,7 +440,17 @@ export default function PurchasesPage() {
                 />
                 <label>Buy Now Pay Later (BNPL)</label>
               </div>
-              {formData.is_bnpl && (
+              <div className="mb-4 flex items-center">
+                <input
+                  type="checkbox"
+                  name="use_billing_start_date"
+                  checked={formData.use_billing_start_date}
+                  onChange={handleInputChange}
+                  className="mr-2"
+                />
+                <label>Specify Billing Start Date</label>
+              </div>
+              {formData.use_billing_start_date && (
                 <div className="mb-4">
                   <label className="block mb-1">Billing Start Date</label>
                   <input
