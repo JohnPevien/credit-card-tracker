@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { supabase, Purchase, CreditCard, Person } from "../lib/supabase";
+import { supabase, Purchase, CreditCard, Person } from "@/lib/supabase";
 import DataTable from "@/components/DataTable";
 
 export default function PurchasesPage() {
@@ -344,8 +344,8 @@ export default function PurchasesPage() {
       />
 
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center p-4">
-          <div className="rounded-lg p-6 max-w-md w-full">
+        <div className="fixed inset-0 flex items-center justify-center p-4 ">
+          <div className="rounded-lg p-6 max-w-md w-full bg-gray-900 shadow-md">
             <h2 className="text-xl font-semibold mb-4">Add Purchase</h2>
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
