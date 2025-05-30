@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { supabase, Transaction, CreditCard, Person } from "@/lib/supabase";
-import { formatDate } from "@/lib/utils";
+import { formatDate, handleTransactionPaidChange } from "@/lib/utils";
 import DataTable from "@/components/DataTable";
 
 export default function TransactionsPage() {
@@ -167,18 +167,8 @@ export default function TransactionsPage() {
   }
 
   // Handler to update paid status
-  async function handlePaidChange(transactionId: string, paid: boolean) {
-    setUpdatingId(transactionId);
-    const { error } = await supabase
-      .from("transactions")
-      .update({ paid })
-      .eq("id", transactionId);
-    if (!error) {
-      setTransactions((prev) =>
-        prev.map((t) => (t.id === transactionId ? { ...t, paid } : t))
-      );
-    }
-    setUpdatingId(null);
+  function handlePaidChange(transactionId: string, paid: boolean) {
+    handleTransactionPaidChange(transactionId, paid, setUpdatingId, setTransactions);
   }
 
   const filteredTransactions = transactions.filter((tr) => {
