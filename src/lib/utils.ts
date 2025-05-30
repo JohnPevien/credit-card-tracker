@@ -6,7 +6,12 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-// Format date to a more readable format
+/**
+ * Formats a date string into a more readable format based on the runtime's locale settings.
+ * @param {string} dateString - A date string in ISO 8601 format (e.g., "2023-03-15T00:00:00Z").
+ * @returns {string} A locale-formatted date string.
+ * @remarks The output format depends on the runtime's locale settings and may vary across environments.
+ */
 export function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString();
 }
