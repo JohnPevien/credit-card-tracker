@@ -4,6 +4,7 @@ import { supabase, Person } from "@/lib/supabase";
 import DataTable from "@/components/DataTable";
 import { personSchema } from "@/lib/schemas";
 import { useZodForm } from "@/lib/hooks/useZodForm";
+import Link from "next/link";
 
 export default function PersonsPage() {
   const [persons, setPersons] = useState<Person[]>([]);
@@ -116,11 +117,14 @@ export default function PersonsPage() {
           {
             header: "Actions",
             className: "w-[200px]",
-            cell: (person) => (
-              <>
+            cell: (person: Person) => (
+              <div className="flex space-x-2">
+                <Link href={`/transactions/person/${person.id}`} className="hover:underline">
+                  View Transactions
+                </Link>
                 <button
                   onClick={() => openEditModal(person)}
-                  className="mr-2 hover:underline"
+                  className="hover:underline"
                 >
                   Edit
                 </button>
@@ -130,7 +134,7 @@ export default function PersonsPage() {
                 >
                   Delete
                 </button>
-              </>
+              </div>
             ),
           },
         ]}

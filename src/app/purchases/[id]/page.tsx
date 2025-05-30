@@ -2,8 +2,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { supabase, Purchase, Transaction } from "../../lib/supabase";
 import { supabase, Purchase, Transaction } from "@/lib/supabase";
+import { formatDate } from "@/lib/utils";
 import DataTable from "@/components/DataTable";
 
 export default function PurchaseDetailPage() {
@@ -89,10 +89,7 @@ export default function PurchaseDetailPage() {
     }
   }, [id]);
 
-  // Format date to a more readable format
-  function formatDate(dateString: string) {
-    return new Date(dateString).toLocaleDateString();
-  }
+
 
   // Handler to update paid status
   async function handlePaidChange(transactionId: string, paid: boolean) {
@@ -210,7 +207,7 @@ export default function PurchaseDetailPage() {
                 onChange={(e) =>
                   handlePaidChange(transaction.id, e.target.checked)
                 }
-                className="w-5 h-5 accent-green-500"
+                className="checkbox checkbox-primary"
                 aria-label={
                   transaction.paid ? "Mark as unpaid" : "Mark as paid"
                 }

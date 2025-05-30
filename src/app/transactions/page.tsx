@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import { supabase, Transaction, CreditCard, Person } from "@/lib/supabase";
+import { formatDate, handleTransactionPaidChange } from "@/lib/utils";
 import DataTable from "@/components/DataTable";
 
 export default function TransactionsPage() {
@@ -22,6 +22,7 @@ export default function TransactionsPage() {
   const [filterDescription, setFilterDescription] = useState<string>("");
   const [filterFrom, setFilterFrom] = useState<string>("");
   const [filterTo, setFilterTo] = useState<string>("");
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
 
   const clearFilters = () => {
     setFilterPerson("");
@@ -158,14 +159,16 @@ export default function TransactionsPage() {
     }
   }
 
-  // Format date to a more readable format
-  function formatDate(dateString: string) {
-    return new Date(dateString).toLocaleDateString();
-  }
+
 
   // Determine if a transaction is a payment (negative amount)
   function isPayment(amount: number) {
     return amount < 0;
+  }
+
+  // Handler to update paid status
+  function handlePaidChange(transactionId: string, paid: boolean) {
+    handleTransactionPaidChange(transactionId, paid, setUpdatingId, setTransactions);
   }
 
   const filteredTransactions = transactions.filter((tr) => {
@@ -260,8 +263,24 @@ export default function TransactionsPage() {
         className="overflow-x-auto"
         columns={[
           {
+            header: "Paid",
+            accessorKey: "paid",
+            cell: (transaction: Transaction) => (
+              <input
+                type="checkbox"
+                className="checkbox checkbox-primary"
+                checked={transaction.paid}
+                onChange={(e) =>
+                  handlePaidChange(transaction.id, e.target.checked)
+                }
+                disabled={updatingId === transaction.id}
+              />
+            ),
+          },
+          {
             header: "Date",
-            cell: (transaction) => formatDate(transaction.date),
+            accessorKey: "date",
+            cell: (transaction: Transaction) => formatDate(transaction.date),
           },
           {
             header: "Description",
@@ -269,7 +288,8 @@ export default function TransactionsPage() {
           },
           {
             header: "Amount",
-            cell: (transaction) => (
+            accessorKey: "amount",
+            cell: (transaction: Transaction) => (
               <span>
                 ${Math.abs(transaction.amount).toFixed(2)}
                 {isPayment(transaction.amount) ? " (payment)" : ""}
@@ -277,8 +297,8 @@ export default function TransactionsPage() {
             ),
           },
           {
-            header: "Card",
-            cell: (transaction) =>
+            header: "Card", // No accessorKey needed if cell handles everything
+            cell: (transaction: Transaction) =>
               transaction.expand?.credit_card ? (
                 <span>
                   {transaction.expand.credit_card.credit_card_name ||
@@ -300,24 +320,10 @@ export default function TransactionsPage() {
               ),
           },
           {
-            header: "Person",
-            cell: (transaction) =>
+            header: "Person", // No accessorKey needed if cell handles everything
+            cell: (transaction: Transaction) =>
               transaction.expand?.person?.name || "Unknown",
-          },
-          {
-            header: "Purchase",
-            cell: (transaction) =>
-              transaction.expand?.purchase ? (
-                <Link
-                  href={`/purchases/${transaction.purchase_id}`}
-                  className="text-blue-500 hover:underline"
-                >
-                  View
-                </Link>
-              ) : (
-                "N/A"
-              ),
-          },
+          }
         ]}
       />
 

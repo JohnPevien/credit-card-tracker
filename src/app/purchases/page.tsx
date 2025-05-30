@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { supabase, Purchase, CreditCard, Person } from "../lib/supabase";
+import { supabase, Purchase, CreditCard, Person } from "@/lib/supabase";
 import DataTable from "@/components/DataTable";
 
 export default function PurchasesPage() {
@@ -102,11 +102,15 @@ export default function PurchasesPage() {
   }
 
   function openAddModal() {
+    // Calculate date one month from now for billing start date
+    const nextMonth = new Date();
+    nextMonth.setMonth(nextMonth.getMonth() + 1);
+    
     setFormData({
       credit_card_id: creditCards.length > 0 ? creditCards[0].id : "",
       person_id: persons.length > 0 ? persons[0].id : "",
       purchase_date: new Date().toISOString().split("T")[0],
-      billing_start_date: new Date().toISOString().split("T")[0],
+      billing_start_date: nextMonth.toISOString().split("T")[0],
       total_amount: "",
       description: "",
       num_installments: "1",
@@ -146,11 +150,9 @@ export default function PurchasesPage() {
     try {
       const purchaseData = {
         ...formData,
-        billing_start_date: formData.is_bnpl
-          ? formData.billing_start_date
-          : undefined,
+        billing_start_date: formData.billing_start_date,
         total_amount: parseFloat(formData.total_amount),
-        num_installments: parseInt(formData.num_installments),
+        num_installments: Math.max(1, parseInt(formData.num_installments)), // ensure value is at least 1
       };
 
       // Insert the purchase and get back the ID
@@ -172,10 +174,8 @@ export default function PurchasesPage() {
         purchaseData.total_amount / purchaseData.num_installments;
 
       for (let i = 0; i < purchaseData.num_installments; i++) {
-        // Calculate the transaction date
-        const startDate = formData.billing_start_date
-          ? new Date(formData.billing_start_date)
-          : new Date(formData.purchase_date);
+        // Calculate the transaction date based on billing start date
+        const startDate = new Date(formData.billing_start_date);
         const transactionDate = new Date(startDate);
         transactionDate.setMonth(startDate.getMonth() + i);
 
@@ -344,8 +344,8 @@ export default function PurchasesPage() {
       />
 
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center p-4">
-          <div className="rounded-lg p-6 max-w-md w-full">
+        <div className="fixed inset-0 flex items-center justify-center p-4 ">
+          <div className="rounded-lg p-6 max-w-md w-full bg-gray-900 shadow-md">
             <h2 className="text-xl font-semibold mb-4">Add Purchase</h2>
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
@@ -438,19 +438,17 @@ export default function PurchasesPage() {
                 />
                 <label>Buy Now Pay Later (BNPL)</label>
               </div>
-              {formData.is_bnpl && (
-                <div className="mb-4">
-                  <label className="block mb-1">Billing Start Date</label>
-                  <input
-                    type="date"
-                    name="billing_start_date"
-                    value={formData.billing_start_date}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border rounded"
-                    required
-                  />
-                </div>
-              )}
+              <div className="mb-4">
+                <label className="block mb-1">Billing Start Date</label>
+                <input
+                  type="date"
+                  name="billing_start_date"
+                  value={formData.billing_start_date}
+                  onChange={handleInputChange}
+                  className="w-full p-2 border rounded"
+                  required
+                />
+              </div>
               <div className="flex justify-end gap-2">
                 <button
                   type="button"
