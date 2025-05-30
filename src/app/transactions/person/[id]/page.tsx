@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { supabase, Transaction, CreditCard } from "@/lib/supabase";
 import { formatDate, handleTransactionPaidChange } from "@/lib/utils";
 import DataTable from "@/components/DataTable";
 
 export default function PersonTransactionsPage() {
   const { id: personId } = useParams() as { id: string };
+  const router = useRouter();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [creditCards, setCreditCards] = useState<CreditCard[]>([]);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
@@ -104,6 +105,11 @@ export default function PersonTransactionsPage() {
 
   return (
     <div className="container space-y-5 mx-auto">
+      <button 
+        onClick={() => router.back()} 
+        className="btn btn-outline mb-4">
+        ← Back
+      </button>
       <h1 className="text-2xl font-bold mb-4">
         {transactions[0]?.expand?.person?.name || "Person"} Transactions
       </h1>
