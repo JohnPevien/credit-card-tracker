@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabase, Transaction, CreditCard } from "@/lib/supabase";
 import { formatDate, handleTransactionPaidChange } from "@/lib/utils";
@@ -91,17 +91,19 @@ export default function PersonTransactionsPage() {
     handleTransactionPaidChange(transactionId, paid, setUpdatingId, setTransactions);
   }
 
-  const filteredTransactions = transactions.filter((tr) => {
-    const matchesCard = filterCard
-      ? tr.expand?.credit_card?.id === filterCard
-      : true;
-    const matchesDescription = filterDescription
-      ? tr.description.toLowerCase().includes(filterDescription.toLowerCase())
-      : true;
-    const matchesFrom = filterFrom ? new Date(tr.date) >= new Date(filterFrom) : true;
-    const matchesTo = filterTo ? new Date(tr.date) <= new Date(filterTo) : true;
-    return matchesCard && matchesDescription && matchesFrom && matchesTo;
-  });
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter((tr) => {
+      const matchesCard = filterCard
+        ? tr.expand?.credit_card?.id === filterCard
+        : true;
+      const matchesDescription = filterDescription
+        ? tr.description.toLowerCase().includes(filterDescription.toLowerCase())
+        : true;
+      const matchesFrom = filterFrom ? new Date(tr.date) >= new Date(filterFrom) : true;
+      const matchesTo = filterTo ? new Date(tr.date) <= new Date(filterTo) : true;
+      return matchesCard && matchesDescription && matchesFrom && matchesTo;
+    });
+  }, [transactions, filterCard, filterDescription, filterFrom, filterTo]);
 
   return (
     <div className="container space-y-5 mx-auto">
