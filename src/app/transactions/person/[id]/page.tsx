@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { supabase, Transaction, CreditCard } from "@/lib/supabase";
-import { formatDate } from "@/lib/utils";
+import { formatDate, handleTransactionPaidChange } from "@/lib/utils";
 import DataTable from "@/components/DataTable";
 
 export default function PersonTransactionsPage() {
@@ -86,18 +86,8 @@ export default function PersonTransactionsPage() {
 
   const isPayment = (amount: number) => amount < 0;
 
-  async function handlePaidChange(transactionId: string, paid: boolean) {
-    setUpdatingId(transactionId);
-    const { error } = await supabase
-      .from("transactions")
-      .update({ paid })
-      .eq("id", transactionId);
-    if (!error) {
-      setTransactions((prev) =>
-        prev.map((t) => (t.id === transactionId ? { ...t, paid } : t))
-      );
-    }
-    setUpdatingId(null);
+  function handlePaidChange(transactionId: string, paid: boolean) {
+    handleTransactionPaidChange(transactionId, paid, setUpdatingId, setTransactions);
   }
 
   const filteredTransactions = transactions.filter((tr) => {
