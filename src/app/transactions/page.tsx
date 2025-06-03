@@ -6,17 +6,8 @@ import DataTable from "@/components/DataTable";
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [creditCards, setCreditCards] = useState<CreditCard[]>([]);
   const [persons, setPersons] = useState<Person[]>([]);
-  const [formData, setFormData] = useState({
-    credit_card_id: "",
-    person_id: "",
-    date: "",
-    amount: "",
-    description: "",
-    purchase_id: "",
-  });
   const [filterPerson, setFilterPerson] = useState<string>("");
   const [filterCard, setFilterCard] = useState<string>("");
   const [filterDescription, setFilterDescription] = useState<string>("");
@@ -106,61 +97,6 @@ export default function TransactionsPage() {
     }
   }
 
-  function openAddModal() {
-    setFormData({
-      credit_card_id: creditCards.length > 0 ? creditCards[0].id : "",
-      person_id: persons.length > 0 ? persons[0].id : "",
-      date: new Date().toISOString().split("T")[0],
-      amount: "",
-      description: "",
-      purchase_id: "", // No purchase relation for standalone transactions
-    });
-    setIsModalOpen(true);
-  }
-
-  function closeModal() {
-    setIsModalOpen(false);
-  }
-
-  function handleInputChange(
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
-  ) {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-
-    try {
-      // Create the transaction
-      const transactionData = {
-        ...formData,
-        amount: parseFloat(formData.amount),
-        // Only include purchase_id field if it has a value
-        ...(formData.purchase_id ? { purchase_id: formData.purchase_id } : {}),
-      };
-
-      const { error } = await supabase
-        .from("transactions")
-        .insert(transactionData);
-
-      if (error) throw error;
-
-      closeModal();
-      loadTransactions();
-    } catch (error) {
-      console.error("Error saving transaction:", error);
-    }
-  }
-
-
-
   // Determine if a transaction is a payment (negative amount)
   function isPayment(amount: number) {
     return amount < 0;
@@ -189,9 +125,7 @@ export default function TransactionsPage() {
   return (
     <div className="container space-y-5 mx-auto">
       <h1 className="text-2xl font-bold mb-4">Transactions</h1>
-      <button onClick={openAddModal} className="btn btn-primary">
-        Add Transaction
-      </button>
+
       <div className="flex gap-4 mb-4 max-w-3xl">
         <div className="fieldset">
           <label className="block mb-1">Person:</label>
@@ -327,102 +261,7 @@ export default function TransactionsPage() {
         ]}
       />
 
-      {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center p-4">
-          <div className="rounded-lg p-6 max-w-md w-full">
-            <h2 className="text-xl font-semibold mb-4">Add Transaction</h2>
-            <form onSubmit={handleSubmit}>
-              <div className="mb-4">
-                <label className="block text-gray-700 mb-1">Credit Card</label>
-                <select
-                  name="credit_card_id"
-                  value={formData.credit_card_id}
-                  onChange={handleInputChange}
-                  className="select select-bordered w-full"
-                  required
-                >
-                  {creditCards.map((card) => (
-                    <option key={card.id} value={card.id}>
-                      {card.credit_card_name || card.issuer} ****{" "}
-                      {card.last_four_digits}
-                      {card.is_supplementary ? " (Supplementary)" : ""}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 mb-1">Person</label>
-                <select
-                  name="person_id"
-                  value={formData.person_id}
-                  onChange={handleInputChange}
-                  className="select select-bordered w-full"
-                  required
-                >
-                  {persons.map((person) => (
-                    <option key={person.id} value={person.id}>
-                      {person.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 mb-1">Date</label>
-                <input
-                  type="date"
-                  name="date"
-                  value={formData.date}
-                  onChange={handleInputChange}
-                  className="input input-bordered w-full"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 mb-1">
-                  Amount (negative for payments)
-                </label>
-                <input
-                  type="number"
-                  name="amount"
-                  value={formData.amount}
-                  onChange={handleInputChange}
-                  className="input input-bordered w-full"
-                  step="0.01"
-                  required
-                  placeholder="Use negative value for payments"
-                />
-                <small className="text-gray-500">
-                  Enter a positive amount for purchases or a negative amount for
-                  payments (e.g., -50.00)
-                </small>
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 mb-1">Description</label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  className="textarea textarea-bordered w-full"
-                  required
-                  placeholder="E.g., 'Monthly payment' or 'Refund'"
-                ></textarea>
-              </div>
-              <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  className="btn btn-secondary"
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  Save
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+
     </div>
   );
 }
