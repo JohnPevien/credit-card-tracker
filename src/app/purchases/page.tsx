@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase, Purchase, CreditCard, Person } from "@/lib/supabase";
 import DataTable from "@/components/DataTable";
+import { DataService } from "@/lib/services/dataService";
 
 export default function PurchasesPage() {
   const [purchases, setPurchases] = useState<Purchase[]>([]);
@@ -211,6 +212,21 @@ export default function PurchasesPage() {
     return new Date(dateString).toLocaleDateString();
   }
 
+  async function handleDeletePurchase(purchaseId: string) {
+    if (
+      window.confirm(
+        "Are you sure you want to delete this purchase?"
+      )
+    ) {
+      try {
+        await DataService.deletePurchaseAndTransactions(purchaseId);
+        await loadPurchases(); // Refresh the list of purchases
+      } catch (error) {
+        console.error("Failed to delete purchase:", error);
+      }
+    }
+  }
+
   const filteredPurchases = purchases.filter((purchase) => {
     const matchesPerson = filterPerson
       ? purchase.expand?.person?.id === filterPerson
@@ -330,14 +346,22 @@ export default function PurchasesPage() {
             cell: (purchase) => (purchase.is_bnpl ? "Yes" : "No"),
           },
           {
-            header: "Details",
-            cell: (purchase) => (
-              <Link
+            header: "Actions",
+            cell: (purchase: Purchase) => (
+              <div className="flex gap-5 items-center">
+                <Link
                 href={`/purchases/${purchase.id}`}
                 className="hover:underline"
               >
                 View
               </Link>
+              <button
+                onClick={() => handleDeletePurchase(purchase.id)}
+                className="btn btn-error btn-sm text-white"
+              >
+                Delete
+              </button>
+              </div>
             ),
           },
         ]}
