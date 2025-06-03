@@ -47,6 +47,6 @@ export const config = {
      * 3. /enter-password (Password entry page)
      * 4. /favicon.ico, /images (Static files)
      */
-    '/((?!_next|favicon.ico|images).*)',
+    '/((?!_next|favicon.ico|images|api/site-auth|enter-password).*)',
   ],
 };
