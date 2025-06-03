@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-// Constants for authentication
-const COOKIE_NAME = 'site_access_token';
-const COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days in seconds
-const COOKIE_SECURE = process.env.NODE_ENV === 'production';
+import { 
+  SITE_ACCESS_COOKIE_NAME, 
+  SITE_ACCESS_COOKIE_VALUE, 
+  SITE_ACCESS_COOKIE_MAX_AGE,
+  isCookieSecure 
+} from '@/lib/constants/constants';
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,14 +39,12 @@ export async function POST(request: NextRequest) {
       { message: 'Authentication successful' },
       { status: 200 }
     );
-    
-    // Set authentication cookie directly on the response
+      // Set authentication cookie directly on the response
     response.cookies.set({
-      name: COOKIE_NAME,
-      value: 'authenticated',
-      maxAge: COOKIE_MAX_AGE,
+      name: SITE_ACCESS_COOKIE_NAME,
+      value: SITE_ACCESS_COOKIE_VALUE,      maxAge: SITE_ACCESS_COOKIE_MAX_AGE,
       httpOnly: true,
-      secure: COOKIE_SECURE,
+      secure: isCookieSecure(),
       sameSite: 'lax',
       path: '/',
     });

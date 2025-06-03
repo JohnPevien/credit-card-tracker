@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-const COOKIE_NAME = 'site_access_token';
-const PUBLIC_PATHS = [
-  '/enter-password',
-  '/api/site-auth',
-];
+import { 
+  SITE_ACCESS_COOKIE_NAME, 
+  SITE_ACCESS_COOKIE_VALUE, 
+  PUBLIC_PATHS 
+} from '@/lib/constants/constants';
 
 export function middleware(request: NextRequest) {
   // Skip middleware if SITE_PASSWORD is not set
@@ -25,12 +24,11 @@ export function middleware(request: NextRequest) {
   if (isPublicPath || isStaticAsset) {
     return NextResponse.next();
   }
-  
-  // Check for authentication cookie
-  const accessCookie = request.cookies.get(COOKIE_NAME);
+    // Check for authentication cookie
+  const accessCookie = request.cookies.get(SITE_ACCESS_COOKIE_NAME);
   
   // Redirect to password entry page if not authenticated
-  if (!accessCookie || accessCookie.value !== 'authenticated') {
+  if (!accessCookie || accessCookie.value !== SITE_ACCESS_COOKIE_VALUE) {
     const url = new URL('/enter-password', request.url);
     return NextResponse.redirect(url);
   }
