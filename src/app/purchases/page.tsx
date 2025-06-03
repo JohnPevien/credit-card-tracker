@@ -220,7 +220,7 @@ export default function PurchasesPage() {
     ) {
       try {
         await DataService.deletePurchaseAndTransactions(purchaseId);
-        loadPurchases(); // Refresh the list of purchases
+        await loadPurchases(); // Refresh the list of purchases
       } catch (error) {
         console.error("Failed to delete purchase:", error);
       }
