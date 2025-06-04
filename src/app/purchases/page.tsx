@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase, Purchase, CreditCard, Person } from "@/lib/supabase";
 import DataTable from "@/components/DataTable";
+import Modal from "@/components/Modal";
+import { Select } from "@/components/base";
 import { DataService } from "@/lib/services/dataService";
 
 export default function PurchasesPage() {
@@ -123,7 +125,6 @@ export default function PurchasesPage() {
   function closeModal() {
     setIsModalOpen(false);
   }
-
   function handleInputChange(
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -143,6 +144,13 @@ export default function PurchasesPage() {
         [name]: value,
       }));
     }
+  }
+
+  function handleSelectChange(name: string, value: string) {
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -246,36 +254,29 @@ export default function PurchasesPage() {
       <button onClick={openAddModal} className="btn btn-primary">
         Add Purchase
       </button>
-      <div className="flex gap-4 mb-4 max-w-5xl">
-        <div className="fieldset">
+      <div className="flex gap-4 mb-4 max-w-5xl">        <div className="fieldset">
           <label className="block mb-1">Person:</label>
-          <select
+          <Select
             value={filterPerson}
-            onChange={(e) => setFilterPerson(e.target.value)}
-            className="select select-bordered w-full"
-          >
-            <option value="">All</option>
-            {persons.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="fieldset">
+            onChange={setFilterPerson}
+            options={[
+              { value: "", label: "All" },
+              ...persons.map((p) => ({ value: p.id, label: p.name }))
+            ]}
+          />
+        </div>        <div className="fieldset">
           <label className="block mb-1">Card:</label>
-          <select
+          <Select
             value={filterCard}
-            onChange={(e) => setFilterCard(e.target.value)}
-            className="select select-bordered w-full"
-          >
-            <option value="">All</option>
-            {creditCards.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.credit_card_name || c.issuer} **** {c.last_four_digits}
-              </option>
-            ))}
-          </select>
+            onChange={setFilterCard}
+            options={[
+              { value: "", label: "All" },
+              ...creditCards.map((c) => ({
+                value: c.id,
+                label: `${c.credit_card_name || c.issuer} **** ${c.last_four_digits}`
+              }))
+            ]}
+          />
         </div>
         <div className="fieldset">
           <label className="block mb-1">Description:</label>
@@ -365,130 +366,118 @@ export default function PurchasesPage() {
             ),
           },
         ]}
-      />
-
-      {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center p-4 ">
-          <div className="rounded-lg p-6 max-w-md w-full bg-gray-900 shadow-md">
-            <h2 className="text-xl font-semibold mb-4">Add Purchase</h2>
-            <form onSubmit={handleSubmit}>
-              <div className="mb-4">
-                <label className="block mb-1">Credit Card</label>
-                <select
-                  name="credit_card_id"
-                  value={formData.credit_card_id}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border rounded"
-                  required
-                >
-                  {creditCards.map((card) => (
-                    <option key={card.id} value={card.id}>
-                      {card.credit_card_name || card.issuer} ****{" "}
-                      {card.last_four_digits}
-                      {card.is_supplementary ? " (Supplementary)" : ""}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="mb-4">
-                <label className="block mb-1">Person</label>
-                <select
-                  name="person_id"
-                  value={formData.person_id}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border rounded"
-                  required
-                >
-                  {persons.map((person) => (
-                    <option key={person.id} value={person.id}>
-                      {person.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="mb-4">
-                <label className="block mb-1">Date</label>
-                <input
-                  type="date"
-                  name="purchase_date"
-                  value={formData.purchase_date}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border rounded"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block mb-1">Total Amount</label>
-                <input
-                  type="number"
-                  name="total_amount"
-                  value={formData.total_amount}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border rounded"
-                  step="0.01"
-                  min="0"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block mb-1">Description</label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border rounded"
-                  required
-                ></textarea>
-              </div>
-              <div className="mb-4">
-                <label className="block mb-1">Number of Installments</label>
-                <input
-                  type="number"
-                  name="num_installments"
-                  value={formData.num_installments}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border rounded"
-                  min="1"
-                  required
-                />
-              </div>
-              <div className="mb-4 flex items-center">
-                <input
-                  type="checkbox"
-                  name="is_bnpl"
-                  checked={formData.is_bnpl}
-                  onChange={handleInputChange}
-                  className="mr-2"
-                />
-                <label>Buy Now Pay Later (BNPL)</label>
-              </div>
-              <div className="mb-4">
-                <label className="block mb-1">Billing Start Date</label>
-                <input
-                  type="date"
-                  name="billing_start_date"
-                  value={formData.billing_start_date}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border rounded"
-                  required
-                />
-              </div>
-              <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  className="btn btn-secondary"
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  Save
-                </button>
-              </div>
-            </form>
+      />      <Modal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        title="Add Purchase"
+        className="bg-gray-900"
+      >
+        <form onSubmit={handleSubmit}>          <div className="mb-4">
+            <label className="block mb-1">Credit Card</label>
+            <Select
+              name="credit_card_id"
+              value={formData.credit_card_id}
+              onChange={(value) => handleSelectChange("credit_card_id", value)}
+              options={creditCards.map((card) => ({
+                value: card.id,
+                label: `${card.credit_card_name || card.issuer} **** ${card.last_four_digits}${card.is_supplementary ? " (Supplementary)" : ""}`
+              }))}
+              required
+            />
+          </div>          <div className="mb-4">
+            <label className="block mb-1">Person</label>
+            <Select
+              name="person_id"
+              value={formData.person_id}
+              onChange={(value) => handleSelectChange("person_id", value)}
+              options={persons.map((person) => ({
+                value: person.id,
+                label: person.name
+              }))}
+              required
+            />
           </div>
-        </div>
-      )}
+          <div className="mb-4">
+            <label className="block mb-1">Date</label>
+            <input
+              type="date"
+              name="purchase_date"
+              value={formData.purchase_date}
+              onChange={handleInputChange}
+              className="w-full p-2 border rounded"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block mb-1">Total Amount</label>
+            <input
+              type="number"
+              name="total_amount"
+              value={formData.total_amount}
+              onChange={handleInputChange}
+              className="w-full p-2 border rounded"
+              step="0.01"
+              min="0"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block mb-1">Description</label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              className="w-full p-2 border rounded"
+              required
+            ></textarea>
+          </div>
+          <div className="mb-4">
+            <label className="block mb-1">Number of Installments</label>
+            <input
+              type="number"
+              name="num_installments"
+              value={formData.num_installments}
+              onChange={handleInputChange}
+              className="w-full p-2 border rounded"
+              min="1"
+              required
+            />
+          </div>
+          <div className="mb-4 flex items-center">
+            <input
+              type="checkbox"
+              name="is_bnpl"
+              checked={formData.is_bnpl}
+              onChange={handleInputChange}
+              className="mr-2"
+            />
+            <label>Buy Now Pay Later (BNPL)</label>
+          </div>
+          <div className="mb-4">
+            <label className="block mb-1">Billing Start Date</label>
+            <input
+              type="date"
+              name="billing_start_date"
+              value={formData.billing_start_date}
+              onChange={handleInputChange}
+              className="w-full p-2 border rounded"
+              required
+            />
+          </div>
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={closeModal}
+              className="btn btn-secondary"
+            >
+              Cancel
+            </button>
+            <button type="submit" className="btn btn-primary">
+              Save
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }
