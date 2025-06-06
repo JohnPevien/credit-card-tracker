@@ -4,6 +4,7 @@ import Link from "next/link";
 import { supabase, Purchase, CreditCard, Person } from "@/lib/supabase";
 import DataTable from "@/components/DataTable";
 import Modal from "@/components/Modal";
+import PurchaseForm from "@/components/PurchaseForm";
 import { Select } from "@/components/base";
 import { DataService } from "@/lib/services/dataService";
 
@@ -249,235 +250,160 @@ export default function PurchasesPage() {
   });
 
   return (
-    <div className="container space-y-5 mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Purchases</h1>
-      <button onClick={openAddModal} className="btn btn-primary">
-        Add Purchase
-      </button>
-      <div className="flex gap-4 mb-4 max-w-5xl">        <div className="fieldset">
-          <label className="block mb-1">Person:</label>
-          <Select
-            value={filterPerson}
-            onChange={setFilterPerson}
-            options={[
-              { value: "", label: "All" },
-              ...persons.map((p) => ({ value: p.id, label: p.name }))
-            ]}
-          />
-        </div>        <div className="fieldset">
-          <label className="block mb-1">Card:</label>
-          <Select
-            value={filterCard}
-            onChange={setFilterCard}
-            options={[
-              { value: "", label: "All" },
-              ...creditCards.map((c) => ({
-                value: c.id,
-                label: `${c.credit_card_name || c.issuer} **** ${c.last_four_digits}`
-              }))
-            ]}
-          />
-        </div>
-        <div className="fieldset">
-          <label className="block mb-1">Description:</label>
-          <input
-            type="text"
-            value={filterDescription}
-            onChange={(e) => setFilterDescription(e.target.value)}
-            placeholder="Search description"
-            className="input input-bordered w-full"
-          />
-        </div>
-        <button onClick={clearFilters} className="self-end btn btn-secondary mb-1">
-          Clear Filters
-        </button>
-      </div>
-
-      <DataTable
-        data={filteredPurchases}
-        keyField="id"
-        emptyMessage="No purchases found"
-        className="overflow-x-auto"
-        columns={[
-          {
-            header: "Date",
-            cell: (purchase) => formatDate(purchase.purchase_date),
-          },
-          {
-            header: "Description",
-            accessorKey: "description",
-          },
-          {
-            header: "Total Amount",
-            cell: (purchase) => `$${purchase.total_amount.toFixed(2)}`,
-          },
-          {
-            header: "Card",
-            cell: (purchase) =>
-              purchase.expand?.credit_card ? (
-                <span>
-                  {purchase.expand.credit_card.credit_card_name ||
-                    purchase.expand.credit_card.last_four_digits}
-                  {purchase.expand.credit_card.is_supplementary &&
-                    purchase.expand.credit_card.expand?.principal_card && (
-                      <span className="text-xs block">
-                        (Supplementary of{" "}
-                        {
-                          purchase.expand.credit_card.expand.principal_card
-                            .credit_card_name
-                        }
-                        )
-                      </span>
-                    )}
-                </span>
-              ) : (
-                "Unknown Card"
-              ),
-          },
-          {
-            header: "Person",
-            cell: (purchase) => purchase.expand?.person?.name,
-          },
-          {
-            header: "Installments",
-            accessorKey: "num_installments",
-          },
-          {
-            header: "BNPL",
-            cell: (purchase) => (purchase.is_bnpl ? "Yes" : "No"),
-          },
-          {
-            header: "Actions",
-            cell: (purchase: Purchase) => (
-              <div className="flex gap-5 items-center">
-                <Link
-                href={`/purchases/${purchase.id}`}
-                className="hover:underline"
-              >
-                View
-              </Link>
-              <button
-                onClick={() => handleDeletePurchase(purchase.id)}
-                className="btn btn-error btn-sm text-white"
-              >
-                Delete
-              </button>
+      <div className="container space-y-5 mx-auto">
+          <h1 className="text-2xl font-bold mb-4">Purchases</h1>
+          <button onClick={openAddModal} className="btn btn-primary">
+              Add Purchase
+          </button>
+          <div className="flex gap-4 mb-4 max-w-5xl">
+              {" "}              <div className="form-control">
+                  <div className="label">
+                      <span className="label-text">Person:</span>
+                  </div>
+                  <Select
+                      value={filterPerson}
+                      onChange={setFilterPerson}
+                      options={[
+                          { value: "", label: "All" },
+                          ...persons.map((p) => ({
+                              value: p.id,
+                              label: p.name,
+                          })),
+                      ]}
+                  />
+              </div>{" "}              <div className="form-control">
+                  <div className="label">
+                      <span className="label-text">Card:</span>
+                  </div>
+                  <Select
+                      value={filterCard}
+                      onChange={setFilterCard}
+                      options={[
+                          { value: "", label: "All" },
+                          ...creditCards.map((c) => ({
+                              value: c.id,
+                              label: `${c.credit_card_name || c.issuer} **** ${
+                                  c.last_four_digits
+                              }`,
+                          })),
+                      ]}
+                  />
+              </div>              <div className="form-control">
+                  <div className="label">
+                      <span className="label-text">Description:</span>
+                  </div>
+                  <input
+                      type="text"
+                      value={filterDescription}
+                      onChange={(e) => setFilterDescription(e.target.value)}
+                      placeholder="Search description"
+                      className="input input-bordered w-full"
+                  />
               </div>
-            ),
-          },
-        ]}
-      />      <Modal
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        title="Add Purchase"
-        className="bg-gray-900"
-      >
-        <form onSubmit={handleSubmit}>          <div className="mb-4">
-            <label className="block mb-1">Credit Card</label>
-            <Select
-              name="credit_card_id"
-              value={formData.credit_card_id}
-              onChange={(value) => handleSelectChange("credit_card_id", value)}
-              options={creditCards.map((card) => ({
-                value: card.id,
-                label: `${card.credit_card_name || card.issuer} **** ${card.last_four_digits}${card.is_supplementary ? " (Supplementary)" : ""}`
-              }))}
-              required
-            />
-          </div>          <div className="mb-4">
-            <label className="block mb-1">Person</label>
-            <Select
-              name="person_id"
-              value={formData.person_id}
-              onChange={(value) => handleSelectChange("person_id", value)}
-              options={persons.map((person) => ({
-                value: person.id,
-                label: person.name
-              }))}
-              required
-            />
+              <button
+                  onClick={clearFilters}
+                  className="self-end btn btn-secondary mb-1"
+              >
+                  Clear Filters
+              </button>
           </div>
-          <div className="mb-4">
-            <label className="block mb-1">Date</label>
-            <input
-              type="date"
-              name="purchase_date"
-              value={formData.purchase_date}
-              onChange={handleInputChange}
-              className="w-full p-2 border rounded"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block mb-1">Total Amount</label>
-            <input
-              type="number"
-              name="total_amount"
-              value={formData.total_amount}
-              onChange={handleInputChange}
-              className="w-full p-2 border rounded"
-              step="0.01"
-              min="0"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block mb-1">Description</label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              className="w-full p-2 border rounded"
-              required
-            ></textarea>
-          </div>
-          <div className="mb-4">
-            <label className="block mb-1">Number of Installments</label>
-            <input
-              type="number"
-              name="num_installments"
-              value={formData.num_installments}
-              onChange={handleInputChange}
-              className="w-full p-2 border rounded"
-              min="1"
-              required
-            />
-          </div>
-          <div className="mb-4 flex items-center">
-            <input
-              type="checkbox"
-              name="is_bnpl"
-              checked={formData.is_bnpl}
-              onChange={handleInputChange}
-              className="mr-2"
-            />
-            <label>Buy Now Pay Later (BNPL)</label>
-          </div>
-          <div className="mb-4">
-            <label className="block mb-1">Billing Start Date</label>
-            <input
-              type="date"
-              name="billing_start_date"
-              value={formData.billing_start_date}
-              onChange={handleInputChange}
-              className="w-full p-2 border rounded"
-              required
-            />
-          </div>
-          <div className="flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={closeModal}
-              className="btn btn-secondary"
-            >
-              Cancel
-            </button>
-            <button type="submit" className="btn btn-primary">
-              Save
-            </button>
-          </div>
-        </form>
-      </Modal>
-    </div>
+          <DataTable
+              data={filteredPurchases}
+              keyField="id"
+              emptyMessage="No purchases found"
+              className="overflow-x-auto"
+              columns={[
+                  {
+                      header: "Date",
+                      cell: (purchase) => formatDate(purchase.purchase_date),
+                  },
+                  {
+                      header: "Description",
+                      accessorKey: "description",
+                  },
+                  {
+                      header: "Total Amount",
+                      cell: (purchase) =>
+                          `$${purchase.total_amount.toFixed(2)}`,
+                  },
+                  {
+                      header: "Card",
+                      cell: (purchase) =>
+                          purchase.expand?.credit_card ? (
+                              <span>
+                                  {purchase.expand.credit_card
+                                      .credit_card_name ||
+                                      purchase.expand.credit_card
+                                          .last_four_digits}
+                                  {purchase.expand.credit_card
+                                      .is_supplementary &&
+                                      purchase.expand.credit_card.expand
+                                          ?.principal_card && (
+                                          <span className="text-xs block">
+                                              (Supplementary of{" "}
+                                              {
+                                                  purchase.expand.credit_card
+                                                      .expand.principal_card
+                                                      .credit_card_name
+                                              }
+                                              )
+                                          </span>
+                                      )}
+                              </span>
+                          ) : (
+                              "Unknown Card"
+                          ),
+                  },
+                  {
+                      header: "Person",
+                      cell: (purchase) => purchase.expand?.person?.name,
+                  },
+                  {
+                      header: "Installments",
+                      accessorKey: "num_installments",
+                  },
+                  {
+                      header: "BNPL",
+                      cell: (purchase) => (purchase.is_bnpl ? "Yes" : "No"),
+                  },
+                  {
+                      header: "Actions",
+                      cell: (purchase: Purchase) => (
+                          <div className="flex gap-5 items-center">
+                              <Link
+                                  href={`/purchases/${purchase.id}`}
+                                  className="hover:underline"
+                              >
+                                  View
+                              </Link>
+                              <button
+                                  onClick={() =>
+                                      handleDeletePurchase(purchase.id)
+                                  }
+                                  className="btn btn-error btn-sm text-white"
+                              >
+                                  Delete
+                              </button>
+                          </div>
+                      ),
+                  },
+              ]}
+          />          <Modal
+              isOpen={isModalOpen}
+              onClose={closeModal}
+              title="Add Purchase"
+              className="bg-gray-900"
+          >
+              <PurchaseForm
+                  formData={formData}
+                  creditCards={creditCards}
+                  persons={persons}
+                  onInputChange={handleInputChange}
+                  onSelectChange={handleSelectChange}
+                  onSubmit={handleSubmit}
+                  onCancel={closeModal}
+              />
+          </Modal>
+      </div>
   );
 }
