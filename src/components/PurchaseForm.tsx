@@ -1,5 +1,5 @@
 import React from 'react';
-import { Select, DateInput, Input, Textarea, Checkbox } from '@/components/base';
+import { Select, DateInput, Input, Textarea, Checkbox, Button } from '@/components/base';
 import { CreditCard, Person } from '@/lib/supabase';
 
 interface PurchaseFormData {
@@ -135,19 +135,17 @@ export default function PurchaseForm({
           onChange={onInputChange}
           required
         />
-      </div>
-
-      <div className="flex justify-end gap-2">
-        <button
+      </div>      <div className="flex justify-end gap-2">
+        <Button
           type="button"
           onClick={onCancel}
-          className="btn btn-secondary"
+          color="secondary"
         >
           Cancel
-        </button>
-        <button type="submit" className="btn btn-primary">
+        </Button>
+        <Button type="submit" color="primary">
           Save
-        </button>
+        </Button>
       </div>
     </form>
   );
