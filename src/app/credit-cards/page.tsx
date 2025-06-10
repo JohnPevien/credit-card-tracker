@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { supabase, CreditCard } from "@/lib/supabase";
 import DataTable from "@/components/DataTable";
 import { FormSelect } from "@/components/FormSelect";
+import Modal from "@/components/Modal";
 import { refinedCreditCardSchema } from "@/lib/schemas";
 import { useZodForm } from "@/lib/hooks/useZodForm";
 
@@ -223,125 +224,120 @@ export default function CreditCardsPage() {
             ),
           },
         ]}
-      />
-
-      {isAddModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className=" p-6 rounded-lg shadow-lg w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">
-              {editingCard ? "Edit Credit Card" : "Add Credit Card"}
-            </h2>
-            <form onSubmit={handleSubmit}>
-              <div className="mb-4">
-                <label className="block mb-1">Card Name</label>
-                <input
-                  type="text"
-                  name="credit_card_name"
-                  value={formData.credit_card_name}
-                  onChange={handleChange}
-                  className="w-full p-2 border rounded"
-                />
-                {errors.credit_card_name && (
-                  <p className="text-sm mt-1">{errors.credit_card_name}</p>
-                )}
-              </div>
-
-              <div className="mb-4">
-                <label className="block mb-1">Last 4 Digits</label>
-                <input
-                  type="text"
-                  name="last_four_digits"
-                  value={formData.last_four_digits}
-                  onChange={handleChange}
-                  className="w-full p-2 border rounded"
-                  maxLength={4}
-                />
-                {errors.last_four_digits && (
-                  <p className="text-sm mt-1">{errors.last_four_digits}</p>
-                )}
-              </div>
-
-              <div className="mb-4">
-                <label className="block mb-1">Cardholder Name</label>
-                <input
-                  type="text"
-                  name="cardholder_name"
-                  value={formData.cardholder_name}
-                  onChange={handleChange}
-                  className="w-full p-2 border rounded"
-                />
-                {errors.cardholder_name && (
-                  <p className="text-sm mt-1">{errors.cardholder_name}</p>
-                )}
-              </div>
-
-              <div className="mb-4">
-                <label className="block mb-1">Issuer</label>
-                <FormSelect
-                  name="issuer"
-                  value={formData.issuer}
-                  onChange={handleChange}
-                  options={philippineBanks.map((bank) => ({
-                    value: bank,
-                    label: bank,
-                  }))}
-                  placeholder="Select issuer"
-                  className="w-full"
-                />
-                {errors.issuer && (
-                  <p className="text-sm mt-1">{errors.issuer}</p>
-                )}
-              </div>
-
-              <div className="mb-4">
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    name="is_supplementary"
-                    checked={formData.is_supplementary}
-                    onChange={handleChange}
-                    className="mr-2"
-                  />
-                  Supplementary Card
-                </label>
-              </div>
-
-              {formData.is_supplementary && (
-                <div className="mb-4">
-                  <label className="block mb-1">Principal Card</label>
-                  <FormSelect
-                    name="principal_card_id"
-                    value={formData.principal_card_id}
-                    onChange={handleChange}
-                    options={principalCards.map((card) => ({
-                      value: card.id,
-                      label: `${card.credit_card_name} (${card.last_four_digits})`,
-                    }))}
-                    placeholder="Select principal card"
-                    className="w-full"
-                  />
-                  {errors.principal_card_id && (
-                    <p className="text-sm mt-1">{errors.principal_card_id}</p>
-                  )}
-                </div>
-              )}
-
-              <div className="flex justify-end space-x-2">
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  className="btn btn-secondary"
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  Save
-                </button>
-              </div>
-            </form>
+      />      <Modal
+        isOpen={isAddModalOpen}
+        onClose={closeModal}
+        title={editingCard ? "Edit Credit Card" : "Add Credit Card"}
+      >
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label className="block mb-1">Card Name</label>
+            <input
+              type="text"
+              name="credit_card_name"
+              value={formData.credit_card_name}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+            />
+            {errors.credit_card_name && (
+              <p className="text-sm mt-1">{errors.credit_card_name}</p>
+            )}
           </div>
-        </div>
-      )}
+
+          <div className="mb-4">
+            <label className="block mb-1">Last 4 Digits</label>
+            <input
+              type="text"
+              name="last_four_digits"
+              value={formData.last_four_digits}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+              maxLength={4}
+            />
+            {errors.last_four_digits && (
+              <p className="text-sm mt-1">{errors.last_four_digits}</p>
+            )}
+          </div>
+
+          <div className="mb-4">
+            <label className="block mb-1">Cardholder Name</label>
+            <input
+              type="text"
+              name="cardholder_name"
+              value={formData.cardholder_name}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+            />
+            {errors.cardholder_name && (
+              <p className="text-sm mt-1">{errors.cardholder_name}</p>
+            )}
+          </div>
+
+          <div className="mb-4">
+            <label className="block mb-1">Issuer</label>
+            <FormSelect
+              name="issuer"
+              value={formData.issuer}
+              onChange={handleChange}
+              options={philippineBanks.map((bank) => ({
+                value: bank,
+                label: bank,
+              }))}
+              placeholder="Select issuer"
+              className="w-full"
+            />
+            {errors.issuer && (
+              <p className="text-sm mt-1">{errors.issuer}</p>
+            )}
+          </div>
+
+          <div className="mb-4">
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                name="is_supplementary"
+                checked={formData.is_supplementary}
+                onChange={handleChange}
+                className="mr-2"
+              />
+              Supplementary Card
+            </label>
+          </div>
+
+          {formData.is_supplementary && (
+            <div className="mb-4">
+              <label className="block mb-1">Principal Card</label>
+              <FormSelect
+                name="principal_card_id"
+                value={formData.principal_card_id}
+                onChange={handleChange}
+                options={principalCards.map((card) => ({
+                  value: card.id,
+                  label: `${card.credit_card_name} (${card.last_four_digits})`,
+                }))}
+                placeholder="Select principal card"
+                className="w-full"
+              />
+              {errors.principal_card_id && (
+                <p className="text-sm mt-1">{errors.principal_card_id}</p>
+              )}
+            </div>
+          )}
+
+          <div className="flex justify-end space-x-2">
+            <button
+              type="button"
+              onClick={closeModal}
+              className="btn btn-secondary"
+            >
+              Cancel
+            </button>
+            <button type="submit" className="btn btn-primary">
+              Save
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }
