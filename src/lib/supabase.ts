@@ -29,6 +29,15 @@ export interface CreditCard {
   };
 }
 
+export type CreditCardInsert = {
+  credit_card_name: string;
+  last_four_digits: string;
+  cardholder_name: string;
+  issuer: string;
+  is_supplementary: boolean;
+  principal_card_id?: string | null;
+};
+
 export interface Purchase {
   id: string;
   credit_card_id: string;
