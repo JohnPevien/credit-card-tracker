@@ -1,175 +1,127 @@
 "use client";
 import { useState, useEffect } from "react";
-import { supabase, Person } from "@/lib/supabase";
+import { Person } from "@/lib/supabase";
 import DataTable from "@/components/DataTable";
-import Modal from "@/components/Modal";
-import { personSchema } from "@/lib/schemas";
-import { useZodForm } from "@/lib/hooks/useZodForm";
+import PersonForm from "@/components/persons/PersonForm";
+import { PersonService } from "@/lib/services/personService";
 import Link from "next/link";
 
 export default function PersonsPage() {
-  const [persons, setPersons] = useState<Person[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingPerson, setEditingPerson] = useState<Person | null>(null);
+    const [persons, setPersons] = useState<Person[]>([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingPerson, setEditingPerson] = useState<Person | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
-  const {
-    values: formData,
-    handleChange,
-    errors,
-    validate,
-    reset,
-    setValues,
-  } = useZodForm(personSchema, {
-    name: "",
-  });
-
-  useEffect(() => {
-    loadPersons();
-  }, []);
-
-  async function loadPersons() {
-    try {
-      const { data, error } = await supabase.from("persons").select("*");
-
-      if (error) throw error;
-      setPersons(data || []);
-    } catch (error) {
-      console.error("Error loading persons:", error);
-    }
-  }
-
-  function openAddModal() {
-    reset({ name: "" });
-    setEditingPerson(null);
-    setIsModalOpen(true);
-  }
-
-  function openEditModal(person: Person) {
-    setValues({ name: person.name });
-    setEditingPerson(person);
-    setIsModalOpen(true);
-  }
-
-  function closeModal() {
-    setIsModalOpen(false);
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-
-    // Validate form data using Zod
-    const isValid = validate();
-
-    if (!isValid) {
-      return;
-    }
-
-    try {
-      if (editingPerson) {
-        const { error } = await supabase
-          .from("persons")
-          .update({ name: formData.name })
-          .eq("id", editingPerson.id);
-
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from("persons")
-          .insert({ name: formData.name });
-
-        if (error) throw error;
-      }
-      closeModal();
-      loadPersons();
-    } catch (error) {
-      console.error("Error saving person:", error);
-    }
-  }
-
-  async function handleDelete(id: string) {
-    if (confirm("Are you sure you want to delete this person?")) {
-      try {
-        const { error } = await supabase.from("persons").delete().eq("id", id);
-
-        if (error) throw error;
+    useEffect(() => {
         loadPersons();
-      } catch (error) {
-        console.error("Error deleting person:", error);
-      }
+    }, []);
+
+    async function loadPersons() {
+        try {
+            setIsLoading(true);
+            const data = await PersonService.loadPersons();
+            setPersons(data);
+        } catch (error) {
+            console.error("Error loading persons:", error);
+        } finally {
+            setIsLoading(false);
+        }
     }
-  }
 
-  return (
-    <div className="container space-y-5 mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Persons</h1>
-      <button onClick={openAddModal} className="btn btn-primary">
-        Add Person
-      </button>
+    function openAddModal() {
+        setEditingPerson(null);
+        setIsModalOpen(true);
+    }
 
-      <DataTable
-        data={persons}
-        keyField="id"
-        emptyMessage="No persons found"
-        columns={[
-          {
-            header: "Name",
-            accessorKey: "name",
-          },
-          {
-            header: "Actions",
-            className: "w-[200px]",
-            cell: (person: Person) => (
-              <div className="flex space-x-2">
-                <Link href={`/transactions/person/${person.id}`} className="hover:underline">
-                  View Transactions
-                </Link>
-                <button
-                  onClick={() => openEditModal(person)}
-                  className="hover:underline"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(person.id)}
-                  className="hover:underline"
-                >
-                  Delete
-                </button>
-              </div>
-            ),
-          },
-        ]}
-      />      <Modal
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        title={editingPerson ? "Edit Person" : "Add Person"}
-      >
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block mb-1">Name</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
+    function openEditModal(person: Person) {
+        setEditingPerson(person);
+        setIsModalOpen(true);
+    }
+
+    function closeModal() {
+        setIsModalOpen(false);
+        setEditingPerson(null);
+    }
+
+    async function handleFormSubmit(data: { name: string }) {
+        try {
+            if (editingPerson) {
+                await PersonService.updatePerson(editingPerson.id, data);
+            } else {
+                await PersonService.addPerson(data);
+            }
+            await loadPersons();
+        } catch (error) {
+            console.error("Error saving person:", error);
+            throw error;
+        }
+    }
+
+    async function handleDelete(id: string) {
+        if (confirm("Are you sure you want to delete this person?")) {
+            try {
+                await PersonService.deletePerson(id);
+                await loadPersons();
+            } catch (error) {
+                console.error("Error deleting person:", error);
+            }
+        }
+    }
+    return (
+        <div className="container space-y-5 mx-auto">
+            <h1 className="text-2xl font-bold mb-4">Persons</h1>
+            <button onClick={openAddModal} className="btn btn-primary">
+                Add Person
+            </button>
+
+            {isLoading ? (
+                <div>Loading...</div>
+            ) : (
+                <DataTable
+                    data={persons}
+                    keyField="id"
+                    emptyMessage="No persons found"
+                    columns={[
+                        {
+                            header: "Name",
+                            accessorKey: "name",
+                        },
+                        {
+                            header: "Actions",
+                            className: "w-[200px]",
+                            cell: (person: Person) => (
+                                <div className="flex space-x-2">
+                                    <Link
+                                        href={`/transactions/person/${person.id}`}
+                                        className="hover:underline"
+                                    >
+                                        View Transactions
+                                    </Link>
+                                    <button
+                                        onClick={() => openEditModal(person)}
+                                        className="hover:underline"
+                                    >
+                                        Edit
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(person.id)}
+                                        className="hover:underline"
+                                    >
+                                        Delete
+                                    </button>
+                                </div>
+                            ),
+                        },
+                    ]}
+                />
+            )}
+
+            <PersonForm
+                isOpen={isModalOpen}
+                onClose={closeModal}
+                onSubmit={handleFormSubmit}
+                initialData={editingPerson}
             />
-            {errors.name && <p className="text-sm mt-1">{errors.name}</p>}
-          </div>
-          <div className="flex justify-end space-x-2">
-            <button
-              type="button"
-              onClick={closeModal}
-              className="px-4 py-2 border rounded"
-            >
-              Cancel
-            </button>
-            <button type="submit" className="btn btn-primary">
-              Save
-            </button>
-          </div>
-        </form>
-      </Modal>
-    </div>
-  );
+        </div>
+    );
 }
