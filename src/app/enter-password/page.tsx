@@ -57,13 +57,12 @@ export default function PasswordEntryPage() {
                         </div>
                     )}
 
-                                        <PasswordForm
+                    <PasswordForm
                         password={password}
                         onPasswordChange={setPassword}
                         loading={loading}
                         onSubmit={handleSubmit}
                     />
-
                 </div>
             </div>
         </div>
