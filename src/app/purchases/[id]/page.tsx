@@ -6,6 +6,7 @@ import { formatDate } from "@/lib/utils";
 import DataTable from "@/components/DataTable";
 import PurchaseDetailsCard from "@/components/purchases/PurchaseDetailsCard";
 import { usePurchaseDetails } from "@/lib/hooks/usePurchaseDetails";
+import { CURRENCY_DECIMAL_PLACES } from "@/lib/constants";
 
 export default function PurchaseDetailPage() {
     const params = useParams();
@@ -112,7 +113,9 @@ export default function PurchaseDetailPage() {
                     {
                         header: "Amount",
                         cell: (transaction) =>
-                            `$${transaction.amount.toFixed(2)}`,
+                            `₱${transaction.amount.toFixed(
+                                CURRENCY_DECIMAL_PLACES,
+                            )}`,
                     },
                     {
                         header: "Card",
