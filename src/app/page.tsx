@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { NAV_CARDS, HOW_IT_WORKS_ITEMS } from "@/lib/constants";
+import { Card } from "@/components/base";
 
 export default function Home() {
     const navCards = NAV_CARDS;
@@ -19,34 +20,34 @@ export default function Home() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 {navCards.map((card, index) => (
-                    <Link
-                        key={index}
-                        href={card.href}
-                        className="shadow bg-primary rounded-lg p-6 hover:shadow-md transition-shadow"
-                    >
-                        <h2 className="text-xl font-bold mb-2 ">
-                            {card.title}
-                        </h2>
-                        <p className="">{card.description}</p>
+                    <Link key={index} href={card.href}>
+                        <Card variant="primary" hover>
+                            <Card.Header>{card.title}</Card.Header>
+                            <Card.Body>
+                                <p>{card.description}</p>
+                            </Card.Body>
+                        </Card>
                     </Link>
                 ))}
             </div>
 
-            <div className=" shadow rounded-lg p-6">
-                <h2 className="text-xl font-bold mb-4 ">How It Works</h2>
-                <ul className="list-disc pl-5 space-y-2 ">
-                    {howItWorksItems.map((item, index) => (
-                        <li key={index}>
-                            <strong className="">{item.title}:</strong>
-                            {item.title === "Supplementary Cards" ||
-                            item.title === "BNPL"
-                                ? " "
-                                : " "}
-                            {item.description}
-                        </li>
-                    ))}
-                </ul>
-            </div>
+            <Card>
+                <Card.Header>How It Works</Card.Header>
+                <Card.Body>
+                    <ul className="list-disc pl-5 space-y-2">
+                        {howItWorksItems.map((item, index) => (
+                            <li key={index}>
+                                <strong>{item.title}:</strong>
+                                {item.title === "Supplementary Cards" ||
+                                item.title === "BNPL"
+                                    ? " "
+                                    : " "}
+                                {item.description}
+                            </li>
+                        ))}
+                    </ul>
+                </Card.Body>
+            </Card>
         </div>
     );
 }
