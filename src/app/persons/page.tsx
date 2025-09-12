@@ -5,6 +5,7 @@ import DataTable from "@/components/DataTable";
 import PersonForm from "@/components/persons/PersonForm";
 import { PersonService } from "@/lib/services/personService";
 import Link from "next/link";
+import { LoadingSpinner } from "@/components/base";
 
 export default function PersonsPage() {
     const [persons, setPersons] = useState<Person[]>([]);
@@ -75,7 +76,7 @@ export default function PersonsPage() {
             </button>
 
             {isLoading ? (
-                <div>Loading...</div>
+                <LoadingSpinner />
             ) : (
                 <DataTable
                     data={persons}

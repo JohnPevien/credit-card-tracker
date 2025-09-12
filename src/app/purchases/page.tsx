@@ -8,6 +8,7 @@ import PurchaseForm from "@/components/PurchaseForm";
 import PurchaseFilters from "@/components/purchases/PurchaseFilters";
 import { DataService } from "@/lib/services/dataService";
 import { CURRENCY_DECIMAL_PLACES } from "@/lib/constants";
+import { LoadingSpinner } from "@/components/base";
 
 export default function PurchasesPage() {
     const [purchases, setPurchases] = useState<Purchase[]>([]);
@@ -103,7 +104,7 @@ export default function PurchasesPage() {
     });
 
     if (isLoading) {
-        return <div className="text-center p-8">Loading...</div>;
+        return <LoadingSpinner />;
     }
 
     return (
