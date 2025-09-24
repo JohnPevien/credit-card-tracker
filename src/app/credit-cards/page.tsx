@@ -6,6 +6,7 @@ import DataTable from "@/components/DataTable";
 import Modal from "@/components/Modal";
 import CreditCardForm from "@/components/credit-cards/CreditCardForm";
 import { PHILIPPINE_BANKS } from "@/lib/constants";
+import { ActionButtons } from "@/components/base";
 
 export default function CreditCardsPage() {
     const [cards, setCards] = useState<CreditCard[]>([]);
