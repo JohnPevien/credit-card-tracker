@@ -112,13 +112,17 @@ export default function PurchaseForm({
 
         setIsSubmitting(true);
         try {
+            const parsedAmount = Number.parseFloat(formData.total_amount);
+            const parsedInstallments = Number.parseInt(
+                formData.num_installments,
+                10,
+            );
             const submitData = {
                 ...formData,
-                total_amount: parseFloat(formData.total_amount),
-                num_installments: Math.max(
-                    1,
-                    parseInt(formData.num_installments),
-                ),
+                total_amount: Number.isNaN(parsedAmount) ? 0 : parsedAmount,
+                num_installments: Number.isNaN(parsedInstallments)
+                    ? 1
+                    : Math.max(1, parsedInstallments),
             };
 
             await onSubmit(submitData);
