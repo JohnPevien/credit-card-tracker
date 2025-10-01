@@ -5,7 +5,7 @@ import { CreditCard, CreditCardInsert } from "@/lib/supabase";
 import { useZodForm } from "@/lib/hooks/useZodForm";
 import { refinedCreditCardSchema } from "@/lib/schemas";
 import { FormSelect } from "@/components/FormSelect";
-import { PHILIPPINE_BANKS } from "@/lib/constants";
+import { PHILIPPINE_BANKS, FORM_LABELS } from "@/lib/constants";
 
 interface CreditCardFormProps {
     onSubmit: (data: CreditCardInsert) => void;
@@ -55,7 +55,7 @@ export default function CreditCardForm({
     return (
         <form onSubmit={handleSubmit}>
             <div className="mb-4">
-                <label className="block mb-1">Card Name</label>
+                <label className="block mb-1">{FORM_LABELS.CARD_NAME}</label>
                 <input
                     type="text"
                     name="credit_card_name"
@@ -71,7 +71,7 @@ export default function CreditCardForm({
             </div>
 
             <div className="mb-4">
-                <label className="block mb-1">Last 4 Digits</label>
+                <label className="block mb-1">{FORM_LABELS.LAST_FOUR_DIGITS}</label>
                 <input
                     type="text"
                     name="last_four_digits"
@@ -88,7 +88,7 @@ export default function CreditCardForm({
             </div>
 
             <div className="mb-4">
-                <label className="block mb-1">Cardholder Name</label>
+                <label className="block mb-1">{FORM_LABELS.CARDHOLDER_NAME}</label>
                 <input
                     type="text"
                     name="cardholder_name"
@@ -104,7 +104,7 @@ export default function CreditCardForm({
             </div>
 
             <div className="mb-4">
-                <label className="block mb-1">Issuer</label>
+                <label className="block mb-1">{FORM_LABELS.ISSUER}</label>
                 <FormSelect
                     name="issuer"
                     value={formData.issuer}
@@ -130,13 +130,13 @@ export default function CreditCardForm({
                         onChange={handleChange}
                         className="mr-2"
                     />
-                    Supplementary Card
+                    {FORM_LABELS.SUPPLEMENTARY_CARD}
                 </label>
             </div>
 
             {formData.is_supplementary && (
                 <div className="mb-4">
-                    <label className="block mb-1">Principal Card</label>
+                    <label className="block mb-1">{FORM_LABELS.PRINCIPAL_CARD}</label>
                     <FormSelect
                         name="principal_card_id"
                         value={formData.principal_card_id}
