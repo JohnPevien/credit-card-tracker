@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Modal from "@/components/Modal";
 import { personSchema } from "@/lib/schemas";
 import { useZodForm } from "@/lib/hooks/useZodForm";
@@ -19,6 +19,8 @@ export default function PersonForm({
 }: PersonFormProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    const initialFormValues = useMemo(() => ({ name: "" }), []);
+
     const {
         values: formData,
         handleChange,
@@ -26,9 +28,7 @@ export default function PersonForm({
         validate,
         reset,
         setValues,
-    } = useZodForm(personSchema, {
-        name: "",
-    });
+    } = useZodForm(personSchema, initialFormValues);
 
     // Update form when initialData changes
     useEffect(() => {

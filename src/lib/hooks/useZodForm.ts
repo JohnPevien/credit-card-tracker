@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { z } from "zod";
 
 export function useZodForm<T extends z.ZodType>(
@@ -11,8 +11,13 @@ export function useZodForm<T extends z.ZodType>(
     // State for validation errors
     const [errors, setErrors] = useState<Record<string, string>>({});
 
+    // Stable setValues function
+    const setValuesCallback = useCallback((newValues: z.infer<T> | ((prev: z.infer<T>) => z.infer<T>)) => {
+        setValues(newValues);
+    }, []);
+
     // Handle input changes
-    const handleChange = (
+    const handleChange = useCallback((
         e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
     ) => {
         const { name, value, type } = e.target as HTMLInputElement;
@@ -32,17 +37,16 @@ export function useZodForm<T extends z.ZodType>(
         }
 
         // Clear error for this field when user makes changes
-        if (errors[name]) {
-            setErrors((prev) => {
-                const newErrors = { ...prev };
-                delete newErrors[name];
-                return newErrors;
-            });
-        }
-    };
+        setErrors((prev) => {
+            if (!prev[name]) return prev;
+            const newErrors = { ...prev };
+            delete newErrors[name];
+            return newErrors;
+        });
+    }, []);
 
     // Validate the form
-    const validate = (): boolean => {
+    const validate = useCallback((): boolean => {
         try {
             schema.parse(values);
             setErrors({});
@@ -59,17 +63,17 @@ export function useZodForm<T extends z.ZodType>(
             }
             return false;
         }
-    };
+    }, [schema, values]);
 
     // Reset the form
-    const reset = (newValues: z.infer<T> = initialValues) => {
+    const reset = useCallback((newValues: z.infer<T> = initialValues) => {
         setValues(newValues);
         setErrors({});
-    };
+    }, [initialValues]);
 
     return {
         values,
-        setValues,
+        setValues: setValuesCallback,
         errors,
         handleChange,
         validate,
