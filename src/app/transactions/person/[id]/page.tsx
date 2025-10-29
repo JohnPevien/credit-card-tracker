@@ -17,12 +17,14 @@ export default function PersonTransactionsPage() {
     const [filterDescription, setFilterDescription] = useState<string>("");
     const [filterFrom, setFilterFrom] = useState<string>("");
     const [filterTo, setFilterTo] = useState<string>("");
+    const [filterPaid, setFilterPaid] = useState<string>("all");
 
     const clearFilters = () => {
         setFilterCard("");
         setFilterDescription("");
         setFilterFrom("");
         setFilterTo("");
+        setFilterPaid("all");
     };
 
     useEffect(() => {
@@ -113,11 +115,17 @@ export default function PersonTransactionsPage() {
             const matchesTo = filterTo
                 ? new Date(tr.date) <= new Date(filterTo)
                 : true;
+            const matchesPaid =
+                filterPaid === "all"
+                    ? true
+                    : filterPaid === "paid"
+                    ? tr.paid
+                    : !tr.paid;
             return (
-                matchesCard && matchesDescription && matchesFrom && matchesTo
+                matchesCard && matchesDescription && matchesFrom && matchesTo && matchesPaid
             );
         });
-    }, [transactions, filterCard, filterDescription, filterFrom, filterTo]);
+    }, [transactions, filterCard, filterDescription, filterFrom, filterTo, filterPaid]);
 
     return (
         <div className="container space-y-5 mx-auto">
@@ -133,7 +141,7 @@ export default function PersonTransactionsPage() {
 
             <div className="mb-6 p-4 bg-base-200 rounded-lg">
                 <h2 className="text-lg font-semibold mb-3">Filters</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                     <div>
                         <label className="label">Credit Card</label>
                         <select
@@ -182,6 +190,19 @@ export default function PersonTransactionsPage() {
                             value={filterTo}
                             onChange={(e) => setFilterTo(e.target.value)}
                         />
+                    </div>
+
+                    <div>
+                        <label className="label">Payment Status</label>
+                        <select
+                            className="select select-bordered w-full"
+                            value={filterPaid}
+                            onChange={(e) => setFilterPaid(e.target.value)}
+                        >
+                            <option value="all">All</option>
+                            <option value="paid">Paid</option>
+                            <option value="unpaid">Unpaid</option>
+                        </select>
                     </div>
                 </div>
 
