@@ -7,10 +7,12 @@ interface PurchaseFiltersProps {
     filterPerson: string;
     filterCard: string;
     filterDescription: string;
+    filterPaid: string;
     onFilterChange: (filters: {
         person: string;
         card: string;
         description: string;
+        paid: string;
     }) => void;
 }
 
@@ -20,6 +22,7 @@ export default function PurchaseFilters({
     filterPerson,
     filterCard,
     filterDescription,
+    filterPaid,
     onFilterChange,
 }: PurchaseFiltersProps) {
     const handlePersonChange = (value: string) => {
@@ -27,6 +30,7 @@ export default function PurchaseFilters({
             person: value,
             card: filterCard,
             description: filterDescription,
+            paid: filterPaid,
         });
     };
 
@@ -35,6 +39,7 @@ export default function PurchaseFilters({
             person: filterPerson,
             card: value,
             description: filterDescription,
+            paid: filterPaid,
         });
     };
 
@@ -45,6 +50,16 @@ export default function PurchaseFilters({
             person: filterPerson,
             card: filterCard,
             description: e.target.value,
+            paid: filterPaid,
+        });
+    };
+
+    const handlePaidChange = (value: string) => {
+        onFilterChange({
+            person: filterPerson,
+            card: filterCard,
+            description: filterDescription,
+            paid: value,
         });
     };
 
@@ -53,6 +68,7 @@ export default function PurchaseFilters({
             person: "",
             card: "",
             description: "",
+            paid: "",
         });
     };
 
@@ -89,6 +105,20 @@ export default function PurchaseFilters({
                                 c.last_four_digits
                             }`,
                         })),
+                    ]}
+                />
+            </div>
+            <div className="form-control">
+                <div className="label">
+                    <span className="label-text">Paid Status:</span>
+                </div>
+                <Select
+                    value={filterPaid}
+                    onChange={handlePaidChange}
+                    options={[
+                        { value: "", label: "All" },
+                        { value: "paid", label: "Paid" },
+                        { value: "unpaid", label: "Unpaid" },
                     ]}
                 />
             </div>
