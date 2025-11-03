@@ -5,7 +5,9 @@ import { Purchase, CreditCard, Person } from "@/lib/supabase";
 import DataTable from "@/components/DataTable";
 import Modal from "@/components/Modal";
 import PurchaseForm from "@/components/PurchaseForm";
-import PurchaseFilters from "@/components/purchases/PurchaseFilters";
+import TransactionFilters, {
+    TransactionFiltersState,
+} from "@/components/transactions/TransactionFilters";
 import { DataService } from "@/lib/services/dataService";
 import { CURRENCY_DECIMAL_PLACES } from "@/lib/constants";
 import { LoadingSpinner } from "@/components/base";
@@ -16,10 +18,13 @@ export default function PurchasesPage() {
     const [creditCards, setCreditCards] = useState<CreditCard[]>([]);
     const [persons, setPersons] = useState<Person[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [filters, setFilters] = useState({
+    const [filters, setFilters] = useState<TransactionFiltersState>({
         person: "",
         card: "",
         description: "",
+        dateFrom: "",
+        dateTo: "",
+        paidStatus: "all",
     });
 
     useEffect(() => {
@@ -114,13 +119,16 @@ export default function PurchasesPage() {
                 Add Purchase
             </button>
 
-            <PurchaseFilters
+            <TransactionFilters
+                config={{
+                    showPerson: true,
+                    showCard: true,
+                    showDescription: true,
+                }}
+                filters={filters}
+                onFilterChange={setFilters}
                 persons={persons}
                 creditCards={creditCards}
-                filterPerson={filters.person}
-                filterCard={filters.card}
-                filterDescription={filters.description}
-                onFilterChange={setFilters}
             />
 
             <DataTable
