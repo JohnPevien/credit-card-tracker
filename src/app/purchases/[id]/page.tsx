@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { formatDate } from "@/lib/utils";
@@ -7,11 +7,22 @@ import DataTable from "@/components/DataTable";
 import PurchaseDetailsCard from "@/components/purchases/PurchaseDetailsCard";
 import { usePurchaseDetails } from "@/lib/hooks/usePurchaseDetails";
 import { CURRENCY_DECIMAL_PLACES } from "@/lib/constants";
+import TransactionFilters, {
+    TransactionFiltersState,
+} from "@/components/transactions/TransactionFilters";
 
 export default function PurchaseDetailPage() {
     const params = useParams();
     const id = params.id as string;
     const [updatingId, setUpdatingId] = useState<string | null>(null);
+    const [filters, setFilters] = useState<TransactionFiltersState>({
+        person: "",
+        card: "",
+        description: "",
+        dateFrom: "",
+        dateTo: "",
+        paidStatus: "all",
+    });
 
     const {
         purchase,
@@ -20,6 +31,24 @@ export default function PurchaseDetailPage() {
         error,
         updateTransactionPaidStatus,
     } = usePurchaseDetails(id);
+
+    // Must call useMemo before any early returns (React Hooks rules)
+    const filteredTransactions = useMemo(() => {
+        return transactions.filter((tr) => {
+            const matchesDescription = filters.description
+                ? tr.description
+                      .toLowerCase()
+                      .includes(filters.description.toLowerCase())
+                : true;
+            const matchesPaid =
+                filters.paidStatus === "all"
+                    ? true
+                    : filters.paidStatus === "paid"
+                    ? tr.paid
+                    : !tr.paid;
+            return matchesDescription && matchesPaid;
+        });
+    }, [transactions, filters]);
 
     // Handler to update paid status
     async function handlePaidChange(transactionId: string, paid: boolean) {
@@ -75,8 +104,17 @@ export default function PurchaseDetailPage() {
 
             <h2 className="text-xl font-semibold mb-4">Transactions</h2>
 
+            <TransactionFilters
+                config={{
+                    showDescription: true,
+                    showPaidStatus: true,
+                }}
+                filters={filters}
+                onFilterChange={setFilters}
+            />
+
             <DataTable
-                data={transactions}
+                data={filteredTransactions}
                 keyField="id"
                 emptyMessage="No transactions found"
                 columns={[
