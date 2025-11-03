@@ -23,8 +23,12 @@ export default function PasswordEntryPage() {
                 router.push("/");
                 router.refresh(); // Ensure middleware reevaluates the request
             }
-        } catch (err: any) {
-            setError(err.message || "An error occurred while authenticating");
+        } catch (err: unknown) {
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : "An error occurred while authenticating",
+            );
         } finally {
             setLoading(false);
         }

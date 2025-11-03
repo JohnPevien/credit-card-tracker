@@ -25,7 +25,7 @@ export class CreditCardService {
         }
     }
 
-    static async createCard(cardData: CreditCardInsert): Promise<any> {
+    static async createCard(cardData: CreditCardInsert): Promise<void> {
         try {
             const { error } = await supabase
                 .from("credit_cards")
@@ -40,7 +40,7 @@ export class CreditCardService {
     static async updateCard(
         cardId: string,
         cardData: CreditCardInsert,
-    ): Promise<any> {
+    ): Promise<void> {
         try {
             const { error } = await supabase
                 .from("credit_cards")
@@ -53,7 +53,7 @@ export class CreditCardService {
         }
     }
 
-    static async deleteCard(cardId: string): Promise<any> {
+    static async deleteCard(cardId: string): Promise<void> {
         try {
             const { error } = await supabase
                 .from("credit_cards")
