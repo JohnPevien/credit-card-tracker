@@ -46,20 +46,21 @@ const CardRoot = React.forwardRef<HTMLDivElement, CardProps>(
     },
 );
 
-const CardHeader = React.forwardRef<HTMLElement, CardHeaderProps>(
-    ({ children, as = "h2", className = "", ...props }, ref) => {
-        const Component = as;
-        return (
-            <Component
-                ref={ref as any}
-                className={`text-xl font-bold mb-2 ${className}`}
-                {...props}
-            >
-                {children}
-            </Component>
-        );
-    },
-);
+const CardHeader = React.forwardRef<
+    HTMLHeadingElement,
+    CardHeaderProps
+>(({ children, as = "h2", className = "", ...props }, ref) => {
+    const Component = as;
+    return (
+        <Component
+            ref={ref}
+            className={`text-xl font-bold mb-2 ${className}`}
+            {...props}
+        >
+            {children}
+        </Component>
+    );
+});
 
 const CardBody = React.forwardRef<HTMLDivElement, CardBodyProps>(
     ({ children, className = "", ...props }, ref) => {
