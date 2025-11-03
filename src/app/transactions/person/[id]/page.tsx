@@ -6,6 +6,9 @@ import { supabase, Transaction, CreditCard } from "@/lib/supabase";
 import { formatDate, handleTransactionPaidChange } from "@/lib/utils";
 import DataTable from "@/components/DataTable";
 import { CURRENCY_DECIMAL_PLACES } from "@/lib/constants";
+import TransactionFilters, {
+    TransactionFiltersState,
+} from "@/components/transactions/TransactionFilters";
 
 export default function PersonTransactionsPage() {
     const { id: personId } = useParams() as { id: string };
@@ -13,25 +16,21 @@ export default function PersonTransactionsPage() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [creditCards, setCreditCards] = useState<CreditCard[]>([]);
     const [updatingId, setUpdatingId] = useState<string | null>(null);
-    const [filterCard, setFilterCard] = useState<string>("");
-    const [filterDescription, setFilterDescription] = useState<string>("");
-    const [filterFrom, setFilterFrom] = useState<string>("");
-    const [filterTo, setFilterTo] = useState<string>("");
-    const [filterPaid, setFilterPaid] = useState<string>("all");
-
-    const clearFilters = () => {
-        setFilterCard("");
-        setFilterDescription("");
-        setFilterFrom("");
-        setFilterTo("");
-        setFilterPaid("all");
-    };
+    const [filters, setFilters] = useState<TransactionFiltersState>({
+        person: "",
+        card: "",
+        description: "",
+        dateFrom: "",
+        dateTo: "",
+        paidStatus: "all",
+    });
 
     useEffect(() => {
         if (personId) {
             loadTransactions();
             loadCreditCards();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [personId]);
 
     async function loadTransactions() {
@@ -101,31 +100,31 @@ export default function PersonTransactionsPage() {
 
     const filteredTransactions = useMemo(() => {
         return transactions.filter((tr) => {
-            const matchesCard = filterCard
-                ? tr.expand?.credit_card?.id === filterCard
+            const matchesCard = filters.card
+                ? tr.expand?.credit_card?.id === filters.card
                 : true;
-            const matchesDescription = filterDescription
+            const matchesDescription = filters.description
                 ? tr.description
                       .toLowerCase()
-                      .includes(filterDescription.toLowerCase())
+                      .includes(filters.description.toLowerCase())
                 : true;
-            const matchesFrom = filterFrom
-                ? new Date(tr.date) >= new Date(filterFrom)
+            const matchesFrom = filters.dateFrom
+                ? new Date(tr.date) >= new Date(filters.dateFrom)
                 : true;
-            const matchesTo = filterTo
-                ? new Date(tr.date) <= new Date(filterTo)
+            const matchesTo = filters.dateTo
+                ? new Date(tr.date) <= new Date(filters.dateTo)
                 : true;
             const matchesPaid =
-                filterPaid === "all"
+                filters.paidStatus === "all"
                     ? true
-                    : filterPaid === "paid"
+                    : filters.paidStatus === "paid"
                     ? tr.paid
                     : !tr.paid;
             return (
                 matchesCard && matchesDescription && matchesFrom && matchesTo && matchesPaid
             );
         });
-    }, [transactions, filterCard, filterDescription, filterFrom, filterTo, filterPaid]);
+    }, [transactions, filters]);
 
     return (
         <div className="container space-y-5 mx-auto">
@@ -139,82 +138,17 @@ export default function PersonTransactionsPage() {
                 {transactions[0]?.expand?.person?.name || "Person"} Transactions
             </h1>
 
-            <div className="mb-6 p-4 bg-base-200 rounded-lg">
-                <h2 className="text-lg font-semibold mb-3">Filters</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                    <div>
-                        <label className="label">Credit Card</label>
-                        <select
-                            className="select select-bordered w-full"
-                            value={filterCard}
-                            onChange={(e) => setFilterCard(e.target.value)}
-                        >
-                            <option value="">All Cards</option>
-                            {creditCards.map((card) => (
-                                <option key={card.id} value={card.id}>
-                                    {card.credit_card_name || card.issuer} *
-                                    {card.last_four_digits}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div>
-                        <label className="label">Description</label>
-                        <input
-                            type="text"
-                            className="input input-bordered w-full"
-                            placeholder="Filter by description"
-                            value={filterDescription}
-                            onChange={(e) =>
-                                setFilterDescription(e.target.value)
-                            }
-                        />
-                    </div>
-
-                    <div>
-                        <label className="label">From Date</label>
-                        <input
-                            type="date"
-                            className="input input-bordered w-full"
-                            value={filterFrom}
-                            onChange={(e) => setFilterFrom(e.target.value)}
-                        />
-                    </div>
-
-                    <div>
-                        <label className="label">To Date</label>
-                        <input
-                            type="date"
-                            className="input input-bordered w-full"
-                            value={filterTo}
-                            onChange={(e) => setFilterTo(e.target.value)}
-                        />
-                    </div>
-
-                    <div>
-                        <label className="label">Payment Status</label>
-                        <select
-                            className="select select-bordered w-full"
-                            value={filterPaid}
-                            onChange={(e) => setFilterPaid(e.target.value)}
-                        >
-                            <option value="all">All</option>
-                            <option value="paid">Paid</option>
-                            <option value="unpaid">Unpaid</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div className="mt-4 flex justify-end">
-                    <button
-                        className="btn btn-outline btn-sm"
-                        onClick={clearFilters}
-                    >
-                        Clear Filters
-                    </button>
-                </div>
-            </div>
+            <TransactionFilters
+                config={{
+                    showCard: true,
+                    showDescription: true,
+                    showDateRange: true,
+                    showPaidStatus: true,
+                }}
+                filters={filters}
+                onFilterChange={setFilters}
+                creditCards={creditCards}
+            />
 
             <DataTable
                 data={filteredTransactions}
