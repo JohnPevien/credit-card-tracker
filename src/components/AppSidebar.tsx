@@ -43,7 +43,7 @@ const navLinks = [
 ];
 
 export default function AppSidebar() {
-    const [open, setOpen] = useState(true);
+    const [open, setOpen] = useState(false);
 
     return (
         <Sidebar open={open} setOpen={setOpen} animate={true}>
