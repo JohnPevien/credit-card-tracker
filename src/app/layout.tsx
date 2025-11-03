@@ -30,8 +30,8 @@ export default function RootLayout({
             >
                 <div className="flex h-screen w-full overflow-hidden">
                     <AppSidebar />
-                    <div className="flex-1 overflow-auto">
-                        <main className="p-6">{children}</main>
+                    <div className="flex-1 overflow-auto relative z-10 pt-12 md:pt-0">
+                        <main className="p-6 block">{children}</main>
                     </div>
                 </div>
             </body>

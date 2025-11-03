@@ -112,7 +112,7 @@ export const MobileSidebar = ({
         <>
             <div
                 className={cn(
-                    "h-10 px-4 py-4 flex flex-row md:hidden items-center justify-between bg-primary w-full",
+                    "fixed top-0 left-0 right-0 h-10 px-4 py-4 flex flex-row md:hidden items-center justify-between bg-primary w-full z-30",
                 )}
                 {...props}
             >
@@ -124,27 +124,37 @@ export const MobileSidebar = ({
                 </div>
                 <AnimatePresence>
                     {open && (
-                        <motion.div
-                            initial={{ x: "-100%", opacity: 0 }}
-                            animate={{ x: 0, opacity: 1 }}
-                            exit={{ x: "-100%", opacity: 0 }}
-                            transition={{
-                                duration: 0.3,
-                                ease: "easeInOut",
-                            }}
-                            className={cn(
-                                "fixed h-full w-full inset-0 dark:bg-neutral-900 p-10 z-[100] flex flex-col justify-between",
-                                className,
-                            )}
-                        >
-                            <div
-                                className="absolute right-10 top-10 z-50 text-neutral-800 dark:text-neutral-200 cursor-pointer"
-                                onClick={() => setOpen(!open)}
+                        <>
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.3, ease: "easeInOut" }}
+                                className="fixed inset-0 bg-black bg-opacity-50 z-[40]"
+                                onClick={() => setOpen(false)}
+                            />
+                            <motion.div
+                                initial={{ x: "-100%", opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                exit={{ x: "-100%", opacity: 0 }}
+                                transition={{
+                                    duration: 0.3,
+                                    ease: "easeInOut",
+                                }}
+                                className={cn(
+                                    "fixed h-full w-[80%] inset-y-0 left-0 dark:bg-neutral-900 p-10 z-[50] flex flex-col justify-between",
+                                    className,
+                                )}
                             >
-                                <X />
-                            </div>
-                            {children}
-                        </motion.div>
+                                <div
+                                    className="absolute right-10 top-10 z-50 text-neutral-800 dark:text-neutral-200 cursor-pointer"
+                                    onClick={() => setOpen(!open)}
+                                >
+                                    <X />
+                                </div>
+                                {children}
+                            </motion.div>
+                        </>
                     )}
                 </AnimatePresence>
             </div>
