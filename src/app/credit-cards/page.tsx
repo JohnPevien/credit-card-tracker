@@ -5,7 +5,6 @@ import { CreditCardService } from "@/lib/services/creditCardService";
 import DataTable from "@/components/DataTable";
 import Modal from "@/components/Modal";
 import CreditCardForm from "@/components/credit-cards/CreditCardForm";
-import { PHILIPPINE_BANKS } from "@/lib/constants";
 
 export default function CreditCardsPage() {
     const [cards, setCards] = useState<CreditCard[]>([]);
@@ -36,7 +35,9 @@ export default function CreditCardsPage() {
                 (card) => !card.is_supplementary,
             );
             setPrincipalCards(principalOnly);
-        } catch (error) {}
+        } catch {
+            // Error is already logged in the service
+        }
     }
 
     function openAddModal() {
@@ -62,7 +63,7 @@ export default function CreditCardsPage() {
             }
             closeModal();
             loadCards();
-        } catch (error) {
+        } catch {
             // Error is already logged in the service
         }
     }
@@ -72,7 +73,7 @@ export default function CreditCardsPage() {
             try {
                 await CreditCardService.deleteCard(id);
                 loadCards();
-            } catch (error) {
+            } catch {
                 // Error is already logged in the service
             }
         }
