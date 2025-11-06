@@ -10,7 +10,10 @@ export default function PurchaseDetailsCard({
     purchase,
 }: PurchaseDetailsCardProps) {
     return (
-        <div className="rounded-lg shadow p-6 mb-6">
+        <div
+            className="rounded-lg shadow p-6 mb-6"
+            data-component="PurchaseDetailsCard"
+        >
             <h2 className="text-xl font-semibold mb-4">
                 {purchase.description}
             </h2>

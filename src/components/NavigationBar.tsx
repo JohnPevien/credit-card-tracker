@@ -2,7 +2,10 @@ import Link from "next/link";
 
 export default function NavigationBar() {
     return (
-        <div className="fixed top-4 left-0 right-0 z-50 flex justify-center">
+        <div
+            className="fixed top-4 left-0 right-0 z-50 flex justify-center"
+            data-component="NavigationBar"
+        >
             <nav className="px-6 py-4 rounded-full border">
                 <ul className="flex space-x-6">
                     <li>

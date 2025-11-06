@@ -33,7 +33,10 @@ export default function DataTable<T>({
     className,
 }: DataTableProps<T>) {
     return (
-        <div className={`overflow-x-auto ${className}`}>
+        <div
+            className={`overflow-x-auto ${className}`}
+            data-component="data-table"
+        >
             <Table>
                 <TableHeader>
                     <TableRow>

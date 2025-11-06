@@ -53,7 +53,7 @@ export default function CreditCardForm({
     };
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} data-component="CreditCardForm">
             <div className="mb-4">
                 <label className="block mb-1">{FORM_LABELS.CARD_NAME}</label>
                 <input
@@ -71,7 +71,9 @@ export default function CreditCardForm({
             </div>
 
             <div className="mb-4">
-                <label className="block mb-1">{FORM_LABELS.LAST_FOUR_DIGITS}</label>
+                <label className="block mb-1">
+                    {FORM_LABELS.LAST_FOUR_DIGITS}
+                </label>
                 <input
                     type="text"
                     name="last_four_digits"
@@ -88,7 +90,9 @@ export default function CreditCardForm({
             </div>
 
             <div className="mb-4">
-                <label className="block mb-1">{FORM_LABELS.CARDHOLDER_NAME}</label>
+                <label className="block mb-1">
+                    {FORM_LABELS.CARDHOLDER_NAME}
+                </label>
                 <input
                     type="text"
                     name="cardholder_name"
@@ -136,7 +140,9 @@ export default function CreditCardForm({
 
             {formData.is_supplementary && (
                 <div className="mb-4">
-                    <label className="block mb-1">{FORM_LABELS.PRINCIPAL_CARD}</label>
+                    <label className="block mb-1">
+                        {FORM_LABELS.PRINCIPAL_CARD}
+                    </label>
                     <FormSelect
                         name="principal_card_id"
                         value={formData.principal_card_id}

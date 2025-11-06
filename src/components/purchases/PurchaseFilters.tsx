@@ -73,7 +73,10 @@ export default function PurchaseFilters({
     };
 
     return (
-        <div className="flex gap-4 mb-4 max-w-5xl">
+        <div
+            className="flex gap-4 mb-4 max-w-5xl"
+            data-component="PurchaseFilters"
+        >
             <div className="form-control">
                 <div className="label">
                     <span className="label-text">Person:</span>

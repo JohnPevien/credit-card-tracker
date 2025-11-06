@@ -148,7 +148,7 @@ export default function PurchaseForm({
         label: person.name,
     }));
     return (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} data-component="PurchaseForm">
             <div className="form-control mb-4">
                 <div className="label">
                     <span className="label-text">Credit Card</span>

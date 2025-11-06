@@ -68,7 +68,7 @@ export default function PersonForm({
             onClose={handleClose}
             title={initialData ? "Edit Person" : "Add Person"}
         >
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} data-component="PersonForm">
                 <div className="mb-4">
                     <label className="block mb-1">Name</label>
                     <input
