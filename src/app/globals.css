@@ -39,6 +39,37 @@
   --noise: 0;
 }
 
+/*
+  Safe area utilities for devices with notches/home indicators
+  - Uses env(safe-area-inset-*) so fixed bars don’t overlap system UI
+  - Wrapped in @supports to gracefully skip where CSS max()/env() are unsupported
+  - Apply e.g. `safe-area-inset-bottom` to bottom navs, headers use `-top`
+*/
+@supports (padding: max(0px)) {
+  .safe-area-inset-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+  
+  .safe-area-inset-top {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+  
+  .safe-area-inset-left {
+    padding-left: max(1rem, env(safe-area-inset-left));
+  }
+  
+  .safe-area-inset-right {
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+}
+
+/* Ensure main content doesn't overlap with bottom navigation on mobile */
+@media (max-width: 767px) {
+  main[role="main"] {
+    padding-bottom: 5rem; /* 64px (bottom nav height) + 16px extra space */
+  }
+}
+
 /* @layer base {
   :root {
     --background: 0 0% 100%;

@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import AppSidebar from "@/components/AppSidebar";
+import BottomNavigation from "@/components/BottomNavigation";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,6 +13,12 @@ const geistMono = Geist_Mono({
     variable: "--font-geist-mono",
     subsets: ["latin"],
 });
+
+export const viewport: Viewport = {
+    width: "device-width",
+    initialScale: 1,
+    viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
     title: "Credit Card Tracker",
@@ -31,9 +38,15 @@ export default function RootLayout({
                 <div className="flex h-screen w-full overflow-hidden">
                     <AppSidebar />
                     <div className="flex-1 overflow-auto relative z-10">
-                        <main className="p-6 block">{children}</main>
+                        <main 
+                            className="p-6 block pb-6 lg:pb-6" 
+                            role="main"
+                        >
+                            {children}
+                        </main>
                     </div>
                 </div>
+                <BottomNavigation />
             </body>
         </html>
     );
