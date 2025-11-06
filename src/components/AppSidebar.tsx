@@ -46,7 +46,12 @@ export default function AppSidebar() {
     const [open, setOpen] = useState(false);
 
     return (
-        <Sidebar open={open} setOpen={setOpen} animate={true}>
+        <Sidebar
+            open={open}
+            setOpen={setOpen}
+            animate={true}
+            data-component="app-sidebar"
+        >
             <SidebarBody className="flex flex-col gap-4">
                 <div
                     className="flex items-center gap-2 mb-6 cursor-pointer"
