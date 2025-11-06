@@ -1,6 +1,14 @@
 "use client";
 
-import { Home, CreditCard, Users, ShoppingBag, FileText } from "lucide-react";
+import {
+    Home,
+    CreditCard,
+    Users,
+    ShoppingBag,
+    FileText,
+    Menu,
+    X,
+} from "lucide-react";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
 import { useState } from "react";
 
@@ -57,7 +65,11 @@ export default function AppSidebar() {
                     className="flex items-center gap-2 mb-6 cursor-pointer"
                     onClick={() => setOpen(!open)}
                 >
-                    <CreditCard className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
+                    {open ? (
+                        <X className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
+                    ) : (
+                        <Menu className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
+                    )}
                 </div>
 
                 <div className="flex flex-col gap-2">
