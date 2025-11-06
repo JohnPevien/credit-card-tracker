@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import {
     Home,
     CreditCard,
@@ -11,44 +12,24 @@ import {
 } from "lucide-react";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
 import { useState } from "react";
+import { NAV_LINKS } from "@/lib/constants";
 
-const navLinks = [
-    {
-        label: "Home",
-        href: "/",
-        icon: (
-            <Home className="w-5 h-5 text-neutral-700 dark:text-neutral-200" />
-        ),
-    },
-    {
-        label: "Credit Cards",
-        href: "/credit-cards",
-        icon: (
-            <CreditCard className="w-5 h-5 text-neutral-700 dark:text-neutral-200" />
-        ),
-    },
-    {
-        label: "Persons",
-        href: "/persons",
-        icon: (
-            <Users className="w-5 h-5 text-neutral-700 dark:text-neutral-200" />
-        ),
-    },
-    {
-        label: "Purchases",
-        href: "/purchases",
-        icon: (
-            <ShoppingBag className="w-5 h-5 text-neutral-700 dark:text-neutral-200" />
-        ),
-    },
-    {
-        label: "Transactions",
-        href: "/transactions",
-        icon: (
-            <FileText className="w-5 h-5 text-neutral-700 dark:text-neutral-200" />
-        ),
-    },
-];
+const iconMap = {
+    Home,
+    CreditCard,
+    Users,
+    ShoppingBag,
+    FileText,
+};
+
+const navLinks = NAV_LINKS.map((link) => ({
+    ...link,
+    icon: iconMap[link.icon as keyof typeof iconMap]
+        ? React.createElement(iconMap[link.icon as keyof typeof iconMap], {
+              className: "w-5 h-5 text-neutral-700 dark:text-neutral-200",
+          })
+        : null,
+}));
 
 export default function AppSidebar() {
     const [open, setOpen] = useState(false);

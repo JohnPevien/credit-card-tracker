@@ -1,3 +1,31 @@
+export const NAV_LINKS = [
+    {
+        label: "Home",
+        href: "/",
+        icon: "Home",
+    },
+    {
+        label: "Credit Cards",
+        href: "/credit-cards",
+        icon: "CreditCard",
+    },
+    {
+        label: "Persons",
+        href: "/persons",
+        icon: "Users",
+    },
+    {
+        label: "Purchases",
+        href: "/purchases",
+        icon: "ShoppingBag",
+    },
+    {
+        label: "Transactions",
+        href: "/transactions",
+        icon: "FileText",
+    },
+];
+
 export const NAV_CARDS = [
     {
         href: "/credit-cards",
