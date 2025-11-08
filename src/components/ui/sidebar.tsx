@@ -62,6 +62,7 @@ export const Sidebar = ({
     open?: boolean;
     setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
     animate?: boolean;
+    className?: string;
 }) => {
     return (
         <SidebarProvider open={open} setOpen={setOpen} animate={animate}>

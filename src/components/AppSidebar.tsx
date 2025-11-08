@@ -11,7 +11,6 @@ import {
     X,
 } from "lucide-react";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
-import { useState } from "react";
 import { NAV_LINKS } from "@/lib/constants";
 
 const iconMap = {
@@ -20,6 +19,10 @@ const iconMap = {
     Users,
     ShoppingBag,
     FileText,
+};
+
+type Props = {
+    className: string;
 };
 
 const navLinks = NAV_LINKS.map((link) => ({
@@ -31,34 +34,18 @@ const navLinks = NAV_LINKS.map((link) => ({
         : null,
 }));
 
-export default function AppSidebar() {
-    const [open, setOpen] = useState(false);
-
+export default function AppSidebar({ className }: Props) {
     return (
-        <Sidebar
-            open={open}
-            setOpen={setOpen}
-            animate={true}
-            data-component="app-sidebar"
-        >
-            <SidebarBody className="flex flex-col gap-4">
-                <div
-                    className="flex items-center gap-2 mb-6 cursor-pointer"
-                    onClick={() => setOpen(!open)}
-                >
-                    {open ? (
-                        <X className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
-                    ) : (
-                        <Menu className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
-                    )}
-                </div>
-
-                <div className="flex flex-col gap-2">
-                    {navLinks.map((link) => (
-                        <SidebarLink key={link.href} link={link} />
-                    ))}
-                </div>
-            </SidebarBody>
-        </Sidebar>
+        <div className={className} data-component="app-sidebar">
+            <Sidebar open={true} animate={false}>
+                <SidebarBody className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-2">
+                        {navLinks.map((link) => (
+                            <SidebarLink key={link.href} link={link} />
+                        ))}
+                    </div>
+                </SidebarBody>
+            </Sidebar>
+        </div>
     );
 }
