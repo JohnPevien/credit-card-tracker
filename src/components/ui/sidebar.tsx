@@ -5,7 +5,9 @@ import Link, { LinkProps } from "next/link";
 import React, { useState, createContext, useContext } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
-interface Links {
+const SIDEBAR_DESKTOP_WIDTH = "200px";
+
+interface SidebarLinkItem {
     label: string;
     href: string;
     icon: React.JSX.Element | React.ReactNode;
@@ -89,11 +91,22 @@ export const DesktopSidebar = ({
     return (
         <motion.div
             className={cn(
-                "h-full px-4 py-4 hidden md:flex md:flex-col w-[200px] flex-shrink-0 max-md:hidden",
+                "h-full px-4 py-4 hidden md:flex md:flex-col flex-shrink-0 max-md:hidden",
                 className,
             )}
+            style={{
+                width: animate
+                    ? open
+                        ? SIDEBAR_DESKTOP_WIDTH
+                        : "60px"
+                    : SIDEBAR_DESKTOP_WIDTH,
+            }}
             animate={{
-                width: animate ? (open ? "200px" : "60px") : "200px",
+                width: animate
+                    ? open
+                        ? SIDEBAR_DESKTOP_WIDTH
+                        : "60px"
+                    : SIDEBAR_DESKTOP_WIDTH,
             }}
             {...props}
         >
@@ -102,10 +115,10 @@ export const DesktopSidebar = ({
     );
 };
 
+// deprecated since we now use BottomNavigation for mobile nav but keeping this
 export const MobileSidebar = ({
     className,
     children,
-    ...props
 }: React.ComponentProps<"div">) => {
     const { open, setOpen } = useSidebar();
     return (
@@ -151,10 +164,9 @@ export const SidebarLink = ({
     className,
     ...props
 }: {
-    link: Links;
+    link: SidebarLinkItem;
     className?: string;
-    props?: LinkProps;
-}) => {
+} & Omit<LinkProps, "href">) => {
     const { open, animate } = useSidebar();
     return (
         <Link
@@ -168,14 +180,25 @@ export const SidebarLink = ({
             {link.icon}
             <motion.span
                 animate={{
-                    display: animate
-                        ? open
-                            ? "inline-block"
-                            : "none"
-                        : "inline-block",
                     opacity: animate ? (open ? 1 : 0) : 1,
+                    transform: animate
+                        ? open
+                            ? "translateX(0)"
+                            : "translateX(-10px)"
+                        : "translateX(0)",
                 }}
-                className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0"
+                transition={{
+                    duration: 0.2,
+                    ease: "easeInOut",
+                }}
+                className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0 overflow-hidden"
+                style={{
+                    maxWidth: animate
+                        ? open
+                            ? SIDEBAR_DESKTOP_WIDTH
+                            : "0"
+                        : SIDEBAR_DESKTOP_WIDTH,
+                }}
             >
                 {link.label}
             </motion.span>
