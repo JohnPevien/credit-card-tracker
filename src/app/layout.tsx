@@ -43,7 +43,7 @@ export default function RootLayout({
                         </main>
                     </div>
                 </div>
-                <BottomNavigation />
+                <BottomNavigation className="md:hidden" />
             </body>
         </html>
     );

@@ -1,25 +1,9 @@
 "use client";
 
 import React from "react";
-import {
-    Home,
-    CreditCard,
-    Users,
-    ShoppingBag,
-    FileText,
-    Menu,
-    X,
-} from "lucide-react";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
 import { NAV_LINKS } from "@/lib/constants";
-
-const iconMap = {
-    Home,
-    CreditCard,
-    Users,
-    ShoppingBag,
-    FileText,
-};
+import { getNavigationIcon } from "@/lib/icons";
 
 type Props = {
     className: string;
@@ -27,11 +11,7 @@ type Props = {
 
 const navLinks = NAV_LINKS.map((link) => ({
     ...link,
-    icon: iconMap[link.icon as keyof typeof iconMap]
-        ? React.createElement(iconMap[link.icon as keyof typeof iconMap], {
-              className: "w-5 h-5 text-neutral-700 dark:text-neutral-200",
-          })
-        : null,
+    icon: getNavigationIcon(link.icon),
 }));
 
 export default function AppSidebar({ className }: Props) {

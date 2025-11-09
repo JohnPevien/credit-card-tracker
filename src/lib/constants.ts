@@ -1,4 +1,12 @@
-export const NAV_LINKS = [
+import { NavigationIconKey } from "./icons";
+
+export interface NavLink {
+    label: string;
+    href: string;
+    icon: NavigationIconKey;
+}
+
+export const NAV_LINKS: NavLink[] = [
     {
         label: "Home",
         href: "/",
@@ -95,12 +103,12 @@ export const PHILIPPINE_BANKS = [
 
 // Form field labels
 export const FORM_LABELS = {
-  CARD_NAME: "Card Name",
-  LAST_FOUR_DIGITS: "Last 4 Digits",
-  CARDHOLDER_NAME: "Cardholder Name",
-  ISSUER: "Issuer",
-  SUPPLEMENTARY_CARD: "Supplementary Card",
-  PRINCIPAL_CARD: "Principal Card",
+    CARD_NAME: "Card Name",
+    LAST_FOUR_DIGITS: "Last 4 Digits",
+    CARDHOLDER_NAME: "Cardholder Name",
+    ISSUER: "Issuer",
+    SUPPLEMENTARY_CARD: "Supplementary Card",
+    PRINCIPAL_CARD: "Principal Card",
 } as const;
 
 // Number of decimal places for currency formatting

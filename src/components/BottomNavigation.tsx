@@ -1,18 +1,11 @@
 "use client";
 
-import { Home, CreditCard, Users, ShoppingBag, FileText } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { NAV_LINKS } from "@/lib/constants";
-import { useEffect, useRef } from "react";
-
-const iconMap = {
-    Home,
-    CreditCard,
-    Users,
-    ShoppingBag,
-    FileText,
-};
+import { useEffect } from "react";
+import { getNavigationIconComponent } from "@/lib/icons";
+import { Home } from "lucide-react";
 
 interface BottomNavigationProps {
     className?: string;
@@ -21,7 +14,6 @@ interface BottomNavigationProps {
 export default function BottomNavigation({ className }: BottomNavigationProps) {
     const pathname = usePathname();
     const router = useRouter();
-    const mainContentRef = useRef<HTMLDivElement>(null);
 
     const handleNavigation = (href: string) => {
         if (href === pathname) {
@@ -60,20 +52,20 @@ export default function BottomNavigation({ className }: BottomNavigationProps) {
         <nav
             className={cn(
                 "fixed bottom-0 left-0 right-0 z-50 bg-base-100 border-t border-base-300",
-                "md:hidden", // Show from 0px to 768px
-                "safe-area-inset-bottom", // Respect device safe areas
+                "safe-area-inset-bottom",
                 className,
             )}
             role="navigation"
-            aria-label="Main navigation"
+            aria-label="Bottom navigation"
         >
             <div className="flex justify-around items-center h-16 max-w-lg mx-auto">
                 {NAV_LINKS.map((link) => {
                     const isActive = pathname === link.href;
-                    const Icon = iconMap[link.icon as keyof typeof iconMap];
+                    const Icon = getNavigationIconComponent(link.icon) || Home;
 
                     return (
                         <button
+                            type="button"
                             key={link.href}
                             onClick={() => handleNavigation(link.href)}
                             className={cn(
