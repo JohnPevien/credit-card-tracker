@@ -5,12 +5,15 @@ import { CreditCardService } from "@/lib/services/creditCardService";
 import DataTable from "@/components/DataTable";
 import Modal from "@/components/Modal";
 import CreditCardForm from "@/components/credit-cards/CreditCardForm";
+import { LoadingSpinner } from "@/components/base";
+import { Edit3, Trash2 } from "lucide-react";
 
 export default function CreditCardsPage() {
     const [cards, setCards] = useState<CreditCard[]>([]);
     const [principalCards, setPrincipalCards] = useState<CreditCard[]>([]);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [editingCard, setEditingCard] = useState<CreditCard | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     const initialFormData: CreditCardInsert = {
         credit_card_name: "",
@@ -27,6 +30,7 @@ export default function CreditCardsPage() {
 
     async function loadCards() {
         try {
+            setIsLoading(true);
             const loadedCards = await CreditCardService.loadCards();
             setCards(loadedCards);
 
@@ -37,6 +41,8 @@ export default function CreditCardsPage() {
             setPrincipalCards(principalOnly);
         } catch {
             // Error is already logged in the service
+        } finally {
+            setIsLoading(false);
         }
     }
 
@@ -77,6 +83,10 @@ export default function CreditCardsPage() {
                 // Error is already logged in the service
             }
         }
+    }
+
+    if (isLoading) {
+        return <LoadingSpinner />;
     }
 
     return (
@@ -123,20 +133,26 @@ export default function CreditCardsPage() {
                     {
                         header: "Actions",
                         cell: (card) => (
-                            <>
+                            <div className="flex gap-2 md:gap-3 items-center">
                                 <button
                                     onClick={() => openEditModal(card)}
-                                    className="text-blue-500 hover:text-blue-700 mr-2"
+                                    className="btn btn-sm min-h-[44px] md:min-h-0 p-2 md:p-0 flex items-center gap-2"
                                 >
-                                    Edit
+                                    <Edit3 className="w-4 h-4 md:hidden" />
+                                    <span className="hidden md:inline">
+                                        Edit
+                                    </span>
                                 </button>
                                 <button
                                     onClick={() => handleDelete(card.id)}
-                                    className="text-red-500 hover:text-red-700"
+                                    className="btn btn-ghost btn-sm min-h-[44px] md:min-h-0 p-2 md:p-0 flex items-center gap-2 text-red-600"
                                 >
-                                    Delete
+                                    <Trash2 className="w-4 h-4 md:hidden" />
+                                    <span className="hidden md:inline">
+                                        Delete
+                                    </span>
                                 </button>
-                            </>
+                            </div>
                         ),
                     },
                 ]}

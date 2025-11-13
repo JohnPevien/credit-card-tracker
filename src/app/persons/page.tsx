@@ -6,6 +6,7 @@ import PersonForm from "@/components/persons/PersonForm";
 import { PersonService } from "@/lib/services/personService";
 import Link from "next/link";
 import { LoadingSpinner } from "@/components/base";
+import { Eye, Edit3, Trash2 } from "lucide-react";
 
 export default function PersonsPage() {
     const [persons, setPersons] = useState<Person[]>([]);
@@ -91,24 +92,27 @@ export default function PersonsPage() {
                             header: "Actions",
                             className: "w-[200px]",
                             cell: (person: Person) => (
-                                <div className="flex space-x-2">
+                                <div className="flex gap-2 md:gap-3 items-center">
                                     <Link
                                         href={`/transactions/person/${person.id}`}
-                                        className="hover:underline"
+                                        className="btn btn-sm min-h-[44px] md:min-h-0 p-2 md:p-0 flex items-center gap-2"
                                     >
-                                        View Transactions
+                                        <Eye className="w-4 h-4 md:hidden" />
+                                        <span className="hidden md:inline">View Transactions</span>
                                     </Link>
                                     <button
                                         onClick={() => openEditModal(person)}
-                                        className="hover:underline"
+                                        className="btn btn-sm min-h-[44px] md:min-h-0 p-2 md:p-0 flex items-center gap-2"
                                     >
-                                        Edit
+                                        <Edit3 className="w-4 h-4 md:hidden" />
+                                        <span className="hidden md:inline">Edit</span>
                                     </button>
                                     <button
                                         onClick={() => handleDelete(person.id)}
-                                        className="hover:underline"
+                                        className="btn btn-ghost btn-sm min-h-[44px] md:min-h-0 p-2 md:p-0 flex items-center gap-2 text-red-600"
                                     >
-                                        Delete
+                                        <Trash2 className="w-4 h-4 md:hidden" />
+                                        <span className="hidden md:inline">Delete</span>
                                     </button>
                                 </div>
                             ),

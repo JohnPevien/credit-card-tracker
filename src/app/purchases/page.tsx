@@ -11,6 +11,7 @@ import TransactionFilters, {
 import { DataService } from "@/lib/services/dataService";
 import { CURRENCY_DECIMAL_PLACES } from "@/lib/constants";
 import { LoadingSpinner } from "@/components/base";
+import { Eye, Trash2 } from "lucide-react";
 
 export default function PurchasesPage() {
     const [purchases, setPurchases] = useState<Purchase[]>([]);
@@ -193,20 +194,24 @@ export default function PurchasesPage() {
                     {
                         header: "Actions",
                         cell: (purchase: Purchase) => (
-                            <div className="flex gap-5 items-center">
+                            <div className="flex gap-2 md:gap-3 items-center">
                                 <Link
                                     href={`/purchases/${purchase.id}`}
-                                    className="hover:underline"
+                                    className="btn btn-sm min-h-[44px] md:min-h-0 hover:bg-base-200 p-2 md:p-0 flex items-center gap-2"
+                                    aria-label="View purchase"
                                 >
-                                    View
+                                    <Eye className="w-4 h-4 md:hidden" />
+                                    <span className="hidden md:inline">View</span>
                                 </Link>
                                 <button
                                     onClick={() =>
                                         handleDeletePurchase(purchase.id)
-                                    }
-                                    className="btn btn-error btn-sm text-white"
+                                    className="btn btn-error btn-sm min-h-[44px] md:min-h-0 text-white flex items-center gap-2 p-2 md:p-0"
+                                    aria-label="Delete purchase"
+                                    className="btn btn-error btn-sm min-h-[44px] md:min-h-0 text-white flex items-center gap-2 p-2 md:p-0"
                                 >
-                                    Delete
+                                    <Trash2 className="w-4 h-4 md:hidden" />
+                                    <span className="hidden md:inline">Delete</span>
                                 </button>
                             </div>
                         ),
