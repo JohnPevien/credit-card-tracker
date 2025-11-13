@@ -4,6 +4,7 @@ import { supabase, Transaction, CreditCard, Person } from "@/lib/supabase";
 import { formatDate, handleTransactionPaidChange } from "@/lib/utils";
 import DataTable from "@/components/DataTable";
 import { CURRENCY_DECIMAL_PLACES } from "@/lib/constants";
+import { LoadingSpinner } from "@/components/base";
 
 export default function TransactionsPage() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -15,6 +16,7 @@ export default function TransactionsPage() {
     const [filterFrom, setFilterFrom] = useState<string>("");
     const [filterTo, setFilterTo] = useState<string>("");
     const [updatingId, setUpdatingId] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     const clearFilters = () => {
         setFilterPerson("");
@@ -32,6 +34,7 @@ export default function TransactionsPage() {
 
     async function loadTransactions() {
         try {
+            setIsLoading(true);
             const { data, error } = await supabase
                 .from("transactions")
                 .select(
@@ -60,6 +63,8 @@ export default function TransactionsPage() {
             setTransactions(recordsWithExpand);
         } catch (error) {
             console.error("Error loading transactions:", error);
+        } finally {
+            setIsLoading(false);
         }
     }
 
@@ -140,12 +145,16 @@ export default function TransactionsPage() {
         );
     });
 
+    if (isLoading) {
+        return <LoadingSpinner />;
+    }
+
     return (
         <div className="container space-y-5 mx-auto">
             <h1 className="text-2xl font-bold mb-4">Transactions</h1>
 
-            <div className="flex gap-4 mb-4 max-w-3xl">
-                <div className="fieldset">
+            <div className="flex flex-col md:flex-row gap-3 md:gap-4 mb-4 max-w-3xl">
+                <div className="fieldset w-full md:w-auto">
                     <label className="block mb-1">Person:</label>
                     <select
                         value={filterPerson}
@@ -160,7 +169,7 @@ export default function TransactionsPage() {
                         ))}
                     </select>
                 </div>
-                <div className="fieldset">
+                <div className="fieldset w-full md:w-auto">
                     <label className="block mb-1">Card:</label>
                     <select
                         value={filterCard}
@@ -176,7 +185,7 @@ export default function TransactionsPage() {
                         ))}
                     </select>
                 </div>
-                <div className="fieldset">
+                <div className="fieldset w-full md:w-auto">
                     <label className="block mb-1">Description:</label>
                     <input
                         type="text"
@@ -186,9 +195,9 @@ export default function TransactionsPage() {
                         className="input input-bordered w-full"
                     />
                 </div>
-                <div className="fieldset">
+                <div className="fieldset w-full md:w-auto">
                     <label className="block mb-1">Date Range:</label>
-                    <div className="flex gap-2">
+                    <div className="flex flex-col md:flex-row gap-2">
                         <input
                             type="date"
                             value={filterFrom}
@@ -207,7 +216,7 @@ export default function TransactionsPage() {
                 </div>
                 <button
                     onClick={clearFilters}
-                    className="self-end btn btn-secondary mb-1"
+                    className="btn btn-secondary w-full md:w-auto mt-2 md:mt-0 self-end"
                 >
                     Clear Filters
                 </button>
