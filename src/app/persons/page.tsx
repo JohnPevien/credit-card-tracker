@@ -82,7 +82,7 @@ export default function PersonsPage() {
                 <DataTable
                     data={persons}
                     keyField="id"
-                    emptyMessage="No persons found"
+                    emptyMessage="No persons yet. Add a person to track their transactions."
                     columns={[
                         {
                             header: "Name",
@@ -98,21 +98,27 @@ export default function PersonsPage() {
                                         className="btn btn-sm min-h-[44px] md:min-h-0 p-2 md:p-0 flex items-center gap-2"
                                     >
                                         <Eye className="w-4 h-4 md:hidden" />
-                                        <span className="hidden md:inline">View Transactions</span>
+                                        <span className="hidden md:inline">
+                                            View Transactions
+                                        </span>
                                     </Link>
                                     <button
                                         onClick={() => openEditModal(person)}
                                         className="btn btn-sm min-h-[44px] md:min-h-0 p-2 md:p-0 flex items-center gap-2"
                                     >
                                         <Edit3 className="w-4 h-4 md:hidden" />
-                                        <span className="hidden md:inline">Edit</span>
+                                        <span className="hidden md:inline">
+                                            Edit
+                                        </span>
                                     </button>
                                     <button
                                         onClick={() => handleDelete(person.id)}
                                         className="btn btn-ghost btn-sm min-h-[44px] md:min-h-0 p-2 md:p-0 flex items-center gap-2 text-red-600"
                                     >
                                         <Trash2 className="w-4 h-4 md:hidden" />
-                                        <span className="hidden md:inline">Delete</span>
+                                        <span className="hidden md:inline">
+                                            Delete
+                                        </span>
                                     </button>
                                 </div>
                             ),
