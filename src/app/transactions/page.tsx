@@ -153,7 +153,7 @@ export default function TransactionsPage() {
         <div className="container space-y-5 mx-auto">
             <h1 className="text-2xl font-bold mb-4">Transactions</h1>
 
-            <div className="flex flex-col md:flex-row gap-3 md:gap-4 mb-4 max-w-3xl">
+            <div className="flex flex-col md:flex-row gap-3 md:gap-4 mb-4">
                 <div className="fieldset w-full md:w-auto">
                     <label className="block mb-1">Person:</label>
                     <select
