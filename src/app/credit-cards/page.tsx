@@ -91,7 +91,7 @@ export default function CreditCardsPage() {
 
     return (
         <div className="container space-y-5 mx-auto">
-            <h1 className="text-2xl font-bold mb-4">Credit Cards</h1>
+            <h1 className="heading-page">Credit Cards</h1>
             <button onClick={openAddModal} className="btn btn-primary">
                 Add Credit Card
             </button>

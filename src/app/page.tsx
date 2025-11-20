@@ -9,9 +9,7 @@ export default function Home() {
     return (
         <div className="max-w-4xl mx-auto">
             <header className="mb-8 text-center">
-                <h1 className="text-3xl font-bold mb-2">
-                    Credit Card Spending Tracker
-                </h1>
+                <h1 className="heading-hero">Credit Card Spending Tracker</h1>
                 <p>
                     Track your credit card transactions, installments, and BNPL
                     purchases
