@@ -17,6 +17,7 @@ export default function TransactionsPage() {
     const [filterTo, setFilterTo] = useState<string>("");
     const [updatingId, setUpdatingId] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     const clearFilters = () => {
         setFilterPerson("");
@@ -35,6 +36,7 @@ export default function TransactionsPage() {
     async function loadTransactions() {
         try {
             setIsLoading(true);
+            setError(null);
             const { data, error } = await supabase
                 .from("transactions")
                 .select(
@@ -61,8 +63,13 @@ export default function TransactionsPage() {
                 })) || [];
 
             setTransactions(recordsWithExpand);
-        } catch (error) {
-            console.error("Error loading transactions:", error);
+        } catch (err) {
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : "Failed to load transactions",
+            );
+            console.error("Error loading transactions:", err);
         } finally {
             setIsLoading(false);
         }
@@ -147,6 +154,22 @@ export default function TransactionsPage() {
 
     if (isLoading) {
         return <LoadingSpinner />;
+    }
+
+    if (error) {
+        return (
+            <div className="container mx-auto p-4">
+                <div className="alert alert-error">
+                    <span>{error}</span>
+                </div>
+                <button
+                    onClick={loadTransactions}
+                    className="btn btn-primary mt-4"
+                >
+                    Retry
+                </button>
+            </div>
+        );
     }
 
     return (

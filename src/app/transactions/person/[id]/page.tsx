@@ -16,6 +16,7 @@ export default function PersonTransactionsPage() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [creditCards, setCreditCards] = useState<CreditCard[]>([]);
     const [updatingId, setUpdatingId] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
     const [filters, setFilters] = useState<TransactionFiltersState>({
         person: "",
         card: "",
@@ -35,6 +36,7 @@ export default function PersonTransactionsPage() {
 
     async function loadTransactions() {
         try {
+            setError(null);
             const { data, error } = await supabase
                 .from("transactions")
                 .select(
@@ -58,8 +60,13 @@ export default function PersonTransactionsPage() {
                     },
                 })) || [];
             setTransactions(recordsWithExpand);
-        } catch (error) {
-            console.error("Error loading person transactions:", error);
+        } catch (err) {
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : "Failed to load transactions",
+            );
+            console.error("Error loading person transactions:", err);
         }
     }
 
@@ -118,23 +125,38 @@ export default function PersonTransactionsPage() {
                 filters.paidStatus === "all"
                     ? true
                     : filters.paidStatus === "paid"
-                    ? tr.paid
-                    : !tr.paid;
+                      ? tr.paid
+                      : !tr.paid;
             return (
-                matchesCard && matchesDescription && matchesFrom && matchesTo && matchesPaid
+                matchesCard &&
+                matchesDescription &&
+                matchesFrom &&
+                matchesTo &&
+                matchesPaid
             );
         });
     }, [transactions, filters]);
 
     return (
         <div className="container space-y-5 mx-auto">
+            {error && (
+                <div className="alert alert-error mb-4">
+                    <span>{error}</span>
+                    <button
+                        onClick={loadTransactions}
+                        className="btn btn-sm btn-primary"
+                    >
+                        Retry
+                    </button>
+                </div>
+            )}
             <button
                 onClick={() => router.back()}
                 className="btn btn-outline mb-4"
             >
                 ← Back
             </button>
-            <h1 className="text-2xl font-bold mb-4">
+            <h1 className="heading-page">
                 {transactions[0]?.expand?.person?.name || "Person"} Transactions
             </h1>
 

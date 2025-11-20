@@ -13,6 +13,7 @@ export default function PersonsPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingPerson, setEditingPerson] = useState<Person | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         loadPersons();
@@ -21,10 +22,14 @@ export default function PersonsPage() {
     async function loadPersons() {
         try {
             setIsLoading(true);
+            setError(null);
             const data = await PersonService.loadPersons();
             setPersons(data);
-        } catch (error) {
-            console.error("Error loading persons:", error);
+        } catch (err) {
+            setError(
+                err instanceof Error ? err.message : "Failed to load persons",
+            );
+            console.error("Error loading persons:", err);
         } finally {
             setIsLoading(false);
         }
@@ -71,13 +76,25 @@ export default function PersonsPage() {
     }
     return (
         <div className="container space-y-5 mx-auto">
-            <h1 className="text-2xl font-bold mb-4">Persons</h1>
+            <h1 className="heading-page">Persons</h1>
             <button onClick={openAddModal} className="btn btn-primary">
                 Add Person
             </button>
 
             {isLoading ? (
                 <LoadingSpinner />
+            ) : error ? (
+                <div>
+                    <div className="alert alert-error">
+                        <span>{error}</span>
+                    </div>
+                    <button
+                        onClick={loadPersons}
+                        className="btn btn-primary mt-4"
+                    >
+                        Retry
+                    </button>
+                </div>
             ) : (
                 <DataTable
                     data={persons}
