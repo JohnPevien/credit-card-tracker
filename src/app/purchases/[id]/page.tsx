@@ -44,8 +44,8 @@ export default function PurchaseDetailPage() {
                 filters.paidStatus === "all"
                     ? true
                     : filters.paidStatus === "paid"
-                    ? tr.paid
-                    : !tr.paid;
+                      ? tr.paid
+                      : !tr.paid;
             return matchesDescription && matchesPaid;
         });
     }, [transactions, filters]);
@@ -98,11 +98,11 @@ export default function PurchaseDetailPage() {
                 </Link>
             </div>
 
-            <h1 className="text-2xl font-bold mb-4">Purchase Details</h1>
+            <h1 className="heading-page">Purchase Details</h1>
 
             <PurchaseDetailsCard purchase={purchase} />
 
-            <h2 className="text-xl font-semibold mb-4">Transactions</h2>
+            <h2 className="heading-section">Transactions</h2>
 
             <TransactionFilters
                 config={{

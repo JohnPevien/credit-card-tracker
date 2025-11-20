@@ -19,6 +19,7 @@ export default function PurchasesPage() {
     const [creditCards, setCreditCards] = useState<CreditCard[]>([]);
     const [persons, setPersons] = useState<Person[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [filters, setFilters] = useState<TransactionFiltersState>({
         person: "",
         card: "",
@@ -35,6 +36,7 @@ export default function PurchasesPage() {
     async function loadData() {
         try {
             setIsLoading(true);
+            setError(null);
             const [purchasesData, creditCardsData, personsData] =
                 await Promise.all([
                     DataService.loadPurchases(),
@@ -45,8 +47,11 @@ export default function PurchasesPage() {
             setPurchases(purchasesData);
             setCreditCards(creditCardsData);
             setPersons(personsData);
-        } catch (error) {
-            console.error("Error loading data:", error);
+        } catch (err) {
+            setError(
+                err instanceof Error ? err.message : "Failed to load data",
+            );
+            console.error("Error loading data:", err);
         } finally {
             setIsLoading(false);
         }
@@ -111,6 +116,19 @@ export default function PurchasesPage() {
 
     if (isLoading) {
         return <LoadingSpinner />;
+    }
+
+    if (error) {
+        return (
+            <div className="container mx-auto p-4">
+                <div className="alert alert-error">
+                    <span>{error}</span>
+                </div>
+                <button onClick={loadData} className="btn btn-primary mt-4">
+                    Retry
+                </button>
+            </div>
+        );
     }
 
     return (

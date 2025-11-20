@@ -14,6 +14,7 @@ export default function CreditCardsPage() {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [editingCard, setEditingCard] = useState<CreditCard | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     const initialFormData: CreditCardInsert = {
         credit_card_name: "",
@@ -31,6 +32,7 @@ export default function CreditCardsPage() {
     async function loadCards() {
         try {
             setIsLoading(true);
+            setError(null);
             const loadedCards = await CreditCardService.loadCards();
             setCards(loadedCards);
 
@@ -39,8 +41,13 @@ export default function CreditCardsPage() {
                 (card) => !card.is_supplementary,
             );
             setPrincipalCards(principalOnly);
-        } catch {
-            // Error is already logged in the service
+        } catch (err) {
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : "Failed to load credit cards",
+            );
+            console.error("Error loading credit cards:", err);
         } finally {
             setIsLoading(false);
         }
@@ -87,6 +94,19 @@ export default function CreditCardsPage() {
 
     if (isLoading) {
         return <LoadingSpinner />;
+    }
+
+    if (error) {
+        return (
+            <div className="container mx-auto p-4">
+                <div className="alert alert-error">
+                    <span>{error}</span>
+                </div>
+                <button onClick={loadCards} className="btn btn-primary mt-4">
+                    Retry
+                </button>
+            </div>
+        );
     }
 
     return (
