@@ -151,7 +151,7 @@ export default function TransactionsPage() {
 
     return (
         <div className="container space-y-5 mx-auto">
-            <h1 className="text-2xl font-bold mb-4">Transactions</h1>
+            <h1 className="heading-page">Transactions</h1>
 
             <div className="flex flex-col md:flex-row gap-3 md:gap-4 mb-4">
                 <div className="fieldset w-full md:w-auto">

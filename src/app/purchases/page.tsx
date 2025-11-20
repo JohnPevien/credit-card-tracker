@@ -115,7 +115,7 @@ export default function PurchasesPage() {
 
     return (
         <div className="container space-y-5 mx-auto">
-            <h1 className="text-2xl font-bold mb-4">Purchases</h1>
+            <h1 className="heading-page">Purchases</h1>
             <button onClick={openAddModal} className="btn btn-primary">
                 Add Purchase
             </button>
@@ -201,17 +201,21 @@ export default function PurchasesPage() {
                                     aria-label="View purchase"
                                 >
                                     <Eye className="w-4 h-4 md:hidden" />
-                                    <span className="hidden md:inline">View</span>
+                                    <span className="hidden md:inline">
+                                        View
+                                    </span>
                                 </Link>
                                 <button
                                     onClick={() =>
                                         handleDeletePurchase(purchase.id)
+                                    }
                                     className="btn btn-error btn-sm min-h-[44px] md:min-h-0 text-white flex items-center gap-2 p-2 md:p-0"
                                     aria-label="Delete purchase"
-                                    className="btn btn-error btn-sm min-h-[44px] md:min-h-0 text-white flex items-center gap-2 p-2 md:p-0"
                                 >
                                     <Trash2 className="w-4 h-4 md:hidden" />
-                                    <span className="hidden md:inline">Delete</span>
+                                    <span className="hidden md:inline">
+                                        Delete
+                                    </span>
                                 </button>
                             </div>
                         ),
