@@ -58,11 +58,7 @@ export default function PurchaseForm({
         // Initialize form with default values when data is available
         if (creditCards.length > 0 && persons.length > 0) {
             const today = new Date().toISOString().split("T")[0];
-            // Temporarily disabled: Calculate billing date as 1 month after purchase date
-            // const nextMonth = new Date();
-            // nextMonth.setMonth(nextMonth.getMonth() + 1);
-            // const billingDate = nextMonth.toISOString().split("T")[0];
-            const billingDate = today; // Use purchase date instead of 1 month after
+            const billingDate = today;
 
             setFormData({
                 credit_card_id: creditCards[0].id,

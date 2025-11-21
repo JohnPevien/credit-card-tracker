@@ -35,11 +35,7 @@ export default function Home() {
                     <ul className="list-disc pl-5 space-y-2">
                         {howItWorksItems.map((item, index) => (
                             <li key={index}>
-                                <strong>{item.title}:</strong>
-                                {item.title === "Supplementary Cards" ||
-                                item.title === "BNPL"
-                                    ? " "
-                                    : " "}
+                                <strong>{item.title}:</strong>{" "}
                                 {item.description}
                             </li>
                         ))}
