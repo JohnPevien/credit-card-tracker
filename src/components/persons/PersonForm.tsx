@@ -30,14 +30,14 @@ export default function PersonForm({
         setValues,
     } = useZodForm(personSchema, initialFormValues);
 
-    // Update form when initialData changes
     useEffect(() => {
         if (initialData) {
             setValues({ name: initialData.name });
         } else {
             reset({ name: "" });
         }
-    }, [initialData, setValues, reset]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [initialData?.id]);
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();

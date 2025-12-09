@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
     Select,
     DateInput,
@@ -53,10 +53,14 @@ export default function PurchaseForm({
         is_bnpl: false,
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const hasInitialized = useRef(false);
 
     useEffect(() => {
-        // Initialize form with default values when data is available
-        if (creditCards.length > 0 && persons.length > 0) {
+        if (
+            !hasInitialized.current &&
+            creditCards.length > 0 &&
+            persons.length > 0
+        ) {
             const today = new Date().toISOString().split("T")[0];
             const billingDate = today;
 
@@ -70,6 +74,7 @@ export default function PurchaseForm({
                 num_installments: "1",
                 is_bnpl: false,
             });
+            hasInitialized.current = true;
         }
     }, [creditCards, persons]);
 

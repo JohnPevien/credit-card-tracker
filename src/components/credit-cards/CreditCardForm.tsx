@@ -36,7 +36,8 @@ export default function CreditCardForm({
             ...initialData,
             principal_card_id: initialData.principal_card_id || "",
         });
-    }, [initialData, reset]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [initialData?.id]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();

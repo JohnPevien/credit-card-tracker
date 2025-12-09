@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabase, Transaction, CreditCard } from "@/lib/supabase";
 import { formatDate, handleTransactionPaidChange } from "@/lib/utils";
@@ -26,15 +26,10 @@ export default function PersonTransactionsPage() {
         paidStatus: "all",
     });
 
-    useEffect(() => {
-        if (personId) {
-            loadTransactions();
-            loadCreditCards();
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [personId]);
+    const hasFetchedRef = useRef<string | null>(null);
 
-    async function loadTransactions() {
+    const loadTransactions = useCallback(async () => {
+        if (!personId) return;
         try {
             setError(null);
             const { data, error } = await supabase
@@ -68,9 +63,9 @@ export default function PersonTransactionsPage() {
             );
             console.error("Error loading person transactions:", err);
         }
-    }
+    }, [personId]);
 
-    async function loadCreditCards() {
+    const loadCreditCards = useCallback(async () => {
         try {
             const { data, error } = await supabase.from("credit_cards").select(`
           *,
@@ -92,7 +87,19 @@ export default function PersonTransactionsPage() {
         } catch (error) {
             console.error("Error loading credit cards:", error);
         }
-    }
+    }, []);
+
+    useEffect(() => {
+        if (!personId) return;
+        if (hasFetchedRef.current === personId) return;
+        hasFetchedRef.current = personId;
+
+        const fetchData = async () => {
+            await Promise.all([loadTransactions(), loadCreditCards()]);
+        };
+
+        fetchData();
+    }, [personId, loadTransactions, loadCreditCards]);
 
     const isPayment = (amount: number) => amount < 0;
 
