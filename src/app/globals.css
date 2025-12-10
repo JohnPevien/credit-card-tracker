@@ -32,7 +32,7 @@
 }
 
 /* Ensure main content doesn't overlap with bottom navigation on mobile */
-@media (max-width: 767px) {
+@media (max-width: 48rem) {
     main[role="main"] {
         padding-bottom: 5rem; /* 64px (bottom nav height) + 16px extra space */
     }
