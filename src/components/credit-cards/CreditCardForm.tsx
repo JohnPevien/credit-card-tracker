@@ -1,16 +1,18 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { CreditCard, CreditCardInsert } from "@/lib/supabase";
 import { useZodForm } from "@/lib/hooks/useZodForm";
 import { refinedCreditCardSchema } from "@/lib/schemas";
 import { FormSelect } from "@/components/FormSelect";
 import { PHILIPPINE_BANKS, FORM_LABELS } from "@/lib/constants";
 
+type CreditCardFormData = CreditCardInsert & { id?: string };
+
 interface CreditCardFormProps {
     onSubmit: (data: CreditCardInsert) => void;
     onCancel: () => void;
-    initialData: CreditCardInsert;
+    initialData: CreditCardFormData;
     principalCards: CreditCard[];
 }
 
@@ -20,6 +22,8 @@ export default function CreditCardForm({
     initialData,
     principalCards,
 }: CreditCardFormProps) {
+    const initialDataRef = useRef(initialData);
+
     const {
         values: formData,
         errors,
@@ -32,12 +36,16 @@ export default function CreditCardForm({
     });
 
     useEffect(() => {
+        initialDataRef.current = initialData;
+    }, [initialData]);
+
+    useEffect(() => {
+        const data = initialDataRef.current;
         reset({
-            ...initialData,
-            principal_card_id: initialData.principal_card_id || "",
+            ...data,
+            principal_card_id: data.principal_card_id || "",
         });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [initialData?.id]);
+    }, [initialData.id, reset]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();

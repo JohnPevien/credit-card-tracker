@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import Modal from "@/components/Modal";
 import { personSchema } from "@/lib/schemas";
 import { useZodForm } from "@/lib/hooks/useZodForm";
@@ -18,6 +18,7 @@ export default function PersonForm({
     initialData,
 }: PersonFormProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const initialDataRef = useRef<PersonFormProps["initialData"]>(initialData);
 
     const initialFormValues = useMemo(() => ({ name: "" }), []);
 
@@ -31,13 +32,17 @@ export default function PersonForm({
     } = useZodForm(personSchema, initialFormValues);
 
     useEffect(() => {
-        if (initialData) {
-            setValues({ name: initialData.name });
+        initialDataRef.current = initialData;
+    }, [initialData]);
+
+    useEffect(() => {
+        const data = initialDataRef.current;
+        if (data) {
+            setValues({ name: data.name });
         } else {
             reset({ name: "" });
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [initialData?.id]);
+    }, [initialData?.id, reset, setValues]);
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
