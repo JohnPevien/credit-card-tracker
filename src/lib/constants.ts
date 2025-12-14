@@ -36,22 +36,26 @@ export const NAV_LINKS: NavLink[] = [
 
 export const NAV_CARDS = [
     {
+        id: "credit-cards",
         href: "/credit-cards",
         title: "Credit Cards",
         description:
             "Manage your credit cards with their details, including supplementary cards",
     },
     {
+        id: "persons",
         href: "/persons",
         title: "Persons",
         description: "Track who's using your credit cards",
     },
     {
+        id: "purchases",
         href: "/purchases",
         title: "Purchases",
         description: "Record purchases with installment options and BNPL",
     },
     {
+        id: "transactions",
         href: "/transactions",
         title: "Transactions",
         description: "Track all transactions including payments",
@@ -60,26 +64,31 @@ export const NAV_CARDS = [
 
 export const HOW_IT_WORKS_ITEMS = [
     {
+        id: "regular-purchase",
         title: "Regular Purchase",
         description:
             "Creates one purchase record and one transaction with the same date and amount.",
     },
     {
+        id: "installment-purchase",
         title: "Installment Purchase",
         description:
             "Creates one purchase record with multiple transaction records (one per installment).",
     },
     {
+        id: "bnpl",
         title: "BNPL",
         description:
             'Treated like an installment purchase, with the "is_bnpl" flag set to true.',
     },
     {
+        id: "payment-refund",
         title: "Payment/Refund",
         description:
             "A standalone transaction with no purchase relation and a negative amount.",
     },
     {
+        id: "supplementary-cards",
         title: "Supplementary Cards",
         description: "Linked to their principal cards for better organization.",
     },
