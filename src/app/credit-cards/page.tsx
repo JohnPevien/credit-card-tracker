@@ -6,6 +6,7 @@ import DataTable from "@/components/DataTable";
 import Modal from "@/components/Modal";
 import CreditCardForm from "@/components/credit-cards/CreditCardForm";
 import { LoadingSpinner } from "@/components/base";
+import ActionButton from "@/components/base/ActionButton";
 import { Edit3, Trash2 } from "lucide-react";
 
 export default function CreditCardsPage() {
@@ -154,24 +155,18 @@ export default function CreditCardsPage() {
                         header: "Actions",
                         cell: (card) => (
                             <div className="flex gap-2 md:gap-3 items-center">
-                                <button
+                                <ActionButton
+                                    label="Edit"
+                                    icon={<Edit3 className="w-4 h-4" />}
+                                    variant="subtle"
                                     onClick={() => openEditModal(card)}
-                                    className="btn btn-sm min-h-[44px] md:min-h-0 p-2 md:p-0 flex items-center gap-2"
-                                >
-                                    <Edit3 className="w-4 h-4 md:hidden" />
-                                    <span className="hidden md:inline">
-                                        Edit
-                                    </span>
-                                </button>
-                                <button
+                                />
+                                <ActionButton
+                                    label="Delete"
+                                    icon={<Trash2 className="w-4 h-4" />}
+                                    variant="danger"
                                     onClick={() => handleDelete(card.id)}
-                                    className="btn btn-ghost btn-sm min-h-[44px] md:min-h-0 p-2 md:p-0 flex items-center gap-2 text-red-600"
-                                >
-                                    <Trash2 className="w-4 h-4 md:hidden" />
-                                    <span className="hidden md:inline">
-                                        Delete
-                                    </span>
-                                </button>
+                                />
                             </div>
                         ),
                     },
