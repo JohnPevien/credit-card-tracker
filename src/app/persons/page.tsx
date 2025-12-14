@@ -4,8 +4,8 @@ import { Person } from "@/lib/supabase";
 import DataTable from "@/components/DataTable";
 import PersonForm from "@/components/persons/PersonForm";
 import { PersonService } from "@/lib/services/personService";
-import Link from "next/link";
 import { LoadingSpinner } from "@/components/base";
+import ActionButton from "@/components/base/ActionButton";
 import { Eye, Edit3, Trash2 } from "lucide-react";
 
 export default function PersonsPage() {
@@ -110,33 +110,24 @@ export default function PersonsPage() {
                             className: "w-[200px]",
                             cell: (person: Person) => (
                                 <div className="flex gap-2 md:gap-3 items-center">
-                                    <Link
+                                    <ActionButton
+                                        label="View Transactions"
+                                        icon={<Eye className="w-4 h-4" />}
+                                        variant="outline"
                                         href={`/transactions/person/${person.id}`}
-                                        className="btn btn-sm min-h-[44px] md:min-h-0 p-2 md:p-0 flex items-center gap-2"
-                                    >
-                                        <Eye className="w-4 h-4 md:hidden" />
-                                        <span className="hidden md:inline">
-                                            View Transactions
-                                        </span>
-                                    </Link>
-                                    <button
+                                    />
+                                    <ActionButton
+                                        label="Edit"
+                                        icon={<Edit3 className="w-4 h-4" />}
+                                        variant="subtle"
                                         onClick={() => openEditModal(person)}
-                                        className="btn btn-sm min-h-[44px] md:min-h-0 p-2 md:p-0 flex items-center gap-2"
-                                    >
-                                        <Edit3 className="w-4 h-4 md:hidden" />
-                                        <span className="hidden md:inline">
-                                            Edit
-                                        </span>
-                                    </button>
-                                    <button
+                                    />
+                                    <ActionButton
+                                        label="Delete"
+                                        icon={<Trash2 className="w-4 h-4" />}
+                                        variant="danger"
                                         onClick={() => handleDelete(person.id)}
-                                        className="btn btn-ghost btn-sm min-h-[44px] md:min-h-0 p-2 md:p-0 flex items-center gap-2 text-red-600"
-                                    >
-                                        <Trash2 className="w-4 h-4 md:hidden" />
-                                        <span className="hidden md:inline">
-                                            Delete
-                                        </span>
-                                    </button>
+                                    />
                                 </div>
                             ),
                         },

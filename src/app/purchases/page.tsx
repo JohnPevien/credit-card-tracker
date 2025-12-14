@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import { Purchase, CreditCard, Person } from "@/lib/supabase";
 import DataTable from "@/components/DataTable";
 import Modal from "@/components/Modal";
@@ -11,6 +10,7 @@ import TransactionFilters, {
 import { DataService } from "@/lib/services/dataService";
 import { CURRENCY_DECIMAL_PLACES } from "@/lib/constants";
 import { LoadingSpinner } from "@/components/base";
+import ActionButton from "@/components/base/ActionButton";
 import { Eye, Trash2 } from "lucide-react";
 
 export default function PurchasesPage() {
@@ -213,28 +213,22 @@ export default function PurchasesPage() {
                         header: "Actions",
                         cell: (purchase: Purchase) => (
                             <div className="flex gap-2 md:gap-3 items-center">
-                                <Link
+                                <ActionButton
+                                    label="View"
+                                    icon={<Eye className="w-4 h-4" />}
+                                    variant="outline"
                                     href={`/purchases/${purchase.id}`}
-                                    className="btn btn-sm min-h-[44px] md:min-h-0 hover:bg-base-200 p-2 md:p-0 flex items-center gap-2"
-                                    aria-label="View purchase"
-                                >
-                                    <Eye className="w-4 h-4 md:hidden" />
-                                    <span className="hidden md:inline">
-                                        View
-                                    </span>
-                                </Link>
-                                <button
+                                    ariaLabel="View purchase"
+                                />
+                                <ActionButton
+                                    label="Delete"
+                                    icon={<Trash2 className="w-4 h-4" />}
+                                    variant="danger"
                                     onClick={() =>
                                         handleDeletePurchase(purchase.id)
                                     }
-                                    className="btn btn-error btn-sm min-h-[44px] md:min-h-0 text-white flex items-center gap-2 p-2 md:p-0"
-                                    aria-label="Delete purchase"
-                                >
-                                    <Trash2 className="w-4 h-4 md:hidden" />
-                                    <span className="hidden md:inline">
-                                        Delete
-                                    </span>
-                                </button>
+                                    ariaLabel="Delete purchase"
+                                />
                             </div>
                         ),
                     },
