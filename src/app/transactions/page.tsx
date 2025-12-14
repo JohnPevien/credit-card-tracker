@@ -64,12 +64,14 @@ export default function TransactionsPage() {
 
             setTransactions(recordsWithExpand);
         } catch (err) {
-            setError(
+            const errorMessage =
                 err instanceof Error
                     ? err.message
-                    : "Failed to load transactions",
-            );
-            console.error("Error loading transactions:", err);
+                    : typeof err === "object" && err !== null && "message" in err
+                      ? String((err as { message: unknown }).message)
+                      : "Failed to load transactions";
+            setError(errorMessage);
+            console.error("Error loading transactions:", errorMessage, err);
         } finally {
             setIsLoading(false);
         }
@@ -94,8 +96,14 @@ export default function TransactionsPage() {
                 })) || [];
 
             setCreditCards(recordsWithExpand);
-        } catch (error) {
-            console.error("Error loading credit cards:", error);
+        } catch (err) {
+            const errorMessage =
+                err instanceof Error
+                    ? err.message
+                    : typeof err === "object" && err !== null && "message" in err
+                      ? String((err as { message: unknown }).message)
+                      : "Failed to load credit cards";
+            console.error("Error loading credit cards:", errorMessage, err);
         }
     }
 
@@ -105,8 +113,14 @@ export default function TransactionsPage() {
 
             if (error) throw error;
             setPersons(data || []);
-        } catch (error) {
-            console.error("Error loading persons:", error);
+        } catch (err) {
+            const errorMessage =
+                err instanceof Error
+                    ? err.message
+                    : typeof err === "object" && err !== null && "message" in err
+                      ? String((err as { message: unknown }).message)
+                      : "Failed to load persons";
+            console.error("Error loading persons:", errorMessage, err);
         }
     }
 
