@@ -17,8 +17,8 @@ export default function Home() {
             </header>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                {navCards.map((card, index) => (
-                    <Link key={index} href={card.href}>
+                {navCards.map((card) => (
+                    <Link key={card.id} href={card.href}>
                         <Card variant="primary" hover>
                             <Card.Header>{card.title}</Card.Header>
                             <Card.Body>
@@ -33,8 +33,8 @@ export default function Home() {
                 <Card.Header>How It Works</Card.Header>
                 <Card.Body>
                     <ul className="list-disc pl-5 space-y-2">
-                        {howItWorksItems.map((item, index) => (
-                            <li key={index}>
+                        {howItWorksItems.map((item) => (
+                            <li key={item.id}>
                                 <strong>{item.title}:</strong>{" "}
                                 {item.description}
                             </li>
