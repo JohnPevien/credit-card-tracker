@@ -10,6 +10,7 @@ export const supabase = createClient(supabaseUrl, supabaseKey);
 export interface Person {
     id: string;
     name: string;
+    slug: string;
     created_at?: string;
 }
 
