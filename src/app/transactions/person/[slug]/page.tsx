@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { supabase, Transaction, CreditCard } from "@/lib/supabase";
+import { supabase, Transaction, CreditCard, Person } from "@/lib/supabase";
 import { formatDate, handleTransactionPaidChange } from "@/lib/utils";
 import DataTable from "@/components/DataTable";
 import { CURRENCY_DECIMAL_PLACES } from "@/lib/constants";
@@ -11,10 +11,11 @@ import TransactionFilters, {
 } from "@/components/transactions/TransactionFilters";
 
 export default function PersonTransactionsPage() {
-    const { id: personId } = useParams() as { id: string };
+    const { slug: personSlug } = useParams() as { slug: string };
     const router = useRouter();
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [creditCards, setCreditCards] = useState<CreditCard[]>([]);
+    const [person, setPerson] = useState<Person | null>(null);
     const [updatingId, setUpdatingId] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [filters, setFilters] = useState<TransactionFiltersState>({
@@ -28,8 +29,28 @@ export default function PersonTransactionsPage() {
 
     const hasFetchedRef = useRef<string | null>(null);
 
-    const loadTransactions = useCallback(async () => {
-        if (!personId) return;
+    const loadPerson = useCallback(async () => {
+        if (!personSlug) return null;
+        try {
+            const { data, error } = await supabase
+                .from("persons")
+                .select("*")
+                .eq("slug", personSlug)
+                .single();
+
+            if (error) throw error;
+            setPerson(data);
+            return data;
+        } catch (err) {
+            setError(
+                err instanceof Error ? err.message : "Failed to load person",
+            );
+            console.error("Error loading person:", err);
+            return null;
+        }
+    }, [personSlug]);
+
+    const loadTransactions = useCallback(async (personId: string) => {
         try {
             setError(null);
             const { data, error } = await supabase
@@ -63,7 +84,7 @@ export default function PersonTransactionsPage() {
             );
             console.error("Error loading person transactions:", err);
         }
-    }, [personId]);
+    }, []);
 
     const loadCreditCards = useCallback(async () => {
         try {
@@ -74,7 +95,6 @@ export default function PersonTransactionsPage() {
 
             if (error) throw error;
 
-            // Transform data to match expected format with expand property
             const recordsWithExpand =
                 data?.map((card) => ({
                     ...card,
@@ -90,16 +110,22 @@ export default function PersonTransactionsPage() {
     }, []);
 
     useEffect(() => {
-        if (!personId) return;
-        if (hasFetchedRef.current === personId) return;
-        hasFetchedRef.current = personId;
+        if (!personSlug) return;
+        if (hasFetchedRef.current === personSlug) return;
+        hasFetchedRef.current = personSlug;
 
         const fetchData = async () => {
-            await Promise.all([loadTransactions(), loadCreditCards()]);
+            const personData = await loadPerson();
+            if (personData) {
+                await Promise.all([
+                    loadTransactions(personData.id),
+                    loadCreditCards(),
+                ]);
+            }
         };
 
         fetchData();
-    }, [personId, loadTransactions, loadCreditCards]);
+    }, [personSlug, loadPerson, loadTransactions, loadCreditCards]);
 
     const isPayment = (amount: number) => amount < 0;
 
@@ -150,7 +176,7 @@ export default function PersonTransactionsPage() {
                 <div className="alert alert-error mb-4">
                     <span>{error}</span>
                     <button
-                        onClick={loadTransactions}
+                        onClick={() => person && loadTransactions(person.id)}
                         className="btn btn-sm btn-primary"
                     >
                         Retry
@@ -164,7 +190,7 @@ export default function PersonTransactionsPage() {
                 ← Back
             </button>
             <h1 className="heading-page">
-                {transactions[0]?.expand?.person?.name || "Person"} Transactions
+                {person?.name || "Person"} Transactions
             </h1>
 
             <TransactionFilters
