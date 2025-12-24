@@ -114,7 +114,7 @@ export default function PersonsPage() {
                                         label="View Transactions"
                                         icon={<Eye className="w-4 h-4" />}
                                         variant="outline"
-                                        href={`/transactions/person/${person.id}`}
+                                        href={`/transactions/person/${person.slug}`}
                                     />
                                     <ActionButton
                                         label="Edit"
