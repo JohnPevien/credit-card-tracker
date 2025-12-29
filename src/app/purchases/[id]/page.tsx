@@ -35,20 +35,10 @@ export default function PurchaseDetailPage() {
     // Must call useMemo before any early returns (React Hooks rules)
     const filteredTransactions = useMemo(() => {
         return transactions.filter((tr) => {
-            const matchesDescription = filters.description
-                ? tr.description
-                      .toLowerCase()
-                      .includes(filters.description.toLowerCase())
-                : true;
-            const matchesPaid =
-                filters.paidStatus === "all"
-                    ? true
-                    : filters.paidStatus === "paid"
-                      ? tr.paid
-                      : !tr.paid;
-            return matchesDescription && matchesPaid;
+            if (filters.paidStatus === "all") return true;
+            return filters.paidStatus === "paid" ? tr.paid : !tr.paid;
         });
-    }, [transactions, filters]);
+    }, [transactions, filters.paidStatus]);
 
     // Handler to update paid status
     async function handlePaidChange(transactionId: string, paid: boolean) {
@@ -104,14 +94,15 @@ export default function PurchaseDetailPage() {
 
             <h2 className="heading-section">Transactions</h2>
 
-            <TransactionFilters
-                config={{
-                    showDescription: true,
-                    showPaidStatus: true,
-                }}
-                filters={filters}
-                onFilterChange={setFilters}
-            />
+            <div className="max-w-md">
+                <TransactionFilters
+                    config={{
+                        showPaidStatus: true,
+                    }}
+                    filters={filters}
+                    onFilterChange={setFilters}
+                />
+            </div>
 
             <DataTable
                 data={filteredTransactions}
