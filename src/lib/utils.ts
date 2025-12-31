@@ -17,6 +17,18 @@ export function formatDate(dateString: string): string {
 }
 
 /**
+ * Formats an amount as Philippine Peso (PHP)
+ * @param amount The amount to format
+ * @returns Formatted currency string
+ */
+export function formatCurrency(amount: number): string {
+    return `₱${Math.abs(amount).toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    })}`;
+}
+
+/**
  * Update the paid status of a transaction
  * @param transactionId The ID of the transaction to update
  * @param paid The new paid status
