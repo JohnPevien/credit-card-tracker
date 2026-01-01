@@ -4,9 +4,10 @@ import { cn } from "@/lib/utils";
 import Link, { LinkProps } from "next/link";
 import React, { useState, createContext, useContext } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Menu, X } from "lucide-react";
 
-interface Links {
+const SIDEBAR_DESKTOP_WIDTH = "200px";
+
+interface SidebarLinkItem {
     label: string;
     href: string;
     icon: React.JSX.Element | React.ReactNode;
@@ -63,6 +64,7 @@ export const Sidebar = ({
     open?: boolean;
     setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
     animate?: boolean;
+    className?: string;
 }) => {
     return (
         <SidebarProvider open={open} setOpen={setOpen} animate={animate}>
@@ -89,11 +91,22 @@ export const DesktopSidebar = ({
     return (
         <motion.div
             className={cn(
-                "h-full px-4 py-4 hidden md:flex md:flex-col w-[200px] flex-shrink-0",
+                "h-full px-4 py-4 hidden md:flex md:flex-col flex-shrink-0 max-md:hidden",
                 className,
             )}
+            style={{
+                width: animate
+                    ? open
+                        ? SIDEBAR_DESKTOP_WIDTH
+                        : "60px"
+                    : SIDEBAR_DESKTOP_WIDTH,
+            }}
             animate={{
-                width: animate ? (open ? "200px" : "60px") : "200px",
+                width: animate
+                    ? open
+                        ? SIDEBAR_DESKTOP_WIDTH
+                        : "60px"
+                    : SIDEBAR_DESKTOP_WIDTH,
             }}
             {...props}
         >
@@ -102,28 +115,28 @@ export const DesktopSidebar = ({
     );
 };
 
+// deprecated since we now use BottomNavigation for mobile nav but keeping this
 export const MobileSidebar = ({
     className,
     children,
-    ...props
 }: React.ComponentProps<"div">) => {
     const { open, setOpen } = useSidebar();
     return (
         <>
-            <div
-                className={cn(
-                    "h-10 px-4 py-4 flex flex-row md:hidden items-center justify-between bg-primary w-full",
-                )}
-                {...props}
-            >
-                <div className="flex justify-end z-20 w-full">
-                    <Menu
-                        className="text-neutral-800 dark:text-neutral-200 cursor-pointer"
-                        onClick={() => setOpen(!open)}
-                    />
-                </div>
-                <AnimatePresence>
-                    {open && (
+            <AnimatePresence>
+                {open && (
+                    <>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{
+                                duration: 0.3,
+                                ease: "easeInOut",
+                            }}
+                            className="fixed inset-0 bg-black bg-opacity-50 z-[40] md:hidden"
+                            onClick={() => setOpen(false)}
+                        />
                         <motion.div
                             initial={{ x: "-100%", opacity: 0 }}
                             animate={{ x: 0, opacity: 1 }}
@@ -133,21 +146,15 @@ export const MobileSidebar = ({
                                 ease: "easeInOut",
                             }}
                             className={cn(
-                                "fixed h-full w-full inset-0 dark:bg-neutral-900 p-10 z-[100] flex flex-col justify-between",
+                                "fixed h-full w-[80%] inset-y-0 left-0 dark:bg-neutral-900 p-10 z-[50] flex flex-col justify-between md:hidden",
                                 className,
                             )}
                         >
-                            <div
-                                className="absolute right-10 top-10 z-50 text-neutral-800 dark:text-neutral-200 cursor-pointer"
-                                onClick={() => setOpen(!open)}
-                            >
-                                <X />
-                            </div>
                             {children}
                         </motion.div>
-                    )}
-                </AnimatePresence>
-            </div>
+                    </>
+                )}
+            </AnimatePresence>
         </>
     );
 };
@@ -157,10 +164,9 @@ export const SidebarLink = ({
     className,
     ...props
 }: {
-    link: Links;
+    link: SidebarLinkItem;
     className?: string;
-    props?: LinkProps;
-}) => {
+} & Omit<LinkProps, "href">) => {
     const { open, animate } = useSidebar();
     return (
         <Link
@@ -174,14 +180,25 @@ export const SidebarLink = ({
             {link.icon}
             <motion.span
                 animate={{
-                    display: animate
-                        ? open
-                            ? "inline-block"
-                            : "none"
-                        : "inline-block",
                     opacity: animate ? (open ? 1 : 0) : 1,
+                    transform: animate
+                        ? open
+                            ? "translateX(0)"
+                            : "translateX(-10px)"
+                        : "translateX(0)",
                 }}
-                className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0"
+                transition={{
+                    duration: 0.2,
+                    ease: "easeInOut",
+                }}
+                className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0 overflow-hidden"
+                style={{
+                    maxWidth: animate
+                        ? open
+                            ? SIDEBAR_DESKTOP_WIDTH
+                            : "0"
+                        : SIDEBAR_DESKTOP_WIDTH,
+                }}
             >
                 {link.label}
             </motion.span>

@@ -33,12 +33,15 @@ export default function DataTable<T>({
     className,
 }: DataTableProps<T>) {
     return (
-        <div className={`overflow-x-auto ${className}`}>
+        <div
+            className={`overflow-x-auto ${className}`}
+            data-component="data-table"
+        >
             <Table>
                 <TableHeader>
                     <TableRow>
-                        {columns.map((column, index) => (
-                            <TableHead key={index} className={column.className}>
+                        {columns.map((column) => (
+                            <TableHead key={column.header} className={column.className}>
                                 {column.header}
                             </TableHead>
                         ))}
@@ -57,9 +60,9 @@ export default function DataTable<T>({
                     ) : (
                         data.map((item) => (
                             <TableRow key={String(item[keyField])}>
-                                {columns.map((column, cellIndex) => (
+                                {columns.map((column) => (
                                     <TableCell
-                                        key={cellIndex}
+                                        key={column.header}
                                         className={column.className}
                                     >
                                         {column.cell

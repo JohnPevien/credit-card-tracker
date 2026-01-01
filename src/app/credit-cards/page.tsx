@@ -5,12 +5,17 @@ import { CreditCardService } from "@/lib/services/creditCardService";
 import DataTable from "@/components/DataTable";
 import Modal from "@/components/Modal";
 import CreditCardForm from "@/components/credit-cards/CreditCardForm";
+import { LoadingSpinner } from "@/components/base";
+import ActionButton from "@/components/base/ActionButton";
+import { Edit3, Trash2 } from "lucide-react";
 
 export default function CreditCardsPage() {
     const [cards, setCards] = useState<CreditCard[]>([]);
     const [principalCards, setPrincipalCards] = useState<CreditCard[]>([]);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [editingCard, setEditingCard] = useState<CreditCard | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     const initialFormData: CreditCardInsert = {
         credit_card_name: "",
@@ -27,6 +32,8 @@ export default function CreditCardsPage() {
 
     async function loadCards() {
         try {
+            setIsLoading(true);
+            setError(null);
             const loadedCards = await CreditCardService.loadCards();
             setCards(loadedCards);
 
@@ -35,8 +42,15 @@ export default function CreditCardsPage() {
                 (card) => !card.is_supplementary,
             );
             setPrincipalCards(principalOnly);
-        } catch {
-            // Error is already logged in the service
+        } catch (err) {
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : "Failed to load credit cards",
+            );
+            console.error("Error loading credit cards:", err);
+        } finally {
+            setIsLoading(false);
         }
     }
 
@@ -79,9 +93,26 @@ export default function CreditCardsPage() {
         }
     }
 
+    if (isLoading) {
+        return <LoadingSpinner />;
+    }
+
+    if (error) {
+        return (
+            <div className="container mx-auto p-4">
+                <div className="alert alert-error">
+                    <span>{error}</span>
+                </div>
+                <button onClick={loadCards} className="btn btn-primary mt-4">
+                    Retry
+                </button>
+            </div>
+        );
+    }
+
     return (
         <div className="container space-y-5 mx-auto">
-            <h1 className="text-2xl font-bold mb-4">Credit Cards</h1>
+            <h1 className="heading-page">Credit Cards</h1>
             <button onClick={openAddModal} className="btn btn-primary">
                 Add Credit Card
             </button>
@@ -123,20 +154,20 @@ export default function CreditCardsPage() {
                     {
                         header: "Actions",
                         cell: (card) => (
-                            <>
-                                <button
+                            <div className="flex gap-2 md:gap-3 items-center">
+                                <ActionButton
+                                    label="Edit"
+                                    icon={<Edit3 className="w-4 h-4" />}
+                                    variant="subtle"
                                     onClick={() => openEditModal(card)}
-                                    className="text-blue-500 hover:text-blue-700 mr-2"
-                                >
-                                    Edit
-                                </button>
-                                <button
+                                />
+                                <ActionButton
+                                    label="Delete"
+                                    icon={<Trash2 className="w-4 h-4" />}
+                                    variant="danger"
                                     onClick={() => handleDelete(card.id)}
-                                    className="text-red-500 hover:text-red-700"
-                                >
-                                    Delete
-                                </button>
-                            </>
+                                />
+                            </div>
                         ),
                     },
                 ]}

@@ -16,7 +16,7 @@ export default function PasswordForm({
     onSubmit,
 }: PasswordFormProps) {
     return (
-        <form onSubmit={onSubmit}>
+        <form onSubmit={onSubmit} data-component="PasswordForm">
             <div className="form-control">
                 <label className="label" htmlFor="password">
                     <span className="label-text">Password</span>

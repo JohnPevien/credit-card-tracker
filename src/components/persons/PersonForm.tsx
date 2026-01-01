@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import Modal from "@/components/Modal";
 import { personSchema } from "@/lib/schemas";
 import { useZodForm } from "@/lib/hooks/useZodForm";
@@ -18,6 +18,7 @@ export default function PersonForm({
     initialData,
 }: PersonFormProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const initialDataRef = useRef<PersonFormProps["initialData"]>(initialData);
 
     const initialFormValues = useMemo(() => ({ name: "" }), []);
 
@@ -30,14 +31,18 @@ export default function PersonForm({
         setValues,
     } = useZodForm(personSchema, initialFormValues);
 
-    // Update form when initialData changes
     useEffect(() => {
-        if (initialData) {
-            setValues({ name: initialData.name });
+        initialDataRef.current = initialData;
+    }, [initialData]);
+
+    useEffect(() => {
+        const data = initialDataRef.current;
+        if (data) {
+            setValues({ name: data.name });
         } else {
             reset({ name: "" });
         }
-    }, [initialData, setValues, reset]);
+    }, [initialData?.id, reset, setValues]);
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
@@ -68,7 +73,7 @@ export default function PersonForm({
             onClose={handleClose}
             title={initialData ? "Edit Person" : "Add Person"}
         >
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} data-component="PersonForm">
                 <div className="mb-4">
                     <label className="block mb-1">Name</label>
                     <input

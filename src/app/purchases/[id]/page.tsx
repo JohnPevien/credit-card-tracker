@@ -2,11 +2,10 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatCurrency } from "@/lib/utils";
 import DataTable from "@/components/DataTable";
 import PurchaseDetailsCard from "@/components/purchases/PurchaseDetailsCard";
 import { usePurchaseDetails } from "@/lib/hooks/usePurchaseDetails";
-import { CURRENCY_DECIMAL_PLACES } from "@/lib/constants";
 import TransactionFilters, {
     TransactionFiltersState,
 } from "@/components/transactions/TransactionFilters";
@@ -35,20 +34,10 @@ export default function PurchaseDetailPage() {
     // Must call useMemo before any early returns (React Hooks rules)
     const filteredTransactions = useMemo(() => {
         return transactions.filter((tr) => {
-            const matchesDescription = filters.description
-                ? tr.description
-                      .toLowerCase()
-                      .includes(filters.description.toLowerCase())
-                : true;
-            const matchesPaid =
-                filters.paidStatus === "all"
-                    ? true
-                    : filters.paidStatus === "paid"
-                    ? tr.paid
-                    : !tr.paid;
-            return matchesDescription && matchesPaid;
+            if (filters.paidStatus === "all") return true;
+            return filters.paidStatus === "paid" ? tr.paid : !tr.paid;
         });
-    }, [transactions, filters]);
+    }, [transactions, filters.paidStatus]);
 
     // Handler to update paid status
     async function handlePaidChange(transactionId: string, paid: boolean) {
@@ -98,20 +87,21 @@ export default function PurchaseDetailPage() {
                 </Link>
             </div>
 
-            <h1 className="text-2xl font-bold mb-4">Purchase Details</h1>
+            <h1 className="heading-page">Purchase Details</h1>
 
             <PurchaseDetailsCard purchase={purchase} />
 
-            <h2 className="text-xl font-semibold mb-4">Transactions</h2>
+            <h2 className="heading-section">Transactions</h2>
 
-            <TransactionFilters
-                config={{
-                    showDescription: true,
-                    showPaidStatus: true,
-                }}
-                filters={filters}
-                onFilterChange={setFilters}
-            />
+            <div className="max-w-md">
+                <TransactionFilters
+                    config={{
+                        showPaidStatus: true,
+                    }}
+                    filters={filters}
+                    onFilterChange={setFilters}
+                />
+            </div>
 
             <DataTable
                 data={filteredTransactions}
@@ -151,9 +141,7 @@ export default function PurchaseDetailPage() {
                     {
                         header: "Amount",
                         cell: (transaction) =>
-                            `₱${transaction.amount.toFixed(
-                                CURRENCY_DECIMAL_PLACES,
-                            )}`,
+                            formatCurrency(transaction.amount),
                     },
                     {
                         header: "Card",

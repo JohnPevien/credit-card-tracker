@@ -38,6 +38,7 @@ export default function Modal({
             aria-modal="true"
             className="fixed inset-0 flex items-center justify-center z-50 p-4"
             onClick={handleBackdropClick}
+            data-component="Modal"
         >
             <div className="fixed inset-0 bg-black opacity-80" />
             <div

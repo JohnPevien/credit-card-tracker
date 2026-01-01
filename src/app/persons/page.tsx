@@ -4,14 +4,16 @@ import { Person } from "@/lib/supabase";
 import DataTable from "@/components/DataTable";
 import PersonForm from "@/components/persons/PersonForm";
 import { PersonService } from "@/lib/services/personService";
-import Link from "next/link";
 import { LoadingSpinner } from "@/components/base";
+import ActionButton from "@/components/base/ActionButton";
+import { Eye, Edit3, Trash2 } from "lucide-react";
 
 export default function PersonsPage() {
     const [persons, setPersons] = useState<Person[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingPerson, setEditingPerson] = useState<Person | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         loadPersons();
@@ -20,10 +22,14 @@ export default function PersonsPage() {
     async function loadPersons() {
         try {
             setIsLoading(true);
+            setError(null);
             const data = await PersonService.loadPersons();
             setPersons(data);
-        } catch (error) {
-            console.error("Error loading persons:", error);
+        } catch (err) {
+            setError(
+                err instanceof Error ? err.message : "Failed to load persons",
+            );
+            console.error("Error loading persons:", err);
         } finally {
             setIsLoading(false);
         }
@@ -70,18 +76,30 @@ export default function PersonsPage() {
     }
     return (
         <div className="container space-y-5 mx-auto">
-            <h1 className="text-2xl font-bold mb-4">Persons</h1>
+            <h1 className="heading-page">Persons</h1>
             <button onClick={openAddModal} className="btn btn-primary">
                 Add Person
             </button>
 
             {isLoading ? (
                 <LoadingSpinner />
+            ) : error ? (
+                <div>
+                    <div className="alert alert-error">
+                        <span>{error}</span>
+                    </div>
+                    <button
+                        onClick={loadPersons}
+                        className="btn btn-primary mt-4"
+                    >
+                        Retry
+                    </button>
+                </div>
             ) : (
                 <DataTable
                     data={persons}
                     keyField="id"
-                    emptyMessage="No persons found"
+                    emptyMessage="No persons yet. Add a person to track their transactions."
                     columns={[
                         {
                             header: "Name",
@@ -91,25 +109,25 @@ export default function PersonsPage() {
                             header: "Actions",
                             className: "w-[200px]",
                             cell: (person: Person) => (
-                                <div className="flex space-x-2">
-                                    <Link
-                                        href={`/transactions/person/${person.id}`}
-                                        className="hover:underline"
-                                    >
-                                        View Transactions
-                                    </Link>
-                                    <button
+                                <div className="flex gap-2 md:gap-3 items-center">
+                                    <ActionButton
+                                        label="View Transactions"
+                                        icon={<Eye className="w-4 h-4" />}
+                                        variant="outline"
+                                        href={`/transactions/person/${person.slug}`}
+                                    />
+                                    <ActionButton
+                                        label="Edit"
+                                        icon={<Edit3 className="w-4 h-4" />}
+                                        variant="subtle"
                                         onClick={() => openEditModal(person)}
-                                        className="hover:underline"
-                                    >
-                                        Edit
-                                    </button>
-                                    <button
+                                    />
+                                    <ActionButton
+                                        label="Delete"
+                                        icon={<Trash2 className="w-4 h-4" />}
+                                        variant="danger"
                                         onClick={() => handleDelete(person.id)}
-                                        className="hover:underline"
-                                    >
-                                        Delete
-                                    </button>
+                                    />
                                 </div>
                             ),
                         },
