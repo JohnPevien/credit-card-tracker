@@ -3,9 +3,12 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabase, Transaction, CreditCard, Person } from "@/lib/supabase";
-import { formatDate, handleTransactionPaidChange } from "@/lib/utils";
+import {
+    formatDate,
+    formatCurrency,
+    handleTransactionPaidChange,
+} from "@/lib/utils";
 import DataTable from "@/components/DataTable";
-import { CURRENCY_DECIMAL_PLACES } from "@/lib/constants";
 import TransactionFilters, {
     TransactionFiltersState,
 } from "@/components/transactions/TransactionFilters";
@@ -241,10 +244,7 @@ export default function PersonTransactionsPage() {
                         accessorKey: "amount",
                         cell: (transaction: Transaction) => (
                             <span>
-                                ₱
-                                {Math.abs(transaction.amount).toFixed(
-                                    CURRENCY_DECIMAL_PLACES,
-                                )}
+                                {formatCurrency(transaction.amount)}
                                 {isPayment(transaction.amount)
                                     ? " (payment)"
                                     : ""}

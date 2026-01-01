@@ -1,9 +1,12 @@
 "use client";
 import { useState, useEffect } from "react";
 import { supabase, Transaction, CreditCard, Person } from "@/lib/supabase";
-import { formatDate, handleTransactionPaidChange } from "@/lib/utils";
+import {
+    formatDate,
+    formatCurrency,
+    handleTransactionPaidChange,
+} from "@/lib/utils";
 import DataTable from "@/components/DataTable";
-import { CURRENCY_DECIMAL_PLACES } from "@/lib/constants";
 import { LoadingSpinner } from "@/components/base";
 
 export default function TransactionsPage() {
@@ -67,7 +70,9 @@ export default function TransactionsPage() {
             const errorMessage =
                 err instanceof Error
                     ? err.message
-                    : typeof err === "object" && err !== null && "message" in err
+                    : typeof err === "object" &&
+                        err !== null &&
+                        "message" in err
                       ? String((err as { message: unknown }).message)
                       : "Failed to load transactions";
             setError(errorMessage);
@@ -100,7 +105,9 @@ export default function TransactionsPage() {
             const errorMessage =
                 err instanceof Error
                     ? err.message
-                    : typeof err === "object" && err !== null && "message" in err
+                    : typeof err === "object" &&
+                        err !== null &&
+                        "message" in err
                       ? String((err as { message: unknown }).message)
                       : "Failed to load credit cards";
             console.error("Error loading credit cards:", errorMessage, err);
@@ -117,7 +124,9 @@ export default function TransactionsPage() {
             const errorMessage =
                 err instanceof Error
                     ? err.message
-                    : typeof err === "object" && err !== null && "message" in err
+                    : typeof err === "object" &&
+                        err !== null &&
+                        "message" in err
                       ? String((err as { message: unknown }).message)
                       : "Failed to load persons";
             console.error("Error loading persons:", errorMessage, err);
@@ -297,10 +306,7 @@ export default function TransactionsPage() {
                         accessorKey: "amount",
                         cell: (transaction: Transaction) => (
                             <span>
-                                ₱
-                                {Math.abs(transaction.amount).toFixed(
-                                    CURRENCY_DECIMAL_PLACES,
-                                )}
+                                {formatCurrency(transaction.amount)}
                                 {isPayment(transaction.amount)
                                     ? " (payment)"
                                     : ""}

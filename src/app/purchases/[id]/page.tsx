@@ -2,11 +2,10 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatCurrency } from "@/lib/utils";
 import DataTable from "@/components/DataTable";
 import PurchaseDetailsCard from "@/components/purchases/PurchaseDetailsCard";
 import { usePurchaseDetails } from "@/lib/hooks/usePurchaseDetails";
-import { CURRENCY_DECIMAL_PLACES } from "@/lib/constants";
 import TransactionFilters, {
     TransactionFiltersState,
 } from "@/components/transactions/TransactionFilters";
@@ -142,9 +141,7 @@ export default function PurchaseDetailPage() {
                     {
                         header: "Amount",
                         cell: (transaction) =>
-                            `₱${transaction.amount.toFixed(
-                                CURRENCY_DECIMAL_PLACES,
-                            )}`,
+                            formatCurrency(transaction.amount),
                     },
                     {
                         header: "Card",
