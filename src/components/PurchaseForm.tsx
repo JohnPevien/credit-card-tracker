@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
     Select,
     DateInput,
@@ -53,16 +53,16 @@ export default function PurchaseForm({
         is_bnpl: false,
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const hasInitialized = useRef(false);
 
     useEffect(() => {
-        // Initialize form with default values when data is available
-        if (creditCards.length > 0 && persons.length > 0) {
+        if (
+            !hasInitialized.current &&
+            creditCards.length > 0 &&
+            persons.length > 0
+        ) {
             const today = new Date().toISOString().split("T")[0];
-            // Temporarily disabled: Calculate billing date as 1 month after purchase date
-            // const nextMonth = new Date();
-            // nextMonth.setMonth(nextMonth.getMonth() + 1);
-            // const billingDate = nextMonth.toISOString().split("T")[0];
-            const billingDate = today; // Use purchase date instead of 1 month after
+            const billingDate = today;
 
             setFormData({
                 credit_card_id: creditCards[0].id,
@@ -74,6 +74,7 @@ export default function PurchaseForm({
                 num_installments: "1",
                 is_bnpl: false,
             });
+            hasInitialized.current = true;
         }
     }, [creditCards, persons]);
 
@@ -148,7 +149,7 @@ export default function PurchaseForm({
         label: person.name,
     }));
     return (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} data-component="PurchaseForm">
             <div className="form-control mb-4">
                 <div className="label">
                     <span className="label-text">Credit Card</span>

@@ -35,6 +35,14 @@ const DEFAULT_FILTERS: TransactionFiltersState = {
     paidStatus: "all",
 };
 
+const GRID_COLS_MAP: Record<number, string> = {
+    1: "lg:grid-cols-1",
+    2: "lg:grid-cols-2",
+    3: "lg:grid-cols-3",
+    4: "lg:grid-cols-4",
+    5: "lg:grid-cols-5",
+};
+
 export default function TransactionFilters({
     config,
     filters,
@@ -65,10 +73,13 @@ export default function TransactionFilters({
     if (visibleFiltersCount === 0) return null;
 
     return (
-        <div className="mb-6 p-4 bg-base-200 rounded-lg">
+        <div
+            className="mb-6 p-4 bg-base-200 rounded-lg"
+            data-component="TransactionFilters"
+        >
             <h2 className="text-lg font-semibold mb-3">Filters</h2>
             <div
-                className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-${Math.min(visibleFiltersCount, 5)} gap-4`}
+                className={`grid grid-cols-1 md:grid-cols-2 ${GRID_COLS_MAP[Math.min(visibleFiltersCount, 5)] || "lg:grid-cols-3"} gap-4`}
             >
                 {config.showPerson && (
                     <div className="form-control">
@@ -122,7 +133,10 @@ export default function TransactionFilters({
                             placeholder="Filter by description"
                             value={filters.description}
                             onChange={(e) =>
-                                handleFilterChange("description", e.target.value)
+                                handleFilterChange(
+                                    "description",
+                                    e.target.value,
+                                )
                             }
                         />
                     </div>
@@ -137,7 +151,10 @@ export default function TransactionFilters({
                             <DateInput
                                 value={filters.dateFrom}
                                 onChange={(e) =>
-                                    handleFilterChange("dateFrom", e.target.value)
+                                    handleFilterChange(
+                                        "dateFrom",
+                                        e.target.value,
+                                    )
                                 }
                             />
                         </div>

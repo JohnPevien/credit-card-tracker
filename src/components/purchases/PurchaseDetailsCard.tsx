@@ -1,6 +1,5 @@
 import { Purchase } from "@/lib/supabase";
-import { formatDate } from "@/lib/utils";
-import { CURRENCY_DECIMAL_PLACES } from "@/lib/constants";
+import { formatDate, formatCurrency } from "@/lib/utils";
 
 interface PurchaseDetailsCardProps {
     purchase: Purchase;
@@ -10,7 +9,10 @@ export default function PurchaseDetailsCard({
     purchase,
 }: PurchaseDetailsCardProps) {
     return (
-        <div className="rounded-lg shadow p-6 mb-6">
+        <div
+            className="rounded-lg shadow p-6 mb-6"
+            data-component="PurchaseDetailsCard"
+        >
             <h2 className="text-xl font-semibold mb-4">
                 {purchase.description}
             </h2>
@@ -25,8 +27,7 @@ export default function PurchaseDetailsCard({
                 <div>
                     <p>Total Amount</p>
                     <p className="font-medium">
-                        ₱
-                        {purchase.total_amount.toFixed(CURRENCY_DECIMAL_PLACES)}
+                        {formatCurrency(purchase.total_amount)}
                     </p>
                 </div>
                 <div>

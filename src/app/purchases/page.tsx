@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import { Purchase, CreditCard, Person } from "@/lib/supabase";
 import DataTable from "@/components/DataTable";
 import Modal from "@/components/Modal";
@@ -9,8 +8,10 @@ import TransactionFilters, {
     TransactionFiltersState,
 } from "@/components/transactions/TransactionFilters";
 import { DataService } from "@/lib/services/dataService";
-import { CURRENCY_DECIMAL_PLACES } from "@/lib/constants";
 import { LoadingSpinner } from "@/components/base";
+import ActionButton from "@/components/base/ActionButton";
+import { Eye, Trash2 } from "lucide-react";
+import { formatCurrency, formatDate } from "@/lib/utils";
 
 export default function PurchasesPage() {
     const [purchases, setPurchases] = useState<Purchase[]>([]);
@@ -18,6 +19,7 @@ export default function PurchasesPage() {
     const [creditCards, setCreditCards] = useState<CreditCard[]>([]);
     const [persons, setPersons] = useState<Person[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [filters, setFilters] = useState<TransactionFiltersState>({
         person: "",
         card: "",
@@ -34,6 +36,7 @@ export default function PurchasesPage() {
     async function loadData() {
         try {
             setIsLoading(true);
+            setError(null);
             const [purchasesData, creditCardsData, personsData] =
                 await Promise.all([
                     DataService.loadPurchases(),
@@ -44,8 +47,11 @@ export default function PurchasesPage() {
             setPurchases(purchasesData);
             setCreditCards(creditCardsData);
             setPersons(personsData);
-        } catch (error) {
-            console.error("Error loading data:", error);
+        } catch (err) {
+            setError(
+                err instanceof Error ? err.message : "Failed to load data",
+            );
+            console.error("Error loading data:", err);
         } finally {
             setIsLoading(false);
         }
@@ -77,9 +83,6 @@ export default function PurchasesPage() {
             console.error("Error saving purchase:", error);
             throw error;
         }
-    } // Format date to a more readable format
-    function formatDate(dateString: string) {
-        return new Date(dateString).toLocaleDateString();
     }
 
     async function handleDeletePurchase(purchaseId: string) {
@@ -112,9 +115,22 @@ export default function PurchasesPage() {
         return <LoadingSpinner />;
     }
 
+    if (error) {
+        return (
+            <div className="container mx-auto p-4">
+                <div className="alert alert-error">
+                    <span>{error}</span>
+                </div>
+                <button onClick={loadData} className="btn btn-primary mt-4">
+                    Retry
+                </button>
+            </div>
+        );
+    }
+
     return (
         <div className="container space-y-5 mx-auto">
-            <h1 className="text-2xl font-bold mb-4">Purchases</h1>
+            <h1 className="heading-page">Purchases</h1>
             <button onClick={openAddModal} className="btn btn-primary">
                 Add Purchase
             </button>
@@ -148,7 +164,7 @@ export default function PurchasesPage() {
                     {
                         header: "Total Amount",
                         cell: (purchase) =>
-                            `₱${purchase.total_amount.toFixed(CURRENCY_DECIMAL_PLACES)}`,
+                            formatCurrency(purchase.total_amount),
                     },
                     {
                         header: "Card",
@@ -193,21 +209,23 @@ export default function PurchasesPage() {
                     {
                         header: "Actions",
                         cell: (purchase: Purchase) => (
-                            <div className="flex gap-5 items-center">
-                                <Link
+                            <div className="flex gap-2 md:gap-3 items-center">
+                                <ActionButton
+                                    label="View"
+                                    icon={<Eye className="w-4 h-4" />}
+                                    variant="outline"
                                     href={`/purchases/${purchase.id}`}
-                                    className="hover:underline"
-                                >
-                                    View
-                                </Link>
-                                <button
+                                    ariaLabel="View purchase"
+                                />
+                                <ActionButton
+                                    label="Delete"
+                                    icon={<Trash2 className="w-4 h-4" />}
+                                    variant="danger"
                                     onClick={() =>
                                         handleDeletePurchase(purchase.id)
                                     }
-                                    className="btn btn-error btn-sm text-white"
-                                >
-                                    Delete
-                                </button>
+                                    ariaLabel="Delete purchase"
+                                />
                             </div>
                         ),
                     },

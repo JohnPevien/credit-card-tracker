@@ -1,9 +1,13 @@
 "use client";
 import { useState, useEffect } from "react";
 import { supabase, Transaction, CreditCard, Person } from "@/lib/supabase";
-import { formatDate, handleTransactionPaidChange } from "@/lib/utils";
+import {
+    formatDate,
+    formatCurrency,
+    handleTransactionPaidChange,
+} from "@/lib/utils";
 import DataTable from "@/components/DataTable";
-import { CURRENCY_DECIMAL_PLACES } from "@/lib/constants";
+import { LoadingSpinner } from "@/components/base";
 
 export default function TransactionsPage() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -15,6 +19,8 @@ export default function TransactionsPage() {
     const [filterFrom, setFilterFrom] = useState<string>("");
     const [filterTo, setFilterTo] = useState<string>("");
     const [updatingId, setUpdatingId] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     const clearFilters = () => {
         setFilterPerson("");
@@ -32,6 +38,8 @@ export default function TransactionsPage() {
 
     async function loadTransactions() {
         try {
+            setIsLoading(true);
+            setError(null);
             const { data, error } = await supabase
                 .from("transactions")
                 .select(
@@ -58,8 +66,19 @@ export default function TransactionsPage() {
                 })) || [];
 
             setTransactions(recordsWithExpand);
-        } catch (error) {
-            console.error("Error loading transactions:", error);
+        } catch (err) {
+            const errorMessage =
+                err instanceof Error
+                    ? err.message
+                    : typeof err === "object" &&
+                        err !== null &&
+                        "message" in err
+                      ? String((err as { message: unknown }).message)
+                      : "Failed to load transactions";
+            setError(errorMessage);
+            console.error("Error loading transactions:", errorMessage, err);
+        } finally {
+            setIsLoading(false);
         }
     }
 
@@ -82,8 +101,16 @@ export default function TransactionsPage() {
                 })) || [];
 
             setCreditCards(recordsWithExpand);
-        } catch (error) {
-            console.error("Error loading credit cards:", error);
+        } catch (err) {
+            const errorMessage =
+                err instanceof Error
+                    ? err.message
+                    : typeof err === "object" &&
+                        err !== null &&
+                        "message" in err
+                      ? String((err as { message: unknown }).message)
+                      : "Failed to load credit cards";
+            console.error("Error loading credit cards:", errorMessage, err);
         }
     }
 
@@ -93,8 +120,16 @@ export default function TransactionsPage() {
 
             if (error) throw error;
             setPersons(data || []);
-        } catch (error) {
-            console.error("Error loading persons:", error);
+        } catch (err) {
+            const errorMessage =
+                err instanceof Error
+                    ? err.message
+                    : typeof err === "object" &&
+                        err !== null &&
+                        "message" in err
+                      ? String((err as { message: unknown }).message)
+                      : "Failed to load persons";
+            console.error("Error loading persons:", errorMessage, err);
         }
     }
 
@@ -140,12 +175,32 @@ export default function TransactionsPage() {
         );
     });
 
+    if (isLoading) {
+        return <LoadingSpinner />;
+    }
+
+    if (error) {
+        return (
+            <div className="container mx-auto p-4">
+                <div className="alert alert-error">
+                    <span>{error}</span>
+                </div>
+                <button
+                    onClick={loadTransactions}
+                    className="btn btn-primary mt-4"
+                >
+                    Retry
+                </button>
+            </div>
+        );
+    }
+
     return (
         <div className="container space-y-5 mx-auto">
-            <h1 className="text-2xl font-bold mb-4">Transactions</h1>
+            <h1 className="heading-page">Transactions</h1>
 
-            <div className="flex gap-4 mb-4 max-w-3xl">
-                <div className="fieldset">
+            <div className="flex flex-col md:flex-row gap-3 md:gap-4 mb-4">
+                <div className="fieldset w-full md:w-auto">
                     <label className="block mb-1">Person:</label>
                     <select
                         value={filterPerson}
@@ -160,7 +215,7 @@ export default function TransactionsPage() {
                         ))}
                     </select>
                 </div>
-                <div className="fieldset">
+                <div className="fieldset w-full md:w-auto">
                     <label className="block mb-1">Card:</label>
                     <select
                         value={filterCard}
@@ -176,7 +231,7 @@ export default function TransactionsPage() {
                         ))}
                     </select>
                 </div>
-                <div className="fieldset">
+                <div className="fieldset w-full md:w-auto">
                     <label className="block mb-1">Description:</label>
                     <input
                         type="text"
@@ -186,9 +241,9 @@ export default function TransactionsPage() {
                         className="input input-bordered w-full"
                     />
                 </div>
-                <div className="fieldset">
+                <div className="fieldset w-full md:w-auto">
                     <label className="block mb-1">Date Range:</label>
-                    <div className="flex gap-2">
+                    <div className="flex flex-col md:flex-row gap-2">
                         <input
                             type="date"
                             value={filterFrom}
@@ -207,7 +262,7 @@ export default function TransactionsPage() {
                 </div>
                 <button
                     onClick={clearFilters}
-                    className="self-end btn btn-secondary mb-1"
+                    className="btn btn-secondary w-full md:w-auto mt-2 md:mt-0 self-end"
                 >
                     Clear Filters
                 </button>
@@ -251,10 +306,7 @@ export default function TransactionsPage() {
                         accessorKey: "amount",
                         cell: (transaction: Transaction) => (
                             <span>
-                                ₱
-                                {Math.abs(transaction.amount).toFixed(
-                                    CURRENCY_DECIMAL_PLACES,
-                                )}
+                                {formatCurrency(transaction.amount)}
                                 {isPayment(transaction.amount)
                                     ? " (payment)"
                                     : ""}

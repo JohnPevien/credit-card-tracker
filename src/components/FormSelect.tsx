@@ -59,6 +59,7 @@ export function FormSelect({
             value={value}
             onValueChange={handleValueChange}
             required={required}
+            data-component="FormSelect"
         >
             <SelectTrigger className={className || "w-full p-2 border rounded"}>
                 <SelectValue placeholder={placeholder} />

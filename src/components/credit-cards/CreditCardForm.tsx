@@ -1,16 +1,18 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { CreditCard, CreditCardInsert } from "@/lib/supabase";
 import { useZodForm } from "@/lib/hooks/useZodForm";
 import { refinedCreditCardSchema } from "@/lib/schemas";
 import { FormSelect } from "@/components/FormSelect";
 import { PHILIPPINE_BANKS, FORM_LABELS } from "@/lib/constants";
 
+type CreditCardFormData = CreditCardInsert & { id?: string };
+
 interface CreditCardFormProps {
     onSubmit: (data: CreditCardInsert) => void;
     onCancel: () => void;
-    initialData: CreditCardInsert;
+    initialData: CreditCardFormData;
     principalCards: CreditCard[];
 }
 
@@ -20,6 +22,8 @@ export default function CreditCardForm({
     initialData,
     principalCards,
 }: CreditCardFormProps) {
+    const initialDataRef = useRef(initialData);
+
     const {
         values: formData,
         errors,
@@ -32,11 +36,16 @@ export default function CreditCardForm({
     });
 
     useEffect(() => {
+        initialDataRef.current = initialData;
+    }, [initialData]);
+
+    useEffect(() => {
+        const data = initialDataRef.current;
         reset({
-            ...initialData,
-            principal_card_id: initialData.principal_card_id || "",
+            ...data,
+            principal_card_id: data.principal_card_id || "",
         });
-    }, [initialData, reset]);
+    }, [initialData.id, reset]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -53,7 +62,7 @@ export default function CreditCardForm({
     };
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} data-component="CreditCardForm">
             <div className="mb-4">
                 <label className="block mb-1">{FORM_LABELS.CARD_NAME}</label>
                 <input
@@ -71,7 +80,9 @@ export default function CreditCardForm({
             </div>
 
             <div className="mb-4">
-                <label className="block mb-1">{FORM_LABELS.LAST_FOUR_DIGITS}</label>
+                <label className="block mb-1">
+                    {FORM_LABELS.LAST_FOUR_DIGITS}
+                </label>
                 <input
                     type="text"
                     name="last_four_digits"
@@ -88,7 +99,9 @@ export default function CreditCardForm({
             </div>
 
             <div className="mb-4">
-                <label className="block mb-1">{FORM_LABELS.CARDHOLDER_NAME}</label>
+                <label className="block mb-1">
+                    {FORM_LABELS.CARDHOLDER_NAME}
+                </label>
                 <input
                     type="text"
                     name="cardholder_name"
@@ -136,7 +149,9 @@ export default function CreditCardForm({
 
             {formData.is_supplementary && (
                 <div className="mb-4">
-                    <label className="block mb-1">{FORM_LABELS.PRINCIPAL_CARD}</label>
+                    <label className="block mb-1">
+                        {FORM_LABELS.PRINCIPAL_CARD}
+                    </label>
                     <FormSelect
                         name="principal_card_id"
                         value={formData.principal_card_id}

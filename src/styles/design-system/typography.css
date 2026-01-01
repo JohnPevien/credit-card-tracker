@@ -1,0 +1,26 @@
+@layer components {
+    /* Page Headings (h1) - Main page titles */
+    .heading-page {
+        @apply text-xl md:text-2xl font-bold mb-4;
+    }
+
+    /* Hero Headings (h1) - Large promotional or landing page titles */
+    .heading-hero {
+        @apply text-2xl md:text-3xl font-bold mb-2;
+    }
+
+    /* Section Headings (h2) - Section dividers within pages */
+    .heading-section {
+        @apply text-lg md:text-xl font-semibold mb-4;
+    }
+
+    /* Body Text - Standard paragraph text */
+    .text-body {
+        @apply text-base leading-relaxed;
+    }
+
+    /* Small Text - Captions, hints, and secondary information */
+    .text-small {
+        @apply text-sm text-gray-400;
+    }
+}

@@ -6,6 +6,11 @@ import {
 } from "@/lib/constants/constants";
 
 export function middleware(request: NextRequest) {
+    // Skip auth in development mode
+    if (process.env.NODE_ENV === "development") {
+        return NextResponse.next();
+    }
+
     // Skip middleware if SITE_PASSWORD is not set
     const sitePassword = process.env.SITE_PASSWORD;
     if (!sitePassword || sitePassword === "") {
