@@ -84,4 +84,41 @@ export class PurchaseService {
             throw error;
         }
     }
+
+    static async updatePurchase(
+        id: string,
+        data: {
+            description?: string;
+            purchase_date?: string;
+            is_bnpl?: boolean;
+        },
+    ): Promise<Purchase> {
+        try {
+            const { data: updatedPurchase, error } = await supabase
+                .from("purchases")
+                .update(data)
+                .eq("id", id)
+                .select(
+                    `
+                    *,
+                    credit_cards:credit_card_id(*),
+                    persons:person_id(*)
+                `,
+                )
+                .single();
+
+            if (error) throw error;
+
+            return {
+                ...updatedPurchase,
+                expand: {
+                    credit_card: updatedPurchase.credit_cards,
+                    person: updatedPurchase.persons,
+                },
+            };
+        } catch (error) {
+            console.error("Error updating purchase:", error);
+            throw error;
+        }
+    }
 }
