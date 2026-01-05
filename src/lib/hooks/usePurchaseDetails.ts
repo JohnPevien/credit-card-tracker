@@ -52,11 +52,29 @@ export function usePurchaseDetails(id: string) {
         }
     };
 
+    const updatePurchase = async (data: {
+        description?: string;
+        purchase_date?: string;
+        is_bnpl?: boolean;
+    }) => {
+        try {
+            const updatedPurchase = await PurchaseService.updatePurchase(
+                id,
+                data,
+            );
+            setPurchase(updatedPurchase);
+        } catch (error) {
+            console.error("Error updating purchase:", error);
+            throw error;
+        }
+    };
+
     return {
         purchase,
         transactions,
         loading,
         error,
         updateTransactionPaidStatus,
+        updatePurchase,
     };
 }
