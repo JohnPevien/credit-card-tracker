@@ -4,11 +4,14 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { formatDate, formatCurrency } from "@/lib/utils";
 import DataTable from "@/components/DataTable";
+import Modal from "@/components/Modal";
 import PurchaseDetailsCard from "@/components/purchases/PurchaseDetailsCard";
+import PurchaseEditForm from "@/components/purchases/PurchaseEditForm";
 import { usePurchaseDetails } from "@/lib/hooks/usePurchaseDetails";
 import TransactionFilters, {
     TransactionFiltersState,
 } from "@/components/transactions/TransactionFilters";
+import { Pencil } from "lucide-react";
 
 export default function PurchaseDetailPage() {
     const params = useParams();
@@ -23,12 +26,15 @@ export default function PurchaseDetailPage() {
         paidStatus: "all",
     });
 
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
     const {
         purchase,
         transactions,
         loading,
         error,
         updateTransactionPaidStatus,
+        updatePurchase,
     } = usePurchaseDetails(id);
 
     // Must call useMemo before any early returns (React Hooks rules)
@@ -49,6 +55,15 @@ export default function PurchaseDetailPage() {
         } finally {
             setUpdatingId(null);
         }
+    }
+
+    async function handleEditSubmit(data: {
+        description: string;
+        purchase_date: string;
+        is_bnpl: boolean;
+    }) {
+        await updatePurchase(data);
+        setIsEditModalOpen(false);
     }
 
     if (loading) {
@@ -87,9 +102,31 @@ export default function PurchaseDetailPage() {
                 </Link>
             </div>
 
-            <h1 className="heading-page">Purchase Details</h1>
+            <div className="flex items-center justify-between">
+                <h1 className="heading-page">Purchase Details</h1>
+                <button
+                    onClick={() => setIsEditModalOpen(true)}
+                    className="btn btn-outline btn-sm gap-2"
+                >
+                    <Pencil className="w-4 h-4" />
+                    Edit
+                </button>
+            </div>
 
             <PurchaseDetailsCard purchase={purchase} />
+
+            <Modal
+                isOpen={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
+                title="Edit Purchase"
+                className="bg-gray-900"
+            >
+                <PurchaseEditForm
+                    purchase={purchase}
+                    onSubmit={handleEditSubmit}
+                    onCancel={() => setIsEditModalOpen(false)}
+                />
+            </Modal>
 
             <h2 className="heading-section">Transactions</h2>
 
