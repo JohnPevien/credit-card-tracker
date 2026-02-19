@@ -121,4 +121,41 @@ export class PurchaseService {
             throw error;
         }
     }
+
+    static async updatePurchaseWithCascade(
+        id: string,
+        data: {
+            description?: string;
+            purchase_date?: string;
+            is_bnpl?: boolean;
+            credit_card_id?: string;
+            person_id?: string;
+        },
+    ): Promise<Purchase> {
+        try {
+            // Use atomic database function for cascade update
+            const { data: result, error } = await supabase.rpc("update_purchase_with_cascade", {
+                p_id: id,
+                p_description: data.description,
+                p_purchase_date: data.purchase_date,
+                p_is_bnpl: data.is_bnpl,
+                p_credit_card_id: data.credit_card_id,
+                p_person_id: data.person_id,
+            });
+
+            if (error) throw error;
+
+            // Transform result to match expected format
+            return {
+                ...result.purchase,
+                expand: {
+                    credit_card: result.credit_cards?.[0] || null,
+                    person: result.persons?.[0] || null,
+                },
+            };
+        } catch (error) {
+            console.error("Error updating purchase with cascade:", error);
+            throw error;
+        }
+    }
 }
