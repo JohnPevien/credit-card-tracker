@@ -129,6 +129,28 @@ export function usePurchaseDetails(id: string) {
         }
     };
 
+    const updatePurchaseFull = async (data: {
+        description?: string;
+        purchase_date?: string;
+        is_bnpl?: boolean;
+        credit_card_id?: string;
+        person_id?: string;
+        total_amount?: number;
+        billing_start_date?: string;
+    }) => {
+        try {
+            const {
+                purchase: updatedPurchase,
+                transactions: updatedTransactions,
+            } = await PurchaseService.updatePurchaseFull(id, data);
+            setPurchase(updatedPurchase);
+            setTransactions(updatedTransactions);
+        } catch (error) {
+            console.error("Error updating purchase (full):", error);
+            throw error;
+        }
+    };
+
     return {
         purchase,
         transactions,
@@ -139,5 +161,6 @@ export function usePurchaseDetails(id: string) {
         updateTransactionPaidStatus,
         updatePurchase,
         updatePurchaseWithCascade,
+        updatePurchaseFull,
     };
 }
