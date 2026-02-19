@@ -134,14 +134,17 @@ export class PurchaseService {
     ): Promise<Purchase> {
         try {
             // Use atomic database function for cascade update
-            const { data: result, error } = await supabase.rpc("update_purchase_with_cascade", {
-                p_id: id,
-                p_description: data.description,
-                p_purchase_date: data.purchase_date,
-                p_is_bnpl: data.is_bnpl,
-                p_credit_card_id: data.credit_card_id,
-                p_person_id: data.person_id,
-            });
+            const { data: result, error } = await supabase.rpc(
+                "update_purchase_with_cascade",
+                {
+                    p_id: id,
+                    p_description: data.description,
+                    p_purchase_date: data.purchase_date,
+                    p_is_bnpl: data.is_bnpl,
+                    p_credit_card_id: data.credit_card_id,
+                    p_person_id: data.person_id,
+                },
+            );
 
             if (error) throw error;
 
@@ -155,6 +158,60 @@ export class PurchaseService {
             };
         } catch (error) {
             console.error("Error updating purchase with cascade:", error);
+            throw error;
+        }
+    }
+
+    static async updatePurchaseFull(
+        id: string,
+        data: {
+            description?: string;
+            purchase_date?: string;
+            is_bnpl?: boolean;
+            credit_card_id?: string;
+            person_id?: string;
+            total_amount?: number;
+            billing_start_date?: string;
+        },
+    ): Promise<{ purchase: Purchase; transactions: Transaction[] }> {
+        try {
+            const { data: result, error } = await supabase.rpc(
+                "update_purchase_full",
+                {
+                    p_id: id,
+                    p_description: data.description ?? null,
+                    p_purchase_date: data.purchase_date ?? null,
+                    p_is_bnpl: data.is_bnpl ?? null,
+                    p_credit_card_id: data.credit_card_id ?? null,
+                    p_person_id: data.person_id ?? null,
+                    p_total_amount: data.total_amount ?? null,
+                    p_billing_start_date: data.billing_start_date ?? null,
+                },
+            );
+
+            if (error) throw error;
+
+            const purchase: Purchase = {
+                ...result.purchase,
+                expand: {
+                    credit_card: result.credit_cards?.[0] || null,
+                    person: result.persons?.[0] || null,
+                },
+            };
+
+            const transactions: Transaction[] = (result.transactions || []).map(
+                (t: Transaction) => ({
+                    ...t,
+                    expand: {
+                        credit_card: result.credit_cards?.[0] || null,
+                        person: result.persons?.[0] || null,
+                    },
+                }),
+            );
+
+            return { purchase, transactions };
+        } catch (error) {
+            console.error("Error updating purchase (full):", error);
             throw error;
         }
     }

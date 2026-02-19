@@ -36,7 +36,7 @@ export default function PurchaseDetailPage() {
         loading,
         error,
         updateTransactionPaidStatus,
-        updatePurchaseWithCascade,
+        updatePurchaseFull,
     } = usePurchaseDetails(id);
 
     // Must call useMemo before any early returns (React Hooks rules)
@@ -64,9 +64,11 @@ export default function PurchaseDetailPage() {
         person_id: string;
         description: string;
         purchase_date: string;
+        billing_start_date: string;
+        total_amount: number;
         is_bnpl: boolean;
     }) {
-        await updatePurchaseWithCascade(data);
+        await updatePurchaseFull(data);
         setIsEditModalOpen(false);
     }
 

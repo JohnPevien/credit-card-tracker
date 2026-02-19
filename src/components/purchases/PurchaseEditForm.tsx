@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
     Select,
     DateInput,
+    Input,
     Textarea,
     Checkbox,
     Button,
@@ -13,6 +14,8 @@ interface PurchaseEditFormData {
     person_id: string;
     description: string;
     purchase_date: string;
+    billing_start_date: string;
+    total_amount: number;
     is_bnpl: boolean;
 }
 
@@ -36,6 +39,8 @@ export default function PurchaseEditForm({
         person_id: purchase.person_id,
         description: purchase.description,
         purchase_date: purchase.purchase_date,
+        billing_start_date: purchase.billing_start_date || "",
+        total_amount: purchase.total_amount,
         is_bnpl: purchase.is_bnpl,
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -59,6 +64,11 @@ export default function PurchaseEditForm({
             setFormData((prev) => ({
                 ...prev,
                 [name]: checkbox.checked,
+            }));
+        } else if (type === "number") {
+            setFormData((prev) => ({
+                ...prev,
+                [name]: parseFloat(value) || 0,
             }));
         } else {
             setFormData((prev) => ({
@@ -149,6 +159,33 @@ export default function PurchaseEditForm({
                 <DateInput
                     name="purchase_date"
                     value={formData.purchase_date}
+                    onChange={handleInputChange}
+                    required
+                    disabled={isSubmitting}
+                />
+            </div>
+
+            <div className="form-control mb-4">
+                <Input
+                    label="Total Amount"
+                    name="total_amount"
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    value={formData.total_amount}
+                    onChange={handleInputChange}
+                    required
+                    disabled={isSubmitting}
+                />
+            </div>
+
+            <div className="form-control mb-4">
+                <div className="label">
+                    <span className="label-text">Billing Start Date</span>
+                </div>
+                <DateInput
+                    name="billing_start_date"
+                    value={formData.billing_start_date}
                     onChange={handleInputChange}
                     required
                     disabled={isSubmitting}
