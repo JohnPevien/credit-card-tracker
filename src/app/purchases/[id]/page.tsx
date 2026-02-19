@@ -31,10 +31,12 @@ export default function PurchaseDetailPage() {
     const {
         purchase,
         transactions,
+        creditCards,
+        persons,
         loading,
         error,
         updateTransactionPaidStatus,
-        updatePurchase,
+        updatePurchaseWithCascade,
     } = usePurchaseDetails(id);
 
     // Must call useMemo before any early returns (React Hooks rules)
@@ -58,11 +60,13 @@ export default function PurchaseDetailPage() {
     }
 
     async function handleEditSubmit(data: {
+        credit_card_id: string;
+        person_id: string;
         description: string;
         purchase_date: string;
         is_bnpl: boolean;
     }) {
-        await updatePurchase(data);
+        await updatePurchaseWithCascade(data);
         setIsEditModalOpen(false);
     }
 
@@ -123,6 +127,8 @@ export default function PurchaseDetailPage() {
             >
                 <PurchaseEditForm
                     purchase={purchase}
+                    creditCards={creditCards}
+                    persons={persons}
                     onSubmit={handleEditSubmit}
                     onCancel={() => setIsEditModalOpen(false)}
                 />
