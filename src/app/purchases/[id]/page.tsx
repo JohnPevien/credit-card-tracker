@@ -27,6 +27,7 @@ export default function PurchaseDetailPage() {
     });
 
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editError, setEditError] = useState<string | null>(null);
 
     const {
         purchase,
@@ -68,8 +69,14 @@ export default function PurchaseDetailPage() {
         total_amount: number;
         is_bnpl: boolean;
     }) {
-        await updatePurchaseFull(data);
-        setIsEditModalOpen(false);
+        setEditError(null);
+        try {
+            await updatePurchaseFull(data);
+            setIsEditModalOpen(false);
+        } catch (error) {
+            console.error("Error updating purchase:", error);
+            setEditError("Failed to update purchase. Please try again.");
+        }
     }
 
     if (loading) {
@@ -111,7 +118,10 @@ export default function PurchaseDetailPage() {
             <div className="flex items-center justify-between">
                 <h1 className="heading-page">Purchase Details</h1>
                 <button
-                    onClick={() => setIsEditModalOpen(true)}
+                    onClick={() => {
+                        setEditError(null);
+                        setIsEditModalOpen(true);
+                    }}
                     className="btn btn-outline btn-sm gap-2"
                 >
                     <Pencil className="w-4 h-4" />
@@ -127,6 +137,11 @@ export default function PurchaseDetailPage() {
                 title="Edit Purchase"
                 className="bg-gray-900"
             >
+                {editError && (
+                    <div className="alert alert-error mb-4">
+                        <span>{editError}</span>
+                    </div>
+                )}
                 <PurchaseEditForm
                     purchase={purchase}
                     creditCards={creditCards}
