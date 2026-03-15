@@ -95,31 +95,21 @@ export function usePurchaseDetails(id: string) {
                     prev.map((t) => ({
                         ...t,
                         ...(data.credit_card_id
-                            ? {
-                                  credit_card_id: data.credit_card_id,
-                                  expand: {
-                                      ...t.expand,
+                            ? { credit_card_id: data.credit_card_id }
+                            : {}),
+                        ...(data.person_id ? { person_id: data.person_id } : {}),
+                        expand: {
+                            ...t.expand,
+                            ...(data.credit_card_id
+                                ? {
                                       credit_card:
                                           updatedPurchase.expand?.credit_card,
-                                  },
-                              }
-                            : {}),
-                        ...(data.person_id
-                            ? {
-                                  person_id: data.person_id,
-                                  expand: {
-                                      ...t.expand,
-                                      ...(data.credit_card_id
-                                          ? {
-                                                credit_card:
-                                                    updatedPurchase.expand
-                                                        ?.credit_card,
-                                            }
-                                          : {}),
-                                      person: updatedPurchase.expand?.person,
-                                  },
-                              }
-                            : {}),
+                                  }
+                                : {}),
+                            ...(data.person_id
+                                ? { person: updatedPurchase.expand?.person }
+                                : {}),
+                        },
                     })),
                 );
             }
