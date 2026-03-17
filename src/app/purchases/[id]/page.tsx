@@ -67,6 +67,7 @@ export default function PurchaseDetailPage() {
         purchase_date: string;
         billing_start_date: string;
         total_amount: number;
+        num_installments: number;
         is_bnpl: boolean;
     }) {
         setEditError(null);

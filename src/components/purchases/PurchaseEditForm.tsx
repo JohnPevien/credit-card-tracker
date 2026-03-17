@@ -16,6 +16,7 @@ interface PurchaseEditFormData {
     purchase_date: string;
     billing_start_date: string;
     total_amount: number;
+    num_installments: number;
     is_bnpl: boolean;
 }
 
@@ -41,6 +42,7 @@ export default function PurchaseEditForm({
         purchase_date: purchase.purchase_date,
         billing_start_date: purchase.billing_start_date || "",
         total_amount: purchase.total_amount,
+        num_installments: purchase.num_installments,
         is_bnpl: purchase.is_bnpl,
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -66,6 +68,14 @@ export default function PurchaseEditForm({
                 [name]: checkbox.checked,
             }));
         } else if (type === "number") {
+            if (name === "num_installments") {
+                const parsed = Number.parseInt(value, 10);
+                setFormData((prev) => ({
+                    ...prev,
+                    [name]: Number.isNaN(parsed) ? 1 : Math.max(1, parsed),
+                }));
+                return;
+            }
             setFormData((prev) => ({
                 ...prev,
                 [name]: parseFloat(value) || 0,
@@ -173,6 +183,19 @@ export default function PurchaseEditForm({
                     step="0.01"
                     min="0.01"
                     value={formData.total_amount}
+                    onChange={handleInputChange}
+                    required
+                    disabled={isSubmitting}
+                />
+            </div>
+
+            <div className="form-control mb-4">
+                <Input
+                    label="Number of Installments"
+                    name="num_installments"
+                    type="number"
+                    min="1"
+                    value={formData.num_installments}
                     onChange={handleInputChange}
                     required
                     disabled={isSubmitting}
