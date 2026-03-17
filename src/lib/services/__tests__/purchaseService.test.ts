@@ -195,6 +195,7 @@ describe("PurchaseService", () => {
                 description: "Updated",
                 total_amount: 1500,
                 billing_start_date: "2024-02-01",
+                num_installments: 4,
             });
 
             expect(supabase.rpc).toHaveBeenCalledWith("update_purchase_full", {
@@ -206,6 +207,7 @@ describe("PurchaseService", () => {
                 p_person_id: null,
                 p_total_amount: 1500,
                 p_billing_start_date: "2024-02-01",
+                p_num_installments: 4,
             });
 
             expect(result.purchase).toEqual({
@@ -250,6 +252,7 @@ describe("PurchaseService", () => {
                 p_person_id: null,
                 p_total_amount: null,
                 p_billing_start_date: null,
+                p_num_installments: null,
             });
         });
 

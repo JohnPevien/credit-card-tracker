@@ -239,6 +239,7 @@ describe("usePurchaseDetails", () => {
                 ...mockPurchase,
                 total_amount: 1500,
                 billing_start_date: "2024-02-01",
+                num_installments: 4,
             };
 
             const updatedTransactions = [
@@ -247,7 +248,7 @@ describe("usePurchaseDetails", () => {
                     purchase_id: "purchase-1",
                     credit_card_id: "card-1",
                     person_id: "person-1",
-                    amount: 750,
+                    amount: 375,
                     date: "2024-02-01",
                     expand: {
                         credit_card: { id: "card-1", credit_card_name: "Test Card" },
@@ -259,8 +260,32 @@ describe("usePurchaseDetails", () => {
                     purchase_id: "purchase-1",
                     credit_card_id: "card-1",
                     person_id: "person-1",
-                    amount: 750,
+                    amount: 375,
                     date: "2024-03-01",
+                    expand: {
+                        credit_card: { id: "card-1", credit_card_name: "Test Card" },
+                        person: { id: "person-1", name: "Test Person" },
+                    },
+                },
+                {
+                    id: "tx-3",
+                    purchase_id: "purchase-1",
+                    credit_card_id: "card-1",
+                    person_id: "person-1",
+                    amount: 375,
+                    date: "2024-04-01",
+                    expand: {
+                        credit_card: { id: "card-1", credit_card_name: "Test Card" },
+                        person: { id: "person-1", name: "Test Person" },
+                    },
+                },
+                {
+                    id: "tx-4",
+                    purchase_id: "purchase-1",
+                    credit_card_id: "card-1",
+                    person_id: "person-1",
+                    amount: 375,
+                    date: "2024-05-01",
                     expand: {
                         credit_card: { id: "card-1", credit_card_name: "Test Card" },
                         person: { id: "person-1", name: "Test Person" },
@@ -281,12 +306,14 @@ describe("usePurchaseDetails", () => {
                 await result.current.updatePurchaseFull({
                     total_amount: 1500,
                     billing_start_date: "2024-02-01",
+                    num_installments: 4,
                 });
             });
 
             expect(PurchaseService.updatePurchaseFull).toHaveBeenCalledWith("purchase-1", {
                 total_amount: 1500,
                 billing_start_date: "2024-02-01",
+                num_installments: 4,
             });
             expect(result.current.purchase).toEqual(updatedPurchase);
             expect(result.current.transactions).toEqual(updatedTransactions);

@@ -238,6 +238,7 @@ describe("PurchaseEditForm", () => {
             expect(screen.getByTestId("date-purchase_date")).toHaveValue("2024-01-15");
             expect(screen.getByTestId("date-billing_start_date")).toHaveValue("2024-01-15");
             expect(screen.getByTestId("input-total_amount")).toHaveValue(1000);
+            expect(screen.getByTestId("input-num_installments")).toHaveValue(3);
             expect(screen.getByTestId("checkbox-is_bnpl")).not.toBeChecked();
         });
 
@@ -307,6 +308,17 @@ describe("PurchaseEditForm", () => {
             expect(input).toHaveValue(2500);
         });
 
+        it("should update installments input", async () => {
+            const user = userEvent.setup();
+            renderForm();
+
+            const input = screen.getByTestId("input-num_installments");
+            await user.click(input);
+            await user.keyboard("{Control>}a{/Control}5");
+
+            expect(input).toHaveValue(5);
+        });
+
         it("should handle empty number input as 0", async () => {
             const user = userEvent.setup();
             renderForm();
@@ -346,6 +358,7 @@ describe("PurchaseEditForm", () => {
                     purchase_date: "2024-01-15",
                     billing_start_date: "2024-01-15",
                     total_amount: 1000,
+                    num_installments: 3,
                     is_bnpl: false,
                 });
             });
@@ -410,6 +423,7 @@ describe("PurchaseEditForm", () => {
             expect(screen.getByTestId("date-purchase_date")).toBeDisabled();
             expect(screen.getByTestId("date-billing_start_date")).toBeDisabled();
             expect(screen.getByTestId("input-total_amount")).toBeDisabled();
+            expect(screen.getByTestId("input-num_installments")).toBeDisabled();
             expect(screen.getByTestId("checkbox-is_bnpl")).toBeDisabled();
 
             resolveSubmit!();
