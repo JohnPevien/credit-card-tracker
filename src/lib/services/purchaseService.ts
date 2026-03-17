@@ -172,6 +172,7 @@ export class PurchaseService {
             person_id?: string;
             total_amount?: number;
             billing_start_date?: string;
+            num_installments?: number;
         },
     ): Promise<{ purchase: Purchase; transactions: Transaction[] }> {
         try {
@@ -186,6 +187,7 @@ export class PurchaseService {
                     p_person_id: data.person_id ?? null,
                     p_total_amount: data.total_amount ?? null,
                     p_billing_start_date: data.billing_start_date ?? null,
+                    p_num_installments: data.num_installments ?? null,
                 },
             );
 

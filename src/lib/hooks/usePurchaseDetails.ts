@@ -127,6 +127,7 @@ export function usePurchaseDetails(id: string) {
         person_id?: string;
         total_amount?: number;
         billing_start_date?: string;
+        num_installments?: number;
     }) => {
         try {
             const {
