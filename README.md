@@ -23,11 +23,12 @@ Edit purchase details with automatic transaction recalculation:
 |-----------|-------|----------|
 | Simple | `description`, `purchase_date`, `is_bnpl` | Direct update, no side effects |
 | Cascade | `credit_card_id`, `person_id` | Updates all related transactions |
-| Complex | `total_amount`, `billing_start_date`, `num_installments` | Recalculates schedule and atomically adds/removes transactions |
+| Complex | `total_amount`, `billing_start_date`, `num_installments` | Recalculates schedule; changing installment count atomically adds/removes transactions |
 
 ### Transaction Tracking
 - View installment transactions for each purchase
 - Mark transactions as paid/unpaid
+- Toggle paid/unpaid status for individual transactions from the purchase detail page
 - Filter by paid status
 
 ## Getting Started
@@ -58,6 +59,7 @@ cp .env.example .env
 |----------|-------------|
 | `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your Supabase anonymous key |
+| `SITE_PASSWORD` | Optional; site password protection (bypassed in development) |
 
 ## Scripts
 
@@ -72,6 +74,7 @@ pnpm format      # Format code with Prettier
 pnpm test        # Run unit tests (watch mode)
 pnpm test:run    # Run unit tests once
 pnpm test:e2e    # Run E2E tests (requires dev server)
+pnpm test:e2e:ui # Run E2E tests with Playwright UI
 ```
 
 ## Testing
@@ -87,6 +90,7 @@ Run all tests:
 ```bash
 pnpm test:run    # Unit tests
 pnpm test:e2e    # E2E tests
+pnpm test:e2e:ui # E2E tests with Playwright UI
 ```
 
 ## Project Structure
@@ -114,7 +118,7 @@ e2e/                        # Playwright E2E tests
 The purchase edit feature uses PostgreSQL functions for atomic operations:
 
 - `update_purchase_with_cascade`: Updates purchase and cascades credit_card_id/person_id to transactions
-- `update_purchase_full`: Full update including amount/date recalculation and installment count structural changes
+- `update_purchase_full`: Full update including amount/date recalculation; accepts `p_num_installments` and atomically adds/removes transactions when installment count changes
 
 ## License
 
