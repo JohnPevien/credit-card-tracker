@@ -23,6 +23,7 @@ interface PurchaseFormData {
 interface PurchaseFormProps {
     creditCards: CreditCard[];
     persons: Person[];
+    hasPrerequisites?: boolean;
     onSubmit: (formData: {
         credit_card_id: string;
         person_id: string;
@@ -39,6 +40,7 @@ interface PurchaseFormProps {
 export default function PurchaseForm({
     creditCards,
     persons,
+    hasPrerequisites = true,
     onSubmit,
     onCancel,
 }: PurchaseFormProps) {
@@ -109,7 +111,7 @@ export default function PurchaseForm({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (isSubmitting) return;
+        if (isSubmitting || !canCreatePurchase) return;
 
         setIsSubmitting(true);
         try {
@@ -148,8 +150,21 @@ export default function PurchaseForm({
         value: person.id,
         label: person.name,
     }));
+
+    const canCreatePurchase =
+        hasPrerequisites && creditCards.length > 0 && persons.length > 0;
+
     return (
         <form onSubmit={handleSubmit} data-component="PurchaseForm">
+            {!canCreatePurchase && (
+                <div className="alert alert-warning mb-4">
+                    <span>
+                        Add at least one credit card and one person before
+                        creating a purchase.
+                    </span>
+                </div>
+            )}
+
             <div className="form-control mb-4">
                 <div className="label">
                     <span className="label-text">Credit Card</span>
@@ -162,7 +177,7 @@ export default function PurchaseForm({
                     }
                     options={creditCardOptions}
                     required
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !canCreatePurchase}
                 />
             </div>
 
@@ -176,7 +191,7 @@ export default function PurchaseForm({
                     onChange={(value) => handleSelectChange("person_id", value)}
                     options={personOptions}
                     required
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !canCreatePurchase}
                 />
             </div>
 
@@ -189,7 +204,7 @@ export default function PurchaseForm({
                     value={formData.purchase_date}
                     onChange={handleInputChange}
                     required
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !canCreatePurchase}
                 />
             </div>
 
@@ -203,7 +218,7 @@ export default function PurchaseForm({
                     step="0.01"
                     min="0"
                     required
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !canCreatePurchase}
                 />
             </div>
 
@@ -214,7 +229,7 @@ export default function PurchaseForm({
                     value={formData.description}
                     onChange={handleInputChange}
                     required
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !canCreatePurchase}
                 />
             </div>
 
@@ -227,7 +242,7 @@ export default function PurchaseForm({
                     onChange={handleInputChange}
                     min="1"
                     required
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !canCreatePurchase}
                 />
             </div>
 
@@ -238,7 +253,7 @@ export default function PurchaseForm({
                     checked={formData.is_bnpl}
                     onChange={handleInputChange}
                     labelPosition="right"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !canCreatePurchase}
                 />
             </div>
 
@@ -251,7 +266,7 @@ export default function PurchaseForm({
                     value={formData.billing_start_date}
                     onChange={handleInputChange}
                     required
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !canCreatePurchase}
                 />
             </div>
 
@@ -264,7 +279,11 @@ export default function PurchaseForm({
                 >
                     Cancel
                 </Button>
-                <Button type="submit" color="primary" disabled={isSubmitting}>
+                <Button
+                    type="submit"
+                    color="primary"
+                    disabled={isSubmitting || !canCreatePurchase}
+                >
                     {isSubmitting ? "Saving..." : "Save"}
                 </Button>
             </div>
