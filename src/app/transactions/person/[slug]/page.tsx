@@ -12,6 +12,7 @@ import DataTable from "@/components/DataTable";
 import TransactionFilters, {
     TransactionFiltersState,
 } from "@/components/transactions/TransactionFilters";
+import { LoadingSpinner } from "@/components/base";
 
 export default function PersonTransactionsPage() {
     const { slug: personSlug } = useParams() as { slug: string };
@@ -20,6 +21,7 @@ export default function PersonTransactionsPage() {
     const [creditCards, setCreditCards] = useState<CreditCard[]>([]);
     const [person, setPerson] = useState<Person | null>(null);
     const [updatingId, setUpdatingId] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [filters, setFilters] = useState<TransactionFiltersState>({
         person: "",
@@ -112,23 +114,37 @@ export default function PersonTransactionsPage() {
         }
     }, []);
 
+    const loadPageData = useCallback(async () => {
+        if (!personSlug) return;
+
+        try {
+            setIsLoading(true);
+            setError(null);
+
+            const personData = await loadPerson();
+
+            if (!personData) {
+                setTransactions([]);
+                setCreditCards([]);
+                return;
+            }
+
+            await Promise.all([
+                loadTransactions(personData.id),
+                loadCreditCards(),
+            ]);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [personSlug, loadCreditCards, loadPerson, loadTransactions]);
+
     useEffect(() => {
         if (!personSlug) return;
         if (hasFetchedRef.current === personSlug) return;
         hasFetchedRef.current = personSlug;
 
-        const fetchData = async () => {
-            const personData = await loadPerson();
-            if (personData) {
-                await Promise.all([
-                    loadTransactions(personData.id),
-                    loadCreditCards(),
-                ]);
-            }
-        };
-
-        fetchData();
-    }, [personSlug, loadPerson, loadTransactions, loadCreditCards]);
+        loadPageData();
+    }, [personSlug, loadPageData]);
 
     const isPayment = (amount: number) => amount < 0;
 
@@ -173,13 +189,17 @@ export default function PersonTransactionsPage() {
         });
     }, [transactions, filters]);
 
+    if (isLoading) {
+        return <LoadingSpinner text="Loading person transactions..." />;
+    }
+
     return (
         <div className="container space-y-5 mx-auto">
             {error && (
                 <div className="alert alert-error mb-4">
                     <span>{error}</span>
                     <button
-                        onClick={() => person && loadTransactions(person.id)}
+                        onClick={loadPageData}
                         className="btn btn-sm btn-primary"
                     >
                         Retry
