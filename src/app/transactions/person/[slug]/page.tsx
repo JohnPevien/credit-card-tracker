@@ -157,6 +157,16 @@ export default function PersonTransactionsPage() {
         );
     }
 
+    function getPaidToggleLabel(transaction: Transaction) {
+        const transactionTarget =
+            transaction.description.trim() ||
+            `transaction on ${formatDate(transaction.date)}`;
+
+        return transaction.paid
+            ? `Mark ${transactionTarget} as unpaid`
+            : `Mark ${transactionTarget} as paid`;
+    }
+
     const filteredTransactions = useMemo(() => {
         return transactions.filter((tr) => {
             const matchesCard = filters.card
@@ -249,6 +259,7 @@ export default function PersonTransactionsPage() {
                                     )
                                 }
                                 disabled={updatingId === transaction.id}
+                                aria-label={getPaidToggleLabel(transaction)}
                             />
                         ),
                     },

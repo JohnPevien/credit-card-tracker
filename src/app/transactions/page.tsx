@@ -148,6 +148,16 @@ export default function TransactionsPage() {
         );
     }
 
+    function getPaidToggleLabel(transaction: Transaction) {
+        const transactionTarget =
+            transaction.description.trim() ||
+            `transaction on ${formatDate(transaction.date)}`;
+
+        return transaction.paid
+            ? `Mark ${transactionTarget} as unpaid`
+            : `Mark ${transactionTarget} as paid`;
+    }
+
     const filteredTransactions = transactions.filter((tr) => {
         const matchesPerson = filterPerson
             ? tr.expand?.person?.id === filterPerson
@@ -288,6 +298,7 @@ export default function TransactionsPage() {
                                     )
                                 }
                                 disabled={updatingId === transaction.id}
+                                aria-label={getPaidToggleLabel(transaction)}
                             />
                         ),
                     },
