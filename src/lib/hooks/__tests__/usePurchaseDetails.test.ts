@@ -362,5 +362,25 @@ describe("usePurchaseDetails", () => {
             expect(result.current.creditCards).toEqual(mockCards);
             expect(result.current.persons).toEqual(mockPersons);
         });
+
+        it("should propagate error and reset loading state on failure", async () => {
+            const mockError = new Error("Database query failed");
+            (DataService.loadCreditCards as ReturnType<typeof vi.fn>).mockRejectedValue(mockError);
+            (DataService.loadPersons as ReturnType<typeof vi.fn>).mockResolvedValue([]);
+
+            const { result } = renderHook(() => usePurchaseDetails("purchase-1"));
+
+            await vi.waitFor(() => expect(result.current.loading).toBe(false));
+
+            // Call loadEditMeta and expect it to reject
+            await expect(
+                act(async () => {
+                    await result.current.loadEditMeta();
+                })
+            ).rejects.toThrow("Database query failed");
+
+            expect(result.current.metaLoading).toBe(false);
+            expect(result.current.creditCards).toEqual([]);
+        });
     });
 });
