@@ -84,4 +84,143 @@ export class PurchaseService {
             throw error;
         }
     }
+
+    static async updatePurchase(
+        id: string,
+        data: {
+            description?: string;
+            purchase_date?: string;
+            is_bnpl?: boolean;
+        },
+    ): Promise<Purchase> {
+        try {
+            const { data: updatedPurchase, error } = await supabase
+                .from("purchases")
+                .update(data)
+                .eq("id", id)
+                .select(
+                    `
+                    *,
+                    credit_cards:credit_card_id(*),
+                    persons:person_id(*)
+                `,
+                )
+                .single();
+
+            if (error) throw error;
+
+            return {
+                ...updatedPurchase,
+                expand: {
+                    credit_card: updatedPurchase.credit_cards,
+                    person: updatedPurchase.persons,
+                },
+            };
+        } catch (error) {
+            console.error("Error updating purchase:", error);
+            throw error;
+        }
+    }
+
+    static async updatePurchaseWithCascade(
+        id: string,
+        data: {
+            description?: string;
+            purchase_date?: string;
+            is_bnpl?: boolean;
+            credit_card_id?: string;
+            person_id?: string;
+        },
+    ): Promise<Purchase> {
+        try {
+            // Use atomic database function for cascade update
+            const { data: result, error } = await supabase.rpc(
+                "update_purchase_with_cascade",
+                {
+                    p_id: id,
+                    p_description: data.description ?? null,
+                    p_purchase_date: data.purchase_date ?? null,
+                    p_is_bnpl: data.is_bnpl ?? null,
+                    p_credit_card_id: data.credit_card_id ?? null,
+                    p_person_id: data.person_id ?? null,
+                },
+            );
+
+            if (error) throw error;
+            if (!result || !result.purchase) {
+                throw new Error("Failed to update purchase with cascade: No purchase data returned");
+            }
+
+            // Transform result to match expected format
+            return {
+                ...result.purchase,
+                expand: {
+                    credit_card: result.credit_cards?.[0] || null,
+                    person: result.persons?.[0] || null,
+                },
+            };
+        } catch (error) {
+            console.error("Error updating purchase with cascade:", error);
+            throw error;
+        }
+    }
+
+    static async updatePurchaseFull(
+        id: string,
+        data: {
+            description?: string;
+            purchase_date?: string;
+            is_bnpl?: boolean;
+            credit_card_id?: string;
+            person_id?: string;
+            total_amount?: number;
+            billing_start_date?: string;
+            num_installments?: number;
+        },
+    ): Promise<{ purchase: Purchase; transactions: Transaction[] }> {
+        try {
+            const { data: result, error } = await supabase.rpc(
+                "update_purchase_full",
+                {
+                    p_id: id,
+                    p_description: data.description ?? null,
+                    p_purchase_date: data.purchase_date ?? null,
+                    p_is_bnpl: data.is_bnpl ?? null,
+                    p_credit_card_id: data.credit_card_id ?? null,
+                    p_person_id: data.person_id ?? null,
+                    p_total_amount: data.total_amount ?? null,
+                    p_billing_start_date: data.billing_start_date ?? null,
+                    p_num_installments: data.num_installments ?? null,
+                },
+            );
+
+            if (error) throw error;
+            if (!result || !result.purchase) {
+                throw new Error("Failed to update purchase: No purchase data returned");
+            }
+
+            const purchase: Purchase = {
+                ...result.purchase,
+                expand: {
+                    credit_card: result.credit_cards?.[0] || null,
+                    person: result.persons?.[0] || null,
+                },
+            };
+
+            const transactions: Transaction[] = (result.transactions || []).map(
+                (t: Transaction) => ({
+                    ...t,
+                    expand: {
+                        credit_card: result.credit_cards?.[0] || null,
+                        person: result.persons?.[0] || null,
+                    },
+                }),
+            );
+
+            return { purchase, transactions };
+        } catch (error) {
+            console.error("Error updating purchase (full):", error);
+            throw error;
+        }
+    }
 }
