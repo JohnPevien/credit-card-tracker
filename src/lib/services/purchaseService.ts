@@ -138,11 +138,11 @@ export class PurchaseService {
                 "update_purchase_with_cascade",
                 {
                     p_id: id,
-                    p_description: data.description,
-                    p_purchase_date: data.purchase_date,
-                    p_is_bnpl: data.is_bnpl,
-                    p_credit_card_id: data.credit_card_id,
-                    p_person_id: data.person_id,
+                    p_description: data.description ?? null,
+                    p_purchase_date: data.purchase_date ?? null,
+                    p_is_bnpl: data.is_bnpl ?? null,
+                    p_credit_card_id: data.credit_card_id ?? null,
+                    p_person_id: data.person_id ?? null,
                 },
             );
 
