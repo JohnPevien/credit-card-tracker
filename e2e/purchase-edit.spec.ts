@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
-// Note: These tests require a running dev server with test data
-// The tests assume there's at least one purchase with id "test-purchase-id"
+// Note: These tests require a running dev server with test data.
+// The tests select the first available purchase dynamically from the list.
 
 test.describe("Purchase Edit Flow", () => {
     // Skip tests if no test data is available

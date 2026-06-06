@@ -12,12 +12,15 @@ export function usePurchaseDetails(id: string) {
     const [error, setError] = useState("");
 
     useEffect(() => {
+        setPurchase(null);
+        setTransactions([]);
+        setError("");
+
         async function loadPurchaseData() {
             if (!id) return;
 
             try {
                 setLoading(true);
-                setError("");
 
                 const [
                     { purchase: purchaseData, transactions: transactionsData },

@@ -111,10 +111,10 @@ describe("PurchaseService", () => {
             expect(supabase.rpc).toHaveBeenCalledWith("update_purchase_with_cascade", {
                 p_id: "purchase-1",
                 p_description: "Test",
-                p_purchase_date: undefined,
-                p_is_bnpl: undefined,
+                p_purchase_date: null,
+                p_is_bnpl: null,
                 p_credit_card_id: "card-2",
-                p_person_id: undefined,
+                p_person_id: null,
             });
 
             expect(result).toEqual({

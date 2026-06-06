@@ -12,9 +12,6 @@ vi.mock("@/lib/supabase", () => ({
 describe("PersonService", () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.resetAllMocks();
-        // Reset the supabase.from mock to a fresh mock function
-        (supabase.from as ReturnType<typeof vi.fn>).mockReset();
     });
 
     describe("loadPersons", () => {
