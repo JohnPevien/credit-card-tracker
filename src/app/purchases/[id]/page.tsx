@@ -4,11 +4,14 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { formatDate, formatCurrency } from "@/lib/utils";
 import DataTable from "@/components/DataTable";
+import Modal from "@/components/Modal";
 import PurchaseDetailsCard from "@/components/purchases/PurchaseDetailsCard";
+import PurchaseEditForm from "@/components/purchases/PurchaseEditForm";
 import { usePurchaseDetails } from "@/lib/hooks/usePurchaseDetails";
 import TransactionFilters, {
     TransactionFiltersState,
 } from "@/components/transactions/TransactionFilters";
+import { Pencil } from "lucide-react";
 
 export default function PurchaseDetailPage() {
     const params = useParams();
@@ -23,12 +26,20 @@ export default function PurchaseDetailPage() {
         paidStatus: "all",
     });
 
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editError, setEditError] = useState<string | null>(null);
+
     const {
         purchase,
         transactions,
+        creditCards,
+        persons,
         loading,
+        metaLoading,
         error,
         updateTransactionPaidStatus,
+        updatePurchaseFull,
+        loadEditMeta,
     } = usePurchaseDetails(id);
 
     // Must call useMemo before any early returns (React Hooks rules)
@@ -48,6 +59,26 @@ export default function PurchaseDetailPage() {
             console.error("Error updating transaction:", error);
         } finally {
             setUpdatingId(null);
+        }
+    }
+
+    async function handleEditSubmit(data: {
+        credit_card_id: string;
+        person_id: string;
+        description: string;
+        purchase_date: string;
+        billing_start_date: string;
+        total_amount: number;
+        num_installments: number;
+        is_bnpl: boolean;
+    }) {
+        setEditError(null);
+        try {
+            await updatePurchaseFull(data);
+            setIsEditModalOpen(false);
+        } catch (error) {
+            console.error("Error updating purchase:", error);
+            setEditError("Failed to update purchase. Please try again.");
         }
     }
 
@@ -87,9 +118,51 @@ export default function PurchaseDetailPage() {
                 </Link>
             </div>
 
-            <h1 className="heading-page">Purchase Details</h1>
+            <div className="flex items-center justify-between">
+                <h1 className="heading-page">Purchase Details</h1>
+                <button
+                    onClick={async () => {
+                        setEditError(null);
+                        setIsEditModalOpen(true);
+                        try {
+                            await loadEditMeta();
+                        } catch (err) {
+                            console.error("Failed to load edit options:", err);
+                            setEditError("Failed to load credit cards or persons. Please try again.");
+                        }
+                    }}
+                    className="btn btn-outline btn-sm gap-2"
+                >
+                    <Pencil className="w-4 h-4" />
+                    Edit
+                </button>
+            </div>
 
             <PurchaseDetailsCard purchase={purchase} />
+
+            <Modal
+                isOpen={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
+                title="Edit Purchase"
+                className="bg-gray-900"
+            >
+                {editError && (
+                    <div className="alert alert-error mb-4">
+                        <span>{editError}</span>
+                    </div>
+                )}
+                {metaLoading ? (
+                    <div className="text-center p-8">Loading edit options...</div>
+                ) : (
+                    <PurchaseEditForm
+                        purchase={purchase}
+                        creditCards={creditCards}
+                        persons={persons}
+                        onSubmit={handleEditSubmit}
+                        onCancel={() => setIsEditModalOpen(false)}
+                    />
+                )}
+            </Modal>
 
             <h2 className="heading-section">Transactions</h2>
 
