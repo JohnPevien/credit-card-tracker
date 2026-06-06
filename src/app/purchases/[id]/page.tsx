@@ -121,10 +121,15 @@ export default function PurchaseDetailPage() {
             <div className="flex items-center justify-between">
                 <h1 className="heading-page">Purchase Details</h1>
                 <button
-                    onClick={() => {
+                    onClick={async () => {
                         setEditError(null);
-                        loadEditMeta();
                         setIsEditModalOpen(true);
+                        try {
+                            await loadEditMeta();
+                        } catch (err) {
+                            console.error("Failed to load edit options:", err);
+                            setEditError("Failed to load credit cards or persons. Please try again.");
+                        }
                     }}
                     className="btn btn-outline btn-sm gap-2"
                 >

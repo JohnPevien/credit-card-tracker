@@ -24,6 +24,7 @@ export function usePurchaseDetails(id: string) {
         setCreditCards([]);
         setPersons([]);
         setMetaLoaded(false);
+        setMetaLoading(false);
         setError("");
 
         async function loadPurchaseData() {
@@ -59,6 +60,7 @@ export function usePurchaseDetails(id: string) {
             setMetaLoaded(true);
         } catch (error) {
             console.error("Error loading edit metadata:", error);
+            throw error;
         } finally {
             setMetaLoading(false);
         }
