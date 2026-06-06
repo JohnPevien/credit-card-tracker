@@ -35,9 +35,11 @@ export default function PurchaseDetailPage() {
         creditCards,
         persons,
         loading,
+        metaLoading,
         error,
         updateTransactionPaidStatus,
         updatePurchaseFull,
+        loadEditMeta,
     } = usePurchaseDetails(id);
 
     // Must call useMemo before any early returns (React Hooks rules)
@@ -121,6 +123,7 @@ export default function PurchaseDetailPage() {
                 <button
                     onClick={() => {
                         setEditError(null);
+                        loadEditMeta();
                         setIsEditModalOpen(true);
                     }}
                     className="btn btn-outline btn-sm gap-2"
@@ -143,13 +146,17 @@ export default function PurchaseDetailPage() {
                         <span>{editError}</span>
                     </div>
                 )}
-                <PurchaseEditForm
-                    purchase={purchase}
-                    creditCards={creditCards}
-                    persons={persons}
-                    onSubmit={handleEditSubmit}
-                    onCancel={() => setIsEditModalOpen(false)}
-                />
+                {metaLoading ? (
+                    <div className="text-center p-8">Loading edit options...</div>
+                ) : (
+                    <PurchaseEditForm
+                        purchase={purchase}
+                        creditCards={creditCards}
+                        persons={persons}
+                        onSubmit={handleEditSubmit}
+                        onCancel={() => setIsEditModalOpen(false)}
+                    />
+                )}
             </Modal>
 
             <h2 className="heading-section">Transactions</h2>

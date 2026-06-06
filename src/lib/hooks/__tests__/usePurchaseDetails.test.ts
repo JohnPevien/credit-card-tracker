@@ -336,4 +336,31 @@ describe("usePurchaseDetails", () => {
             ).rejects.toThrow("Full update failed");
         });
     });
+
+    describe("loadEditMeta", () => {
+        it("should load credit cards and persons when called", async () => {
+            const mockCards = [{ id: "card-1", credit_card_name: "Card 1" }];
+            const mockPersons = [{ id: "person-1", name: "Person 1" }];
+            (DataService.loadCreditCards as ReturnType<typeof vi.fn>).mockResolvedValue(mockCards);
+            (DataService.loadPersons as ReturnType<typeof vi.fn>).mockResolvedValue(mockPersons);
+
+            const { result } = renderHook(() => usePurchaseDetails("purchase-1"));
+
+            await vi.waitFor(() => expect(result.current.loading).toBe(false));
+
+            // Initially metadata is empty
+            expect(result.current.creditCards).toEqual([]);
+            expect(result.current.persons).toEqual([]);
+
+            // Load metadata
+            await act(async () => {
+                await result.current.loadEditMeta();
+            });
+
+            expect(DataService.loadCreditCards).toHaveBeenCalled();
+            expect(DataService.loadPersons).toHaveBeenCalled();
+            expect(result.current.creditCards).toEqual(mockCards);
+            expect(result.current.persons).toEqual(mockPersons);
+        });
+    });
 });

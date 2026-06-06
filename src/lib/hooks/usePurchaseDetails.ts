@@ -10,32 +10,31 @@ export function usePurchaseDetails(id: string) {
     const [persons, setPersons] = useState<Person[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [metaLoading, setMetaLoading] = useState(false);
+    const [metaLoaded, setMetaLoaded] = useState(false);
 
     useEffect(() => {
+        if (!id) {
+            setLoading(false);
+            return;
+        }
+
         setPurchase(null);
         setTransactions([]);
+        setCreditCards([]);
+        setPersons([]);
+        setMetaLoaded(false);
         setError("");
 
         async function loadPurchaseData() {
-            if (!id) return;
-
             try {
                 setLoading(true);
 
-                const [
-                    { purchase: purchaseData, transactions: transactionsData },
-                    creditCardsData,
-                    personsData,
-                ] = await Promise.all([
-                    PurchaseService.loadPurchaseDetails(id),
-                    DataService.loadCreditCards(),
-                    DataService.loadPersons(),
-                ]);
+                const { purchase: purchaseData, transactions: transactionsData } =
+                    await PurchaseService.loadPurchaseDetails(id);
 
                 setPurchase(purchaseData);
                 setTransactions(transactionsData);
-                setCreditCards(creditCardsData);
-                setPersons(personsData);
             } catch (error) {
                 console.error("Error loading purchase details:", error);
                 setError("Failed to load purchase details");
@@ -46,6 +45,24 @@ export function usePurchaseDetails(id: string) {
 
         loadPurchaseData();
     }, [id]);
+
+    const loadEditMeta = async () => {
+        if (metaLoaded || metaLoading) return;
+        setMetaLoading(true);
+        try {
+            const [creditCardsData, personsData] = await Promise.all([
+                DataService.loadCreditCards(),
+                DataService.loadPersons(),
+            ]);
+            setCreditCards(creditCardsData);
+            setPersons(personsData);
+            setMetaLoaded(true);
+        } catch (error) {
+            console.error("Error loading edit metadata:", error);
+        } finally {
+            setMetaLoading(false);
+        }
+    };
 
     const updateTransactionPaidStatus = async (
         transactionId: string,
@@ -151,10 +168,12 @@ export function usePurchaseDetails(id: string) {
         creditCards,
         persons,
         loading,
+        metaLoading,
         error,
         updateTransactionPaidStatus,
         updatePurchase,
         updatePurchaseWithCascade,
         updatePurchaseFull,
+        loadEditMeta,
     };
 }

@@ -40,6 +40,10 @@ BEGIN
     v_new_person_id := COALESCE(p_person_id, v_purchase.person_id);
     v_new_installments := COALESCE(p_num_installments, v_purchase.num_installments);
 
+    IF v_new_start_date IS NULL THEN
+        RAISE EXCEPTION 'billing_start_date cannot be null';
+    END IF;
+
     IF v_new_installments < 1 THEN
         RAISE EXCEPTION 'num_installments must be at least 1';
     END IF;
@@ -142,4 +146,4 @@ EXCEPTION
     WHEN OTHERS THEN
         RAISE EXCEPTION 'Failed to update purchase: %', SQLERRM;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
