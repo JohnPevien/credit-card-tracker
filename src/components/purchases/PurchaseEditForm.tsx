@@ -104,17 +104,50 @@ export default function PurchaseEditForm({
     };
 
     const formatCreditCardLabel = (card: CreditCard): string => {
-        return `${card.credit_card_name || card.issuer} **** ${card.last_four_digits}${
+        const issuerName = card.credit_card_name || card.issuer || "Current Card";
+        const suffix = card.last_four_digits ? ` **** ${card.last_four_digits}` : "";
+        return `${issuerName}${suffix}${
             card.is_supplementary ? " (Supplementary)" : ""
         }`;
     };
 
-    const creditCardOptions = creditCards.map((card) => ({
+    // Ensure the current credit card of the purchase is in the options list
+    const creditCardList = [...creditCards];
+    if (purchase.credit_card_id && !creditCardList.some((c) => c.id === purchase.credit_card_id)) {
+        if (purchase.expand?.credit_card) {
+            creditCardList.push(purchase.expand.credit_card);
+        } else {
+            creditCardList.push({
+                id: purchase.credit_card_id,
+                credit_card_name: "Current Card",
+                last_four_digits: "****",
+                cardholder_name: "",
+                issuer: "",
+                is_supplementary: false,
+            });
+        }
+    }
+
+    const creditCardOptions = creditCardList.map((card) => ({
         value: card.id,
         label: formatCreditCardLabel(card),
     }));
 
-    const personOptions = persons.map((person) => ({
+    // Ensure the current person of the purchase is in the options list
+    const personList = [...persons];
+    if (purchase.person_id && !personList.some((p) => p.id === purchase.person_id)) {
+        if (purchase.expand?.person) {
+            personList.push(purchase.expand.person);
+        } else {
+            personList.push({
+                id: purchase.person_id,
+                name: "Current Person",
+                slug: "",
+            });
+        }
+    }
+
+    const personOptions = personList.map((person) => ({
         value: person.id,
         label: person.name,
     }));
