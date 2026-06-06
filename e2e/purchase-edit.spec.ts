@@ -168,8 +168,8 @@ test.describe("Purchase Edit Flow", () => {
             const bnplCheckbox = page.locator("input[name='is_bnpl']");
             const initialState = await bnplCheckbox.isChecked();
 
-            await bnplCheckbox.check();
-            expect(await bnplCheckbox.isChecked()).toBe(!initialState || true);
+            await bnplCheckbox.click();
+            expect(await bnplCheckbox.isChecked()).toBe(!initialState);
 
             // Cancel to close without saving
             await page.click("button:has-text('Cancel')");

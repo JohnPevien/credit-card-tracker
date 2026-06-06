@@ -16,6 +16,12 @@ CREATE OR REPLACE FUNCTION update_purchase_with_cascade(
 DECLARE
     v_result JSON;
 BEGIN
+    -- Check if purchase exists first
+    PERFORM 1 FROM purchases WHERE id = p_id;
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Purchase not found: %', p_id;
+    END IF;
+
     -- Update the purchase record
     UPDATE purchases
     SET
@@ -61,7 +67,7 @@ EXCEPTION
     WHEN OTHERS THEN
         RAISE EXCEPTION 'Failed to update purchase with cascade: %', SQLERRM;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- Grant execute to authenticated users (adjust as needed)
 -- GRANT EXECUTE ON FUNCTION update_purchase_with_cascade TO authenticated;

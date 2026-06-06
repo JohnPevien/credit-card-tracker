@@ -34,7 +34,7 @@ Edit purchase details with automatic transaction recalculation:
 ## Getting Started
 
 ### Prerequisites
-- Node.js 18+
+- Node.js 22 LTS (>=22.0.0)
 - pnpm (recommended)
 - Supabase account and project
 
