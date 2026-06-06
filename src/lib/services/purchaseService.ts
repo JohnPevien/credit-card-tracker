@@ -147,6 +147,9 @@ export class PurchaseService {
             );
 
             if (error) throw error;
+            if (!result || !result.purchase) {
+                throw new Error("Failed to update purchase with cascade: No purchase data returned");
+            }
 
             // Transform result to match expected format
             return {
@@ -192,6 +195,9 @@ export class PurchaseService {
             );
 
             if (error) throw error;
+            if (!result || !result.purchase) {
+                throw new Error("Failed to update purchase: No purchase data returned");
+            }
 
             const purchase: Purchase = {
                 ...result.purchase,

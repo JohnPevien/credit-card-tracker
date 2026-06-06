@@ -21,6 +21,10 @@ BEGIN
     -- Get current purchase data for defaults and num_installments
     SELECT * INTO v_purchase FROM purchases WHERE id = p_id;
 
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Purchase not found: %', p_id;
+    END IF;
+
     -- Determine effective values
     v_new_amount := COALESCE(p_total_amount, v_purchase.total_amount);
     v_new_start_date := COALESCE(p_billing_start_date, v_purchase.billing_start_date);
@@ -94,4 +98,4 @@ EXCEPTION
     WHEN OTHERS THEN
         RAISE EXCEPTION 'Failed to update purchase: %', SQLERRM;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
