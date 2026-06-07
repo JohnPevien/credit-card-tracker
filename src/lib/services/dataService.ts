@@ -1,4 +1,5 @@
 import { supabase, Purchase, CreditCard, Person } from "@/lib/supabase";
+import { addMonthsPreservingMonthEnd } from "@/lib/utils";
 
 export class DataService {
     /**
@@ -132,10 +133,11 @@ export class DataService {
                 purchaseData.total_amount / purchaseData.num_installments;
 
             for (let i = 0; i < purchaseData.num_installments; i++) {
-                // Calculate the transaction date based on billing start date
-                const startDate = new Date(purchaseData.billing_start_date);
-                const transactionDate = new Date(startDate);
-                transactionDate.setMonth(startDate.getMonth() + i);
+                // Calculate the transaction date using Postgres-equivalent month addition
+                const transactionDateStr = addMonthsPreservingMonthEnd(
+                    purchaseData.billing_start_date,
+                    i,
+                );
 
                 // Create a transaction for this installment
                 const { error: transactionError } = await supabase
@@ -143,7 +145,7 @@ export class DataService {
                     .insert({
                         credit_card_id: purchaseData.credit_card_id,
                         person_id: purchaseData.person_id,
-                        date: transactionDate.toISOString().split("T")[0],
+                        date: transactionDateStr,
                         amount: installmentAmount,
                         description:
                             purchaseData.num_installments > 1
@@ -173,9 +175,9 @@ export class DataService {
             num_installments: number;
             is_bnpl: boolean;
         }>,
-    ): Promise<void> {
+    ): Promise<string[]> {
         try {
-            const { error } = await supabase.rpc(
+            const { data, error } = await supabase.rpc(
                 "bulk_create_purchases_with_transactions",
                 {
                     p_purchases: purchases,
@@ -183,6 +185,7 @@ export class DataService {
             );
 
             if (error) throw error;
+            return data || [];
         } catch (error) {
             console.error("Error bulk creating purchases with transactions:", error);
             throw error;
