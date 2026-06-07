@@ -4,7 +4,7 @@
 
 CREATE OR REPLACE FUNCTION bulk_create_purchases_with_transactions(
     p_purchases JSONB
-) RETURNS VOID AS $$
+) RETURNS UUID[] AS $$
 DECLARE
     v_purchase_item JSONB;
     v_purchase_id UUID;
@@ -16,6 +16,7 @@ DECLARE
     v_person_id UUID;
     v_purchase_date DATE;
     v_is_bnpl BOOLEAN;
+    v_created_ids UUID[] := ARRAY[]::UUID[];
     i INTEGER;
 BEGIN
     FOR v_purchase_item IN SELECT * FROM jsonb_array_elements(p_purchases) LOOP
@@ -50,6 +51,8 @@ BEGIN
             v_is_bnpl
         ) RETURNING id INTO v_purchase_id;
 
+        v_created_ids := v_created_ids || v_purchase_id;
+
         -- Insert transactions
         FOR i IN 0..(v_num_installments - 1) LOOP
             INSERT INTO transactions (
@@ -73,5 +76,6 @@ BEGIN
             );
         END LOOP;
     END LOOP;
+    RETURN v_created_ids;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
