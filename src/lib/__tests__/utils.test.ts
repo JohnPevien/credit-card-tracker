@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { cn, formatDate, formatCurrency, handleTransactionPaidChange } from "../utils";
+import { cn, formatDate, formatCurrency, handleTransactionPaidChange, addMonthsPreservingMonthEnd } from "../utils";
 import { supabase } from "../supabase";
 
 // Mock the supabase client
@@ -194,6 +194,24 @@ describe("utils", () => {
 
             expect(result[0]).toEqual({ id: "tx-1", paid: false });
             expect(result[1]).toEqual({ id: "tx-2", paid: true });
+        });
+    });
+
+    describe("addMonthsPreservingMonthEnd", () => {
+        it("should keep the same day for normal additions", () => {
+            expect(addMonthsPreservingMonthEnd("2024-01-15", 1)).toBe("2024-02-15");
+            expect(addMonthsPreservingMonthEnd("2024-01-15", 2)).toBe("2024-03-15");
+        });
+
+        it("should clamp month end overflow correctly (Postgres semantics)", () => {
+            expect(addMonthsPreservingMonthEnd("2024-01-31", 1)).toBe("2024-02-29"); // leap year
+            expect(addMonthsPreservingMonthEnd("2023-01-31", 1)).toBe("2023-02-28"); // non-leap year
+            expect(addMonthsPreservingMonthEnd("2024-08-31", 1)).toBe("2024-09-30"); // August 31 + 1 month
+        });
+
+        it("should roll over year boundaries correctly", () => {
+            expect(addMonthsPreservingMonthEnd("2024-11-15", 2)).toBe("2025-01-15");
+            expect(addMonthsPreservingMonthEnd("2024-12-31", 1)).toBe("2025-01-31");
         });
     });
 });

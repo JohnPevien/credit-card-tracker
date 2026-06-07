@@ -56,3 +56,31 @@ export async function handleTransactionPaidChange<
     }
     setUpdatingId(null);
 }
+
+/**
+ * Adds months to a date string (YYYY-MM-DD) preserving month-end clamping behavior (Postgres semantics).
+ * E.g., Jan 31 + 1 month = Feb 28 (or 29 in leap year), not March 3rd.
+ * @param dateStr Date string in YYYY-MM-DD format
+ * @param monthsToAdd Number of months to add
+ * @returns Date string in YYYY-MM-DD format
+ */
+export function addMonthsPreservingMonthEnd(dateStr: string, monthsToAdd: number): string {
+    const [yearStr, monthStr, dayStr] = dateStr.split("-");
+    const year = parseInt(yearStr, 10);
+    const month = parseInt(monthStr, 10) - 1; // 0-indexed month
+    const day = parseInt(dayStr, 10);
+
+    let targetMonth = month + monthsToAdd;
+    const targetYear = year + Math.floor(targetMonth / 12);
+    targetMonth = ((targetMonth % 12) + 12) % 12; // handle negative offset if any
+
+    const isLeapYear = (y: number) => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+    const daysInMonths = [31, isLeapYear(targetYear) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+    const targetDay = Math.min(day, daysInMonths[targetMonth]);
+
+    const formattedMonth = String(targetMonth + 1).padStart(2, "0");
+    const formattedDay = String(targetDay).padStart(2, "0");
+
+    return `${targetYear}-${formattedMonth}-${formattedDay}`;
+}
