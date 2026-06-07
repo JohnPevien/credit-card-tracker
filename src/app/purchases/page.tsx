@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Purchase, CreditCard, Person } from "@/lib/supabase";
 import DataTable from "@/components/DataTable";
 import Modal from "@/components/Modal";
@@ -10,7 +11,7 @@ import TransactionFilters, {
 import { DataService } from "@/lib/services/dataService";
 import { LoadingSpinner } from "@/components/base";
 import ActionButton from "@/components/base/ActionButton";
-import { Eye, Trash2 } from "lucide-react";
+import { Eye, Trash2, ListPlus } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 export default function PurchasesPage() {
@@ -131,9 +132,15 @@ export default function PurchasesPage() {
     return (
         <div className="container space-y-5 mx-auto">
             <h1 className="heading-page">Purchases</h1>
-            <button onClick={openAddModal} className="btn btn-primary">
-                Add Purchase
-            </button>
+            <div className="flex gap-3 items-center">
+                <button onClick={openAddModal} className="btn btn-primary">
+                    Add Purchase
+                </button>
+                <Link href="/purchases/bulk-add" className="btn btn-outline flex items-center gap-2">
+                    <ListPlus className="w-4 h-4" />
+                    Bulk Add Purchases
+                </Link>
+            </div>
 
             <TransactionFilters
                 config={{

@@ -161,4 +161,31 @@ export class DataService {
             throw error;
         }
     }
+
+    static async bulkCreatePurchasesWithTransactions(
+        purchases: Array<{
+            credit_card_id: string;
+            person_id: string;
+            purchase_date: string;
+            billing_start_date: string;
+            total_amount: number;
+            description: string;
+            num_installments: number;
+            is_bnpl: boolean;
+        }>,
+    ): Promise<void> {
+        try {
+            const { error } = await supabase.rpc(
+                "bulk_create_purchases_with_transactions",
+                {
+                    p_purchases: purchases,
+                },
+            );
+
+            if (error) throw error;
+        } catch (error) {
+            console.error("Error bulk creating purchases with transactions:", error);
+            throw error;
+        }
+    }
 }
