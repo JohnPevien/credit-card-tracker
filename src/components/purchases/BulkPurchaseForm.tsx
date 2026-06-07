@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Select, DateInput, Input, Checkbox, Button } from "@/components/base";
+import { Select, DateInput, Button } from "@/components/base";
 import { CreditCard, Person } from "@/lib/supabase";
 import { Trash2, Copy, Plus, RotateCcw } from "lucide-react";
 
@@ -68,9 +68,21 @@ export default function BulkPurchaseForm({
     // Initialize with one empty row once defaults are ready
     useEffect(() => {
         if (defaultCard && defaultPerson && defaultPurchaseDate && rows.length === 0) {
-            handleAddRow();
+            setRows([
+                {
+                    id: Math.random().toString(36).substring(2, 9),
+                    description: "",
+                    total_amount: "",
+                    num_installments: "1",
+                    credit_card_id: defaultCard,
+                    person_id: defaultPerson,
+                    purchase_date: defaultPurchaseDate,
+                    billing_start_date: defaultBillingDate,
+                    is_bnpl: false,
+                },
+            ]);
         }
-    }, [defaultCard, defaultPerson, defaultPurchaseDate]);
+    }, [defaultCard, defaultPerson, defaultPurchaseDate, defaultBillingDate, rows.length]);
 
     const createNewRow = (overrides?: Partial<BulkRow>): BulkRow => {
         return {
@@ -108,7 +120,7 @@ export default function BulkPurchaseForm({
         }
     };
 
-    const handleRowChange = (id: string, field: keyof BulkRow, value: any) => {
+    const handleRowChange = (id: string, field: keyof BulkRow, value: string | number | boolean) => {
         setRows((prev) =>
             prev.map((row) => {
                 if (row.id === id) {
@@ -116,7 +128,7 @@ export default function BulkPurchaseForm({
                     
                     // If purchase date changes, we might want billing date to follow it by default (if not manually set differently)
                     if (field === "purchase_date" && row.billing_start_date === row.purchase_date) {
-                        updated.billing_start_date = value;
+                        updated.billing_start_date = value as string;
                     }
                     
                     return updated;
