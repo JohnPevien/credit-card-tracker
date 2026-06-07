@@ -50,39 +50,43 @@ export default function BulkPurchaseForm({
     // Grid rows state
     const [rows, setRows] = useState<BulkRow[]>([]);
 
-    // Initialize defaults on component mount once metadata is loaded
+    // Initialize defaults and the initial empty row on component mount / metadata load
     useEffect(() => {
-        if (creditCards.length > 0 && !defaultCard) {
-            setDefaultCard(creditCards[0].id);
-        }
-        if (persons.length > 0 && !defaultPerson) {
-            setDefaultPerson(persons[0].id);
-        }
-        if (!defaultPurchaseDate) {
-            const today = new Date().toISOString().split("T")[0];
-            setDefaultPurchaseDate(today);
-            setDefaultBillingDate(today);
-        }
-    }, [creditCards, persons, defaultCard, defaultPerson, defaultPurchaseDate]);
+        const today = new Date().toISOString().split("T")[0];
+        const initialCard = creditCards.length > 0 ? creditCards[0].id : "";
+        const initialPerson = persons.length > 0 ? persons[0].id : "";
 
-    // Initialize with one empty row once defaults are ready
-    useEffect(() => {
-        if (defaultCard && defaultPerson && defaultPurchaseDate && rows.length === 0) {
-            setRows([
+        setDefaultCard((prev) => prev || initialCard);
+        setDefaultPerson((prev) => prev || initialPerson);
+        setDefaultPurchaseDate((prev) => prev || today);
+        setDefaultBillingDate((prev) => prev || today);
+
+        setRows((prev) => {
+            if (prev.length > 0) {
+                // Propagate loaded defaults to empty row values
+                return prev.map((row) => ({
+                    ...row,
+                    credit_card_id: row.credit_card_id || initialCard,
+                    person_id: row.person_id || initialPerson,
+                    purchase_date: row.purchase_date || today,
+                    billing_start_date: row.billing_start_date || today,
+                }));
+            }
+            return [
                 {
                     id: Math.random().toString(36).substring(2, 9),
                     description: "",
                     total_amount: "",
                     num_installments: "1",
-                    credit_card_id: defaultCard,
-                    person_id: defaultPerson,
-                    purchase_date: defaultPurchaseDate,
-                    billing_start_date: defaultBillingDate,
+                    credit_card_id: initialCard,
+                    person_id: initialPerson,
+                    purchase_date: today,
+                    billing_start_date: today,
                     is_bnpl: false,
                 },
-            ]);
-        }
-    }, [defaultCard, defaultPerson, defaultPurchaseDate, defaultBillingDate, rows.length]);
+            ];
+        });
+    }, [creditCards, persons]);
 
     const createNewRow = (overrides?: Partial<BulkRow>): BulkRow => {
         return {
@@ -208,6 +212,12 @@ export default function BulkPurchaseForm({
             const rowNum = index + 1;
             if (!row.description.trim()) {
                 errors.push(`Row ${rowNum}: Description is required`);
+            }
+            if (!row.credit_card_id) {
+                errors.push(`Row ${rowNum}: Credit Card is required`);
+            }
+            if (!row.person_id) {
+                errors.push(`Row ${rowNum}: Person is required`);
             }
             const amount = parseFloat(row.total_amount);
             if (isNaN(amount) || amount <= 0) {

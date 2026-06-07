@@ -287,4 +287,22 @@ describe("BulkPurchaseForm", () => {
 
         expect(mockOnCancel).toHaveBeenCalled();
     });
+
+    it("should validate missing credit card and person ids", async () => {
+        const user = userEvent.setup();
+        render(
+            <BulkPurchaseForm
+                creditCards={[]}
+                persons={[]}
+                onSubmit={mockOnSubmit}
+                onCancel={mockOnCancel}
+            />
+        );
+
+        await user.click(screen.getByText("Save 1 Purchase"));
+
+        expect(screen.getByText("Please correct the following errors:")).toBeInTheDocument();
+        expect(screen.getByText("Row 1: Credit Card is required")).toBeInTheDocument();
+        expect(screen.getByText("Row 1: Person is required")).toBeInTheDocument();
+    });
 });
