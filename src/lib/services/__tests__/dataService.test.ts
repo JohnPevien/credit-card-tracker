@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 vi.mock("@/lib/supabase", () => ({
     supabase: {
         from: vi.fn(),
+        rpc: vi.fn(),
     },
 }));
 
@@ -359,6 +360,53 @@ describe("DataService", () => {
             await expect(
                 DataService.createPurchaseWithTransactions(purchaseData),
             ).rejects.toThrow("Transaction insert failed");
+        });
+    });
+
+    describe("bulkCreatePurchasesWithTransactions", () => {
+        const purchases = [
+            {
+                credit_card_id: "card-1",
+                person_id: "person-1",
+                purchase_date: "2024-01-15",
+                billing_start_date: "2024-02-01",
+                total_amount: 3000,
+                description: "Test Purchase 1",
+                num_installments: 3,
+                is_bnpl: false,
+            },
+            {
+                credit_card_id: "card-2",
+                person_id: "person-2",
+                purchase_date: "2024-01-16",
+                billing_start_date: "2024-02-02",
+                total_amount: 1000,
+                description: "Test Purchase 2",
+                num_installments: 1,
+                is_bnpl: true,
+            },
+        ];
+
+        it("should call RPC with correct parameters", async () => {
+            (supabase.rpc as ReturnType<typeof vi.fn>).mockResolvedValue({ error: null });
+
+            await DataService.bulkCreatePurchasesWithTransactions(purchases);
+
+            expect(supabase.rpc).toHaveBeenCalledWith(
+                "bulk_create_purchases_with_transactions",
+                {
+                    p_purchases: purchases,
+                },
+            );
+        });
+
+        it("should throw error if RPC fails", async () => {
+            const mockError = new Error("RPC call failed");
+            (supabase.rpc as ReturnType<typeof vi.fn>).mockResolvedValue({ error: mockError });
+
+            await expect(
+                DataService.bulkCreatePurchasesWithTransactions(purchases),
+            ).rejects.toThrow("RPC call failed");
         });
     });
 });
