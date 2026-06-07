@@ -387,10 +387,11 @@ describe("DataService", () => {
             },
         ];
 
-        it("should call RPC with correct parameters", async () => {
-            (supabase.rpc as ReturnType<typeof vi.fn>).mockResolvedValue({ error: null });
+        it("should call RPC with correct parameters and return created IDs", async () => {
+            const mockIds = ["purchase-id-1", "purchase-id-2"];
+            (supabase.rpc as ReturnType<typeof vi.fn>).mockResolvedValue({ data: mockIds, error: null });
 
-            await DataService.bulkCreatePurchasesWithTransactions(purchases);
+            const result = await DataService.bulkCreatePurchasesWithTransactions(purchases);
 
             expect(supabase.rpc).toHaveBeenCalledWith(
                 "bulk_create_purchases_with_transactions",
@@ -398,6 +399,7 @@ describe("DataService", () => {
                     p_purchases: purchases,
                 },
             );
+            expect(result).toEqual(mockIds);
         });
 
         it("should throw error if RPC fails", async () => {
