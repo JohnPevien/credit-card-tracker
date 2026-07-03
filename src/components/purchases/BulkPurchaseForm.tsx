@@ -52,7 +52,8 @@ export default function BulkPurchaseForm({
 
     // Initialize defaults and the initial empty row on component mount / metadata load
     useEffect(() => {
-        const today = new Date().toISOString().split("T")[0];
+        // Use local timezone date so UTC offset doesn't shift displayed date
+        const today = new Date().toLocaleDateString("sv-SE"); // "sv-SE" locale = YYYY-MM-DD
         const initialCard = creditCards.length > 0 ? creditCards[0].id : "";
         const initialPerson = persons.length > 0 ? persons[0].id : "";
 

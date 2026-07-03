@@ -213,5 +213,12 @@ describe("utils", () => {
             expect(addMonthsPreservingMonthEnd("2024-11-15", 2)).toBe("2025-01-15");
             expect(addMonthsPreservingMonthEnd("2024-12-31", 1)).toBe("2025-01-31");
         });
+
+        it("should handle leap-year edge case", () => {
+            // Feb 29 + 12 months = Feb 28 next year (non-leap)
+            expect(addMonthsPreservingMonthEnd("2024-02-29", 12)).toBe("2025-02-28");
+            // Feb 29 + 48 months = Feb 29 (leap year again)
+            expect(addMonthsPreservingMonthEnd("2024-02-29", 48)).toBe("2028-02-29");
+        });
     });
 });

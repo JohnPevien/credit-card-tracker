@@ -28,6 +28,10 @@ BEGIN
         v_description := v_purchase_item->>'description';
         v_is_bnpl := COALESCE((v_purchase_item->>'is_bnpl')::BOOLEAN, false);
         v_num_installments := COALESCE((v_purchase_item->>'num_installments')::INTEGER, 1);
+        IF v_num_installments < 1 THEN
+            RAISE EXCEPTION 'num_installments must be >= 1, got %', v_num_installments
+                USING ERRCODE = '22023';
+        END IF;
         v_installment_amount := (v_purchase_item->>'total_amount')::NUMERIC / v_num_installments;
 
         -- Insert purchase
@@ -78,4 +82,4 @@ BEGIN
     END LOOP;
     RETURN v_created_ids;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+$$ LANGUAGE plpgsql SECURITY INVOKER SET search_path = public;
