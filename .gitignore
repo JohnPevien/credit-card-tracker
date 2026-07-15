@@ -44,3 +44,7 @@ next-env.d.ts
 
 # docs
 /docs
+
+# Private Messenger conversation sources and exports
+/tracking-convo-doc/tracking-convo.html
+/tracking-convo-doc/import/
