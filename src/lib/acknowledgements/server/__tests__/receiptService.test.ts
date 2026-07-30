@@ -148,6 +148,30 @@ const receiptRow = {
     storage_path: "must-never-escape",
 };
 
+const portalRow = {
+    person_id: "00000000-0000-4000-8000-000000000020",
+    payer_name: "Ada Payer",
+    public_id: "00000000-0000-4000-8000-000000000040",
+    credential_version: 1,
+    revoked_at: null,
+    last_accessed_at: null,
+    created_at: "2026-07-30T00:00:00.000Z",
+    updated_at: "2026-07-30T00:00:00.000Z",
+    persons: { name: "Ada Payer" },
+    pin_hash: "must-never-escape",
+};
+
+const expectedPortal: PayerPortalAdminView = {
+    personId: "00000000-0000-4000-8000-000000000020",
+    payerName: "Ada Payer",
+    publicId: "00000000-0000-4000-8000-000000000040",
+    credentialVersion: 1,
+    revokedAt: null,
+    lastAccessedAt: null,
+    createdAt: "2026-07-30T00:00:00.000Z",
+    updatedAt: "2026-07-30T00:00:00.000Z",
+};
+
 const detailTableResults = (row: Record<string, unknown> = receiptRow) => ({
     acknowledgement_receipt_overview: [
         { data: row, error: null },
@@ -388,76 +412,119 @@ describe("receiver receipt service", () => {
         ).rejects.toBeInstanceOf(ReceiptValidationError);
     });
 
-    it("ensures payer credentials exist before publishing", async () => {
+    it("atomically publishes and returns a newly created transient portal PIN", async () => {
         const client = new FakeClient();
-        queueReceiptDetail(client);
-        client.queueRpc("ack_publish_receipt", {
-            data: receiptRow,
+        client.queueRpc("ack_publish_receipt_with_portal", {
+            data: {
+                receipt_id: receiptRow.id,
+                portal_created: true,
+                portal: {
+                    person_id: receiptRow.payer_person_id,
+                    payer_name: "Ada Payer",
+                    public_id: "00000000-0000-4000-8000-000000000040",
+                    credential_version: 1,
+                    revoked_at: null,
+                    last_accessed_at: null,
+                    created_at: "2026-07-30T00:00:00.000Z",
+                    updated_at: "2026-07-30T00:00:00.000Z",
+                },
+            },
             error: null,
         });
         queueReceiptDetail(client);
-        const ensurePortalAccess = vi.fn(async () => {
-            client.events.push("portal:ensured");
-        });
 
-        await createReceiptService(client, {
-            ensurePortalAccess,
+        const result = await createReceiptService(client, {
+            generatePin: () => "123456",
+            hashPin: async () => "scrypt$publish-salt$publish-hash",
+            createPublicId: () => "00000000-0000-4000-8000-000000000040",
         }).performReceiptAction("00000000-0000-4000-8000-000000000010", {
             type: "publish",
             expectedRevision: 2,
         });
 
-        expect(ensurePortalAccess).toHaveBeenCalledWith(
-            "00000000-0000-4000-8000-000000000020",
-        );
-        expect(client.events).toEqual([
-            "portal:ensured",
-            "rpc:ack_publish_receipt",
+        expect(result).toEqual({
+            receipt: expect.objectContaining({
+                id: "00000000-0000-4000-8000-000000000010",
+            }),
+            portalCredential: {
+                portal: expectedPortal,
+                pin: "123456",
+            },
+        });
+        expect(client.rpcCalls).toEqual([
+            {
+                name: "ack_publish_receipt_with_portal",
+                args: {
+                    p_receipt_id: "00000000-0000-4000-8000-000000000010",
+                    p_expected_revision: 2,
+                    p_pin_hash: "scrypt$publish-salt$publish-hash",
+                    p_public_id: "00000000-0000-4000-8000-000000000040",
+                },
+            },
         ]);
+        expect(JSON.stringify(result)).not.toContain("publish-hash");
     });
 
-    it("rejects publishing until a transient portal credential has been generated", async () => {
+    it("returns no plaintext PIN when atomic publish finds an existing portal", async () => {
         const client = new FakeClient();
-        queueReceiptDetail(client);
-        client.queueTable("payer_portal_access", {
-            data: null,
+        client.queueRpc("ack_publish_receipt_with_portal", {
+            data: {
+                receipt_id: receiptRow.id,
+                portal_created: false,
+                portal: {
+                    person_id: receiptRow.payer_person_id,
+                    payer_name: "Ada Payer",
+                    public_id: "00000000-0000-4000-8000-000000000040",
+                    credential_version: 4,
+                    revoked_at: null,
+                    last_accessed_at: null,
+                    created_at: "2026-07-30T00:00:00.000Z",
+                    updated_at: "2026-07-30T00:00:00.000Z",
+                },
+            },
             error: null,
+        });
+        queueReceiptDetail(client);
+
+        const result = await createReceiptService(client, {
+            generatePin: () => "999999",
+            hashPin: async () => "scrypt$unused-salt$unused-hash",
+            createPublicId: () => "00000000-0000-4000-8000-000000000099",
+        }).performReceiptAction("00000000-0000-4000-8000-000000000010", {
+            type: "publish",
+            expectedRevision: 2,
+        });
+
+        expect(result.portalCredential).toEqual({
+            portal: { ...expectedPortal, credentialVersion: 4 },
+            pin: null,
+        });
+        expect(JSON.stringify(result)).not.toContain("999999");
+    });
+
+    it("preserves stale-revision conflict priority before any portal read", async () => {
+        const client = new FakeClient();
+        client.queueRpc("ack_publish_receipt_with_portal", {
+            data: null,
+            error: { code: "40001", message: "stale receipt revision" },
         });
 
         await expect(
-            createReceiptService(client).performReceiptAction(
-                "00000000-0000-4000-8000-000000000010",
-                { type: "publish", expectedRevision: 2 },
-            ),
-        ).rejects.toBeInstanceOf(ReceiptValidationError);
-        expect(client.rpcCalls).toEqual([]);
+            createReceiptService(client, {
+                generatePin: () => "123456",
+                hashPin: async () => "scrypt$stale-salt$stale-hash",
+                createPublicId: () => "00000000-0000-4000-8000-000000000040",
+            }).performReceiptAction("00000000-0000-4000-8000-000000000010", {
+                type: "publish",
+                expectedRevision: 1,
+            }),
+        ).rejects.toBeInstanceOf(ReceiptConflictError);
+        expect(client.fromCalls).toEqual([]);
+        expect(client.rpcCalls).toHaveLength(1);
     });
 });
 
 describe("portal administration", () => {
-    const portalRow = {
-        person_id: "00000000-0000-4000-8000-000000000020",
-        public_id: "00000000-0000-4000-8000-000000000040",
-        credential_version: 1,
-        revoked_at: null,
-        last_accessed_at: null,
-        created_at: "2026-07-30T00:00:00.000Z",
-        updated_at: "2026-07-30T00:00:00.000Z",
-        persons: { name: "Ada Payer" },
-        pin_hash: "must-never-escape",
-    };
-
-    const expectedPortal: PayerPortalAdminView = {
-        personId: "00000000-0000-4000-8000-000000000020",
-        payerName: "Ada Payer",
-        publicId: "00000000-0000-4000-8000-000000000040",
-        credentialVersion: 1,
-        revokedAt: null,
-        lastAccessedAt: null,
-        createdAt: "2026-07-30T00:00:00.000Z",
-        updatedAt: "2026-07-30T00:00:00.000Z",
-    };
-
     it("returns an existing portal without exposing its PIN hash", async () => {
         const client = new FakeClient();
         client.queueTable("payer_portal_access", {
@@ -475,11 +542,10 @@ describe("portal administration", () => {
 
     it("returns plaintext only while generating a new credential", async () => {
         const client = new FakeClient();
-        client.queueTable(
-            "payer_portal_access",
-            { data: null, error: null },
-            { data: portalRow, error: null },
-        );
+        client.queueRpc("ack_manage_portal_access", {
+            data: { portal: portalRow, credential_changed: true },
+            error: null,
+        });
         const generateCredentialPin = vi.fn(() => "123456");
         const hashCredentialPin = vi.fn(async () => "scrypt$salt$hash");
 
@@ -493,36 +559,31 @@ describe("portal administration", () => {
 
         expect(result).toEqual({ portal: expectedPortal, pin: "123456" });
         expect(JSON.stringify(result)).not.toContain("scrypt$salt$hash");
-        expect(
-            client.queries.get("payer_portal_access")?.[1].operations,
-        ).toContainEqual({
-            kind: "insert",
-            args: [
-                {
-                    person_id: "00000000-0000-4000-8000-000000000020",
-                    public_id: "00000000-0000-4000-8000-000000000040",
-                    pin_hash: "scrypt$salt$hash",
+        expect(client.rpcCalls).toEqual([
+            {
+                name: "ack_manage_portal_access",
+                args: {
+                    p_person_id: "00000000-0000-4000-8000-000000000020",
+                    p_action: "generate-pin",
+                    p_pin_hash: "scrypt$salt$hash",
+                    p_public_id: "00000000-0000-4000-8000-000000000040",
                 },
-            ],
-        });
+            },
+        ]);
+        expect(client.fromCalls).toEqual([]);
     });
 
-    it("increments the credential version when resetting a PIN", async () => {
+    it("resets the PIN and writes its audit event through one atomic RPC", async () => {
         const client = new FakeClient();
-        client.queueTable(
-            "payer_portal_access",
-            { data: portalRow, error: null },
-            {
-                data: {
+        client.queueRpc("ack_manage_portal_access", {
+            data: {
+                portal: {
                     ...portalRow,
                     credential_version: 2,
                     updated_at: "2026-07-30T02:00:00.000Z",
                 },
-                error: null,
+                credential_changed: true,
             },
-        );
-        client.queueTable("acknowledgement_receipt_events", {
-            data: null,
             error: null,
         });
 
@@ -535,35 +596,31 @@ describe("portal administration", () => {
 
         expect(result.pin).toBe("654321");
         expect(result.portal.credentialVersion).toBe(2);
-        expect(
-            client.queries.get("payer_portal_access")?.[1].operations,
-        ).toContainEqual({
-            kind: "update",
-            args: [
-                {
-                    pin_hash: "scrypt$new-salt$new-hash",
-                    credential_version: 2,
+        expect(client.rpcCalls).toEqual([
+            {
+                name: "ack_manage_portal_access",
+                args: {
+                    p_person_id: "00000000-0000-4000-8000-000000000020",
+                    p_action: "reset-pin",
+                    p_pin_hash: "scrypt$new-salt$new-hash",
+                    p_public_id: null,
                 },
-            ],
-        });
+            },
+        ]);
+        expect(client.fromCalls).toEqual([]);
     });
 
     it("rotates the public link and increments the credential version without returning a PIN", async () => {
         const client = new FakeClient();
-        client.queueTable(
-            "payer_portal_access",
-            { data: portalRow, error: null },
-            {
-                data: {
+        client.queueRpc("ack_manage_portal_access", {
+            data: {
+                portal: {
                     ...portalRow,
                     public_id: "00000000-0000-4000-8000-000000000041",
                     credential_version: 2,
                 },
-                error: null,
+                credential_changed: true,
             },
-        );
-        client.queueTable("acknowledgement_receipt_events", {
-            data: null,
             error: null,
         });
 
@@ -578,63 +635,79 @@ describe("portal administration", () => {
             publicId: "00000000-0000-4000-8000-000000000041",
             credentialVersion: 2,
         });
-        expect(
-            client.queries.get("payer_portal_access")?.[1].operations,
-        ).toContainEqual({
-            kind: "update",
-            args: [
-                {
-                    public_id: "00000000-0000-4000-8000-000000000041",
-                    credential_version: 2,
+        expect(client.rpcCalls).toEqual([
+            {
+                name: "ack_manage_portal_access",
+                args: {
+                    p_person_id: "00000000-0000-4000-8000-000000000020",
+                    p_action: "rotate-link",
+                    p_pin_hash: null,
+                    p_public_id: "00000000-0000-4000-8000-000000000041",
                 },
-            ],
-        });
+            },
+        ]);
     });
 
-    it.each([
-        {
-            action: "revoke" as const,
-            changedRow: {
-                ...portalRow,
-                revoked_at: "2026-07-30T03:00:00.000Z",
-            },
-            expectedChanges: { revoked_at: "2026-07-30T03:00:00.000Z" },
-            expectedRevokedAt: "2026-07-30T03:00:00.000Z",
-        },
-        {
-            action: "reactivate" as const,
-            changedRow: { ...portalRow, revoked_at: null },
-            expectedChanges: { revoked_at: null },
-            expectedRevokedAt: null,
-        },
-    ])(
-        "$action updates revocation without exposing a PIN",
-        async ({ action, changedRow, expectedChanges, expectedRevokedAt }) => {
-            const client = new FakeClient();
-            client.queueTable(
-                "payer_portal_access",
-                { data: portalRow, error: null },
-                { data: changedRow, error: null },
-            );
-            client.queueTable("acknowledgement_receipt_events", {
-                data: null,
+    it("keeps the revoked version invalid after reactivation", async () => {
+        const client = new FakeClient();
+        client.queueRpc(
+            "ack_manage_portal_access",
+            {
+                data: {
+                    portal: {
+                        ...portalRow,
+                        credential_version: 2,
+                        revoked_at: "2026-07-30T03:00:00.000Z",
+                    },
+                    credential_changed: true,
+                },
                 error: null,
-            });
+            },
+            {
+                data: {
+                    portal: {
+                        ...portalRow,
+                        credential_version: 2,
+                        revoked_at: null,
+                    },
+                    credential_changed: true,
+                },
+                error: null,
+            },
+        );
+        const service = createPortalAdminService(client);
 
-            const result = await createPortalAdminService(client, {
-                now: () => new Date("2026-07-30T03:00:00.000Z"),
-            }).managePortalAccess("00000000-0000-4000-8000-000000000020", {
-                type: action,
-            });
+        const revoked = await service.managePortalAccess(
+            "00000000-0000-4000-8000-000000000020",
+            { type: "revoke" },
+        );
+        const reactivated = await service.managePortalAccess(
+            "00000000-0000-4000-8000-000000000020",
+            { type: "reactivate" },
+        );
 
-            expect(result.pin).toBeNull();
-            expect(result.portal.revokedAt).toBe(expectedRevokedAt);
-            expect(
-                client.queries.get("payer_portal_access")?.[1].operations,
-            ).toContainEqual({
-                kind: "update",
-                args: [expectedChanges],
-            });
-        },
-    );
+        expect(revoked.portal).toMatchObject({
+            credentialVersion: 2,
+            revokedAt: "2026-07-30T03:00:00.000Z",
+        });
+        expect(reactivated.portal).toMatchObject({
+            credentialVersion: 2,
+            revokedAt: null,
+        });
+        expect(client.rpcCalls.map(({ args }) => args)).toEqual([
+            {
+                p_person_id: "00000000-0000-4000-8000-000000000020",
+                p_action: "revoke",
+                p_pin_hash: null,
+                p_public_id: null,
+            },
+            {
+                p_person_id: "00000000-0000-4000-8000-000000000020",
+                p_action: "reactivate",
+                p_pin_hash: null,
+                p_public_id: null,
+            },
+        ]);
+        expect(client.fromCalls).toEqual([]);
+    });
 });

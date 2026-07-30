@@ -47,7 +47,6 @@ type PortalDependencies = {
     generatePin?: () => string;
     hashPin?: (pin: string) => Promise<string>;
     createPublicId?: () => string;
-    now?: () => Date;
 };
 
 const PORTAL_SELECT = [
@@ -72,7 +71,9 @@ const stringValue = (row: Record<string, unknown>, key: string) =>
 const nullableStringValue = (row: Record<string, unknown>, key: string) =>
     typeof row[key] === "string" ? row[key] : null;
 
-const serializePortal = (value: unknown): PayerPortalAdminView => {
+export const serializePortalAdminView = (
+    value: unknown,
+): PayerPortalAdminView => {
     const row = asRecord(value);
     const personRelation = Array.isArray(row.persons)
         ? asRecord(row.persons[0])
@@ -80,7 +81,9 @@ const serializePortal = (value: unknown): PayerPortalAdminView => {
 
     return {
         personId: stringValue(row, "person_id"),
-        payerName: stringValue(personRelation, "name"),
+        payerName:
+            stringValue(row, "payer_name") ||
+            stringValue(personRelation, "name"),
         publicId: stringValue(row, "public_id"),
         credentialVersion: Number(row.credential_version),
         revokedAt: nullableStringValue(row, "revoked_at"),
@@ -116,7 +119,6 @@ export function createPortalAdminService(
     const createCredentialPin = dependencies.generatePin ?? generatePin;
     const hashCredentialPin = dependencies.hashPin ?? hashPin;
     const createPublicId = dependencies.createPublicId ?? randomUUID;
-    const now = dependencies.now ?? (() => new Date());
 
     const getPortalAccess = async (
         personId: string,
@@ -131,120 +133,51 @@ export function createPortalAdminService(
             throwPortalError(error, "Unable to load payer portal access");
         }
 
-        return data ? serializePortal(data) : null;
+        return data ? serializePortalAdminView(data) : null;
     };
-
-    const writePortalEvent = async (
-        personId: string,
-        eventType: string,
-    ): Promise<void> => {
-        const { error } = await client
-            .from("acknowledgement_receipt_events")
-            .insert({
-                portal_person_id: personId,
-                event_type: eventType,
-                actor_role: "receiver",
-                details: {},
-            });
-
-        if (error) {
-            throwPortalError(error, "Unable to record payer portal event");
-        }
-    };
-
-    const selectWrittenPortal = (query: ReceiptQuery) =>
-        query.select(PORTAL_SELECT).maybeSingle();
 
     const managePortalAccess = async (
         personId: string,
         action: PortalAdminAction,
     ): Promise<PayerPortalCredentialResult> => {
-        const existing = await getPortalAccess(personId);
-
-        if (action.type === "generate-pin") {
-            if (existing) {
-                return { portal: existing, pin: null };
-            }
-
-            const pin = createCredentialPin();
-            const pinHash = await hashCredentialPin(pin);
-            const { data, error } = await selectWrittenPortal(
-                client.from("payer_portal_access").insert({
-                    person_id: personId,
-                    public_id: createPublicId(),
-                    pin_hash: pinHash,
-                }),
-            );
-
-            if (error?.code === "23505") {
-                const racedPortal = await getPortalAccess(personId);
-                if (racedPortal) {
-                    return { portal: racedPortal, pin: null };
-                }
-            }
-
-            if (error) {
-                throwPortalError(error, "Unable to create payer portal access");
-            }
-            if (!data) {
-                throw new ReceiptUnexpectedError(
-                    "Payer portal creation returned no row",
-                );
-            }
-
-            return { portal: serializePortal(data), pin };
-        }
-
-        if (!existing) {
-            throw new ReceiptNotFoundError("Payer portal access was not found");
-        }
-
-        let changes: Record<string, unknown>;
-        let eventType: string;
         let plaintextPin: string | null = null;
+        let pinHash: string | null = null;
+        let publicId: string | null = null;
 
-        switch (action.type) {
-            case "reset-pin": {
-                plaintextPin = createCredentialPin();
-                changes = {
-                    pin_hash: await hashCredentialPin(plaintextPin),
-                    credential_version: existing.credentialVersion + 1,
-                };
-                eventType = "portal_pin_reset";
-                break;
-            }
-            case "rotate-link":
-                changes = {
-                    public_id: createPublicId(),
-                    credential_version: existing.credentialVersion + 1,
-                };
-                eventType = "portal_link_rotated";
-                break;
-            case "revoke":
-                changes = { revoked_at: now().toISOString() };
-                eventType = "portal_revoked";
-                break;
-            case "reactivate":
-                changes = { revoked_at: null };
-                eventType = "portal_reactivated";
-                break;
+        if (action.type === "generate-pin" || action.type === "reset-pin") {
+            plaintextPin = createCredentialPin();
+            pinHash = await hashCredentialPin(plaintextPin);
+        }
+        if (action.type === "generate-pin" || action.type === "rotate-link") {
+            publicId = createPublicId();
         }
 
-        const { data, error } = await selectWrittenPortal(
-            client
-                .from("payer_portal_access")
-                .update(changes)
-                .eq("person_id", personId),
-        );
+        const { data, error } = await client.rpc("ack_manage_portal_access", {
+            p_person_id: personId,
+            p_action: action.type,
+            p_pin_hash: pinHash,
+            p_public_id: publicId,
+        });
         if (error) {
-            throwPortalError(error, "Unable to update payer portal access");
+            throwPortalError(error, "Unable to manage payer portal access");
         }
         if (!data) {
-            throw new ReceiptNotFoundError("Payer portal access was not found");
+            throw new ReceiptUnexpectedError(
+                "Payer portal mutation returned no result",
+            );
         }
 
-        await writePortalEvent(personId, eventType);
-        return { portal: serializePortal(data), pin: plaintextPin };
+        const payload = asRecord(Array.isArray(data) ? data[0] : data);
+        const credentialChanged = payload.credential_changed === true;
+
+        return {
+            portal: serializePortalAdminView(payload.portal),
+            pin:
+                credentialChanged &&
+                (action.type === "generate-pin" || action.type === "reset-pin")
+                    ? plaintextPin
+                    : null,
+        };
     };
 
     return { getPortalAccess, managePortalAccess };

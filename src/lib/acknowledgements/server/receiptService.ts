@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import {
     createReceiptSchema,
     updateReceiptSchema,
@@ -19,8 +21,10 @@ import type {
     ReceiptStatus,
     ReceiptTransactionReference,
     ReceiverReceiptAction,
+    ReceiverReceiptActionResult,
     UpdateReceiptInput,
 } from "@/lib/acknowledgements/types";
+import { generatePin, hashPin } from "@/lib/auth/pin";
 import {
     ReceiptConflictError,
     ReceiptNotFoundError,
@@ -28,7 +32,7 @@ import {
     ReceiptValidationError,
 } from "./http";
 import {
-    createPortalAdminService,
+    serializePortalAdminView,
     type ReceiptDataClient,
     type ReceiptDatabaseError,
     type ReceiptQuery,
@@ -37,7 +41,9 @@ import {
 export type { ReceiptDataClient } from "./portalAdminService";
 
 type ReceiptServiceDependencies = {
-    ensurePortalAccess?: (personId: string) => Promise<unknown>;
+    generatePin?: () => string;
+    hashPin?: (pin: string) => Promise<string>;
+    createPublicId?: () => string;
 };
 
 const RECEIPT_COLUMNS = [
@@ -406,19 +412,9 @@ export function createReceiptService(
     client: ReceiptDataClient,
     dependencies: ReceiptServiceDependencies = {},
 ) {
-    const ensurePortalAccess =
-        dependencies.ensurePortalAccess ??
-        (async (personId: string) => {
-            const portal =
-                await createPortalAdminService(client).getPortalAccess(
-                    personId,
-                );
-            if (!portal) {
-                throw new ReceiptValidationError(
-                    "Generate payer portal credentials before publishing",
-                );
-            }
-        });
+    const createCredentialPin = dependencies.generatePin ?? generatePin;
+    const hashCredentialPin = dependencies.hashPin ?? hashPin;
+    const createPublicId = dependencies.createPublicId ?? randomUUID;
 
     const listReceipts = async (
         filters: ReceiptFilters = {},
@@ -553,17 +549,38 @@ export function createReceiptService(
     const performReceiptAction = async (
         id: string,
         action: ReceiverReceiptAction,
-    ): Promise<AcknowledgementReceiptDetail> => {
+    ): Promise<ReceiverReceiptActionResult> => {
         let rpcName: string;
         let args: Record<string, unknown>;
 
         if (action.type === "publish") {
-            const receipt = await getReceipt(id);
-            await ensurePortalAccess(receipt.payerPersonId);
-            rpcName = "ack_publish_receipt";
-            args = {
-                p_receipt_id: id,
-                p_expected_revision: action.expectedRevision,
+            const plaintextPin = createCredentialPin();
+            const pinHash = await hashCredentialPin(plaintextPin);
+            const { data, error } = await client.rpc(
+                "ack_publish_receipt_with_portal",
+                {
+                    p_receipt_id: id,
+                    p_expected_revision: action.expectedRevision,
+                    p_pin_hash: pinHash,
+                    p_public_id: createPublicId(),
+                },
+            );
+            requireQueryData(data, error, "Unable to publish receipt");
+
+            const payload = asRecord(Array.isArray(data) ? data[0] : data);
+            const receiptId = stringValue(payload, "receipt_id");
+            if (!receiptId || !payload.portal) {
+                throw new ReceiptUnexpectedError(
+                    "Receipt publish returned an invalid result",
+                );
+            }
+
+            return {
+                receipt: await getReceipt(receiptId),
+                portalCredential: {
+                    portal: serializePortalAdminView(payload.portal),
+                    pin: payload.portal_created === true ? plaintextPin : null,
+                },
             };
         } else if (action.type === "confirm") {
             rpcName = "ack_confirm_receipt";
@@ -583,7 +600,10 @@ export function createReceiptService(
 
         const { data, error } = await client.rpc(rpcName, args);
         requireQueryData(data, error, "Unable to perform receipt action");
-        return getReceipt(extractReceiptId(data));
+        return {
+            receipt: await getReceipt(extractReceiptId(data)),
+            portalCredential: null,
+        };
     };
 
     const getReceiptFormMeta = async (
@@ -690,7 +710,7 @@ export async function updateReceipt(
 export async function performReceiptAction(
     id: string,
     action: ReceiverReceiptAction,
-): Promise<AcknowledgementReceiptDetail> {
+): Promise<ReceiverReceiptActionResult> {
     return (await getDefaultService()).performReceiptAction(id, action);
 }
 

@@ -143,6 +143,11 @@ export interface PayerPortalCredentialResult {
     pin: string | null;
 }
 
+export interface ReceiverReceiptActionResult {
+    receipt: AcknowledgementReceiptDetail;
+    portalCredential: PayerPortalCredentialResult | null;
+}
+
 export interface CreateReceiptInput {
     payerPersonId: string;
     receiverName: string;

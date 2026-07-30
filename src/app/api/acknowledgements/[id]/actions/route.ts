@@ -27,9 +27,7 @@ export async function POST(
     try {
         const id = idSchema.parse((await context.params).id);
         const action = receiptActionSchema.parse(await request.json());
-        return jsonNoStore({
-            receipt: await performReceiptAction(id, action),
-        });
+        return jsonNoStore(await performReceiptAction(id, action));
     } catch (error) {
         return routeErrorResponse(error);
     }

@@ -80,7 +80,10 @@ describe("receiver acknowledgement routes", () => {
         vi.mocked(getReceipt).mockResolvedValue(receipt as never);
         vi.mocked(createReceipt).mockResolvedValue(receipt as never);
         vi.mocked(updateReceipt).mockResolvedValue(receipt as never);
-        vi.mocked(performReceiptAction).mockResolvedValue(receipt as never);
+        vi.mocked(performReceiptAction).mockResolvedValue({
+            receipt,
+            portalCredential: null,
+        } as never);
         vi.mocked(getReceiptFormMeta).mockResolvedValue({
             persons: [],
             transactions: [],
@@ -270,6 +273,41 @@ describe("receiver acknowledgement routes", () => {
         });
         expect(managePortalAccess).toHaveBeenCalledWith(personId, {
             type: "generate-pin",
+        });
+    });
+
+    it("surfaces a publish-created PIN only in the immediate action response", async () => {
+        vi.mocked(performReceiptAction).mockResolvedValue({
+            receipt,
+            portalCredential: {
+                portal: {
+                    personId,
+                    payerName: "Ada",
+                    publicId: "00000000-0000-4000-8000-000000000040",
+                    credentialVersion: 1,
+                    revokedAt: null,
+                    lastAccessedAt: null,
+                    createdAt: "2026-07-30T00:00:00.000Z",
+                    updatedAt: "2026-07-30T00:00:00.000Z",
+                },
+                pin: "123456",
+            },
+        } as never);
+
+        const response = await actionRoute(
+            request(`/api/acknowledgements/${receiptId}/actions`, "POST", {
+                type: "publish",
+                expectedRevision: 1,
+            }),
+            receiptContext,
+        );
+
+        expect(await response.json()).toEqual({
+            receipt,
+            portalCredential: {
+                portal: expect.objectContaining({ personId }),
+                pin: "123456",
+            },
         });
     });
 
