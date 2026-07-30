@@ -360,6 +360,39 @@ describe("payer portal unlock throttling", () => {
         });
     });
 
+    it("returns the generic invalid result when the credential changes after its PIN verifies", async () => {
+        const client = new FakeClient();
+        client.queueRpc("ack_reserve_payer_portal_attempt", {
+            data: {
+                allowed: true,
+                reservation_id: RESERVATION_ID,
+                portal: {
+                    person_id: PERSON_ID,
+                    public_id: PUBLIC_ID,
+                    credential_version: 4,
+                    revoked_at: null,
+                    pin_hash: "scrypt$salt$hash",
+                },
+            },
+            error: null,
+        });
+        client.queueRpc("ack_complete_payer_portal_unlock", {
+            data: null,
+            error: null,
+        });
+
+        await expect(
+            serviceWith(
+                client,
+                vi.fn(async () => true),
+            ).unlockPortal(PUBLIC_ID, "123456", "203.0.113.10"),
+        ).resolves.toEqual({ kind: "invalid" });
+        expect(client.rpcCalls.map(({ name }) => name)).toEqual([
+            "ack_reserve_payer_portal_attempt",
+            "ack_complete_payer_portal_unlock",
+        ]);
+    });
+
     it("treats a revoked portal like a wrong PIN even when its hash verifies", async () => {
         const client = new FakeClient();
         client.queueRpc("ack_reserve_payer_portal_attempt", {
