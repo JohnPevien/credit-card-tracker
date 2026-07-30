@@ -103,6 +103,7 @@ CREATE TABLE IF NOT EXISTS public.acknowledgement_receipts (
             (voided_at IS NULL AND void_reason IS NULL)
             OR (
                 voided_at IS NOT NULL
+                AND void_reason IS NOT NULL
                 AND length(btrim(void_reason)) BETWEEN 1 AND 1000
             )
         )
@@ -188,6 +189,7 @@ CREATE TABLE IF NOT EXISTS public.acknowledgement_receipt_events (
             (
                 receipt_id IS NOT NULL
                 AND portal_person_id IS NULL
+                AND revision_number IS NOT NULL
                 AND revision_number > 0
             )
             OR (
@@ -284,6 +286,14 @@ AS $$
 DECLARE
     v_active_count integer;
 BEGIN
+    IF (
+        TG_OP = 'UPDATE'
+        AND NEW.receipt_id IS DISTINCT FROM OLD.receipt_id
+    ) THEN
+        RAISE EXCEPTION 'proof receipt_id is immutable'
+            USING ERRCODE = '55000';
+    END IF;
+
     IF NEW.removed_at IS NOT NULL THEN
         RETURN NEW;
     END IF;
@@ -331,7 +341,7 @@ EXECUTE FUNCTION public.ack_touch_updated_at();
 DROP TRIGGER IF EXISTS acknowledgement_receipt_files_limit
     ON public.acknowledgement_receipt_files;
 CREATE TRIGGER acknowledgement_receipt_files_limit
-BEFORE INSERT OR UPDATE OF removed_at
+BEFORE INSERT OR UPDATE OF receipt_id, removed_at
 ON public.acknowledgement_receipt_files
 FOR EACH ROW
 EXECUTE FUNCTION public.ack_enforce_active_file_limit();
@@ -363,6 +373,7 @@ AS $$
 DECLARE
     v_receipt public.acknowledgement_receipts%ROWTYPE;
     v_snapshot jsonb;
+    v_status text;
 BEGIN
     IF p_changed_by_role NOT IN ('payer', 'receiver', 'system') THEN
         RAISE EXCEPTION 'invalid receipt actor role'
@@ -379,24 +390,87 @@ BEGIN
         RAISE no_data_found;
     END IF;
 
+    v_status := CASE
+        WHEN v_receipt.voided_at IS NOT NULL THEN 'voided'
+        WHEN v_receipt.published_at IS NULL THEN 'draft'
+        WHEN (
+            v_receipt.completed_at IS NOT NULL
+            AND v_receipt.payer_confirmed_at IS NOT NULL
+            AND v_receipt.receiver_confirmed_at IS NOT NULL
+        ) THEN 'completed'
+        WHEN (
+            v_receipt.payer_confirmed_at IS NULL
+            AND v_receipt.receiver_confirmed_at IS NOT NULL
+        ) THEN 'awaiting_payer'
+        WHEN (
+            v_receipt.payer_confirmed_at IS NOT NULL
+            AND v_receipt.receiver_confirmed_at IS NULL
+        ) THEN 'awaiting_receiver'
+        ELSE 'awaiting_both'
+    END;
+
     v_snapshot := jsonb_build_object(
         'receipt',
-        to_jsonb(v_receipt),
+        jsonb_build_object(
+            'id', v_receipt.id,
+            'receiptNumber', v_receipt.receipt_number,
+            'payerPersonId', v_receipt.payer_person_id,
+            'payerName', v_receipt.payer_name_snapshot,
+            'receiverName', v_receipt.receiver_name,
+            'amount', v_receipt.amount,
+            'currency', btrim(v_receipt.currency::text),
+            'paymentDate', v_receipt.payment_date,
+            'notes', v_receipt.notes,
+            'revisionNumber', v_receipt.revision_number,
+            'publishedAt', v_receipt.published_at,
+            'payerConfirmedAt', v_receipt.payer_confirmed_at,
+            'receiverConfirmedAt', v_receipt.receiver_confirmed_at,
+            'completedAt', v_receipt.completed_at,
+            'isCompleted', v_receipt.is_completed,
+            'voidedAt', v_receipt.voided_at,
+            'voidReason', v_receipt.void_reason,
+            'status', v_status,
+            'createdAt', v_receipt.created_at,
+            'updatedAt', v_receipt.updated_at
+        ),
         'transactions',
         COALESCE(
             (
-                SELECT jsonb_agg(to_jsonb(receipt_transaction)
-                    ORDER BY receipt_transaction.created_at, receipt_transaction.id)
+                SELECT jsonb_agg(
+                    jsonb_build_object(
+                        'id', receipt_transaction.id,
+                        'transactionId', receipt_transaction.transaction_id,
+                        'transactionDate',
+                            receipt_transaction.transaction_date_snapshot,
+                        'description',
+                            receipt_transaction.description_snapshot,
+                        'amount', receipt_transaction.amount_snapshot,
+                        'createdAt', receipt_transaction.created_at
+                    )
+                    ORDER BY
+                        receipt_transaction.created_at,
+                        receipt_transaction.id
+                )
                 FROM public.acknowledgement_receipt_transactions receipt_transaction
                 WHERE receipt_transaction.receipt_id = p_receipt_id
             ),
             '[]'::jsonb
         ),
-        'files',
+        'proofs',
         COALESCE(
             (
-                SELECT jsonb_agg(to_jsonb(receipt_file)
-                    ORDER BY receipt_file.created_at, receipt_file.id)
+                SELECT jsonb_agg(
+                    jsonb_build_object(
+                        'id', receipt_file.id,
+                        'originalFilename', receipt_file.original_filename,
+                        'contentType', receipt_file.content_type,
+                        'sizeBytes', receipt_file.size_bytes,
+                        'uploaderRole', receipt_file.uploader_role,
+                        'removedAt', receipt_file.removed_at,
+                        'createdAt', receipt_file.created_at
+                    )
+                    ORDER BY receipt_file.created_at, receipt_file.id
+                )
                 FROM public.acknowledgement_receipt_files receipt_file
                 WHERE receipt_file.receipt_id = p_receipt_id
             ),
@@ -561,6 +635,7 @@ DECLARE
     v_payer_name text;
     v_inserted_count integer;
     v_had_confirmation boolean;
+    v_is_unchanged boolean;
     v_transaction_ids uuid[] := COALESCE(p_transaction_ids, ARRAY[]::uuid[]);
 BEGIN
     SELECT *
@@ -618,6 +693,36 @@ BEGIN
 
     IF NOT FOUND THEN
         RAISE no_data_found;
+    END IF;
+
+    v_is_unchanged := (
+        v_receipt.payer_person_id IS NOT DISTINCT FROM p_payer_person_id
+        AND v_receipt.payer_name_snapshot IS NOT DISTINCT FROM v_payer_name
+        AND v_receipt.receiver_name IS NOT DISTINCT FROM btrim(p_receiver_name)
+        AND v_receipt.amount IS NOT DISTINCT FROM p_amount
+        AND btrim(v_receipt.currency::text) IS NOT DISTINCT FROM p_currency
+        AND v_receipt.payment_date IS NOT DISTINCT FROM p_payment_date
+        AND v_receipt.notes IS NOT DISTINCT FROM p_notes
+        AND NOT EXISTS (
+            SELECT receipt_transaction.transaction_id
+            FROM public.acknowledgement_receipt_transactions receipt_transaction
+            WHERE receipt_transaction.receipt_id = p_receipt_id
+            EXCEPT
+            SELECT input_transaction.input_id
+            FROM unnest(v_transaction_ids) AS input_transaction(input_id)
+        )
+        AND NOT EXISTS (
+            SELECT input_transaction.input_id
+            FROM unnest(v_transaction_ids) AS input_transaction(input_id)
+            EXCEPT
+            SELECT receipt_transaction.transaction_id
+            FROM public.acknowledgement_receipt_transactions receipt_transaction
+            WHERE receipt_transaction.receipt_id = p_receipt_id
+        )
+    );
+
+    IF v_is_unchanged THEN
+        RETURN v_receipt;
     END IF;
 
     v_had_confirmation := (
@@ -1214,21 +1319,21 @@ DECLARE
     v_receipt public.acknowledgement_receipts%ROWTYPE;
     v_had_confirmation boolean;
 BEGIN
-    SELECT *
-    INTO v_transaction
-    FROM public.transactions
-    WHERE id = p_transaction_id
-    FOR UPDATE;
-
-    IF NOT FOUND THEN
-        RAISE no_data_found;
-    END IF;
-
-    UPDATE public.transactions
-    SET paid = p_paid
-    WHERE id = p_transaction_id;
-
     IF p_receipt_id IS NULL THEN
+        SELECT *
+        INTO v_transaction
+        FROM public.transactions
+        WHERE id = p_transaction_id
+        FOR UPDATE;
+
+        IF NOT FOUND THEN
+            RAISE no_data_found;
+        END IF;
+
+        UPDATE public.transactions
+        SET paid = p_paid
+        WHERE id = p_transaction_id;
+
         RETURN jsonb_build_object(
             'transaction_id', p_transaction_id,
             'paid', p_paid,
@@ -1267,7 +1372,21 @@ BEGIN
             USING ERRCODE = '55000';
     END IF;
 
-    IF v_transaction.person_id <> v_receipt.payer_person_id THEN
+    SELECT *
+    INTO v_transaction
+    FROM public.transactions
+    WHERE id = p_transaction_id
+    FOR UPDATE;
+
+    IF NOT FOUND THEN
+        RAISE no_data_found;
+    END IF;
+
+    UPDATE public.transactions
+    SET paid = p_paid
+    WHERE id = p_transaction_id;
+
+    IF v_transaction.person_id IS DISTINCT FROM v_receipt.payer_person_id THEN
         RAISE EXCEPTION 'transaction and receipt must have the same payer'
             USING ERRCODE = '22023';
     END IF;

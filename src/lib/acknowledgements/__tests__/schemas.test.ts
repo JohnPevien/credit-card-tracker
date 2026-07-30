@@ -6,6 +6,7 @@ import {
     receiptActionSchema,
     updateReceiptSchema,
 } from "../schemas";
+import type { CreateReceiptInput, ParsedCreateReceiptInput } from "../types";
 
 const payerPersonId = "3a0e8cb3-b8f6-49b7-b5b4-c92396e56bb4";
 const transactionId = "32103207-5563-4947-8a63-a18b8fdf6d8f";
@@ -21,6 +22,21 @@ const validCreateInput = {
 };
 
 describe("createReceiptSchema", () => {
+    it("defaults omitted raw-input currency to required parsed PHP", () => {
+        const rawInput: CreateReceiptInput = {
+            payerPersonId,
+            receiverName: "Receiver Name",
+            amount: 12500,
+            paymentDate: "2026-07-30",
+        };
+
+        const parsedInput: ParsedCreateReceiptInput =
+            createReceiptSchema.parse(rawInput);
+
+        expect(parsedInput.currency).toBe("PHP");
+        expect(parsedInput.transactionIds).toEqual([]);
+    });
+
     it("accepts reference-only transaction ids without allocations", () => {
         expect(
             createReceiptSchema.parse({

@@ -1,5 +1,12 @@
 import { z } from "zod";
 
+import type {
+    CreateReceiptInput,
+    ParsedCreateReceiptInput,
+    ParsedUpdateReceiptInput,
+    UpdateReceiptInput,
+} from "./types";
+
 const MAX_RECEIPT_AMOUNT = 999_999_999_999.99;
 
 const uuidSchema = z.string().uuid();
@@ -53,7 +60,7 @@ const transactionIdsSchema = z
     })
     .default([]);
 
-export const createReceiptSchema = z.object({
+const createReceiptObjectSchema = z.object({
     payerPersonId: uuidSchema,
     receiverName: receiverNameSchema,
     amount: amountSchema,
@@ -63,7 +70,17 @@ export const createReceiptSchema = z.object({
     transactionIds: transactionIdsSchema,
 });
 
-export const updateReceiptSchema = createReceiptSchema.extend({
+export const createReceiptSchema: z.ZodType<
+    ParsedCreateReceiptInput,
+    z.ZodTypeDef,
+    CreateReceiptInput
+> = createReceiptObjectSchema;
+
+export const updateReceiptSchema: z.ZodType<
+    ParsedUpdateReceiptInput,
+    z.ZodTypeDef,
+    UpdateReceiptInput
+> = createReceiptObjectSchema.extend({
     expectedRevision: positiveRevisionSchema,
 });
 

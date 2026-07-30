@@ -147,13 +147,23 @@ export interface CreateReceiptInput {
     payerPersonId: string;
     receiverName: string;
     amount: number;
-    currency: string;
+    currency?: string;
     paymentDate: string;
     notes?: string | null;
     transactionIds?: string[];
 }
 
+export interface ParsedCreateReceiptInput
+    extends Omit<CreateReceiptInput, "currency" | "transactionIds"> {
+    currency: string;
+    transactionIds: string[];
+}
+
 export interface UpdateReceiptInput extends CreateReceiptInput {
+    expectedRevision: number;
+}
+
+export interface ParsedUpdateReceiptInput extends ParsedCreateReceiptInput {
     expectedRevision: number;
 }
 
