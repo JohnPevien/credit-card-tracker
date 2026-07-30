@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
@@ -66,6 +66,42 @@ function DetailTerm({
     );
 }
 
+const sensitiveDetailKey = /(storage|path|pin|hash|token|secret)/i;
+
+function readableEventDetails(details: Record<string, unknown>) {
+    return Object.entries(details).flatMap(([key, value]) => {
+        if (sensitiveDetailKey.test(key)) {
+            return [];
+        }
+
+        const readableValue =
+            typeof value === "string" ||
+            typeof value === "number" ||
+            typeof value === "boolean"
+                ? String(value)
+                : Array.isArray(value) &&
+                    value.every(
+                        (item) =>
+                            typeof item === "string" ||
+                            typeof item === "number",
+                    )
+                  ? value.join(", ")
+                  : null;
+
+        return readableValue
+            ? [
+                  {
+                      key,
+                      label: key
+                          .replaceAll("_", " ")
+                          .replace(/^\w/, (letter) => letter.toUpperCase()),
+                      value: readableValue,
+                  },
+              ]
+            : [];
+    });
+}
+
 export default function AcknowledgementDetailPage() {
     const { id } = useParams<{ id: string }>();
     const [receipt, setReceipt] = useState<AcknowledgementReceiptDetail | null>(
@@ -78,12 +114,62 @@ export default function AcknowledgementDetailPage() {
     const [portal, setPortal] = useState<PayerPortalAdminView | null>(null);
     const [transientPin, setTransientPin] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isPortalLoading, setIsPortalLoading] = useState(false);
+    const [portalError, setPortalError] = useState<string | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [pendingAction, setPendingAction] = useState<string | null>(null);
     const [voidReason, setVoidReason] = useState("");
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const [retryKey, setRetryKey] = useState(0);
+    const receiptIdentityRef = useRef<string | null>(null);
+    const portalRequestGenerationRef = useRef(0);
+
+    const applyReceipt = useCallback(
+        (nextReceipt: AcknowledgementReceiptDetail) => {
+            const nextIdentity = `${nextReceipt.id}:${nextReceipt.payerPersonId}`;
+            if (receiptIdentityRef.current !== nextIdentity) {
+                portalRequestGenerationRef.current += 1;
+                setPortal(null);
+                setTransientPin(null);
+                setPortalError(null);
+            }
+            receiptIdentityRef.current = nextIdentity;
+            setReceipt(nextReceipt);
+        },
+        [],
+    );
+
+    const refreshPortal = useCallback(async (personId: string) => {
+        const requestGeneration = ++portalRequestGenerationRef.current;
+        setPortal(null);
+        setTransientPin(null);
+        setPortalError(null);
+        setIsPortalLoading(true);
+
+        try {
+            const payload = await requestPortal(personId);
+            if (requestGeneration !== portalRequestGenerationRef.current) {
+                return;
+            }
+            if (payload.portal && payload.portal.personId !== personId) {
+                throw new Error("Portal response did not match this payer.");
+            }
+            setPortal(payload.portal);
+        } catch {
+            if (requestGeneration !== portalRequestGenerationRef.current) {
+                return;
+            }
+            setPortal(null);
+            setPortalError(
+                "Portal access could not be refreshed. The receipt remains saved; retry portal access.",
+            );
+        } finally {
+            if (requestGeneration === portalRequestGenerationRef.current) {
+                setIsPortalLoading(false);
+            }
+        }
+    }, []);
 
     const loadReceiptData = useCallback(
         async (signal?: AbortSignal) => {
@@ -96,18 +182,23 @@ export default function AcknowledgementDetailPage() {
                     signal,
                 }),
             ]);
-            const portalPayload = await requestPortal(
-                receiptPayload.receipt.payerPersonId,
-            );
-            setReceipt(receiptPayload.receipt);
+            if (signal?.aborted) {
+                return;
+            }
+            applyReceipt(receiptPayload.receipt);
             setMeta(metaPayload);
-            setPortal(portalPayload.portal);
+            await refreshPortal(receiptPayload.receipt.payerPersonId);
         },
-        [id],
+        [applyReceipt, id, refreshPortal],
     );
 
     useEffect(() => {
         const controller = new AbortController();
+        receiptIdentityRef.current = null;
+        portalRequestGenerationRef.current += 1;
+        setPortal(null);
+        setTransientPin(null);
+        setPortalError(null);
 
         async function load() {
             setIsLoading(true);
@@ -141,7 +232,10 @@ export default function AcknowledgementDetailPage() {
         }
 
         void load();
-        return () => controller.abort();
+        return () => {
+            controller.abort();
+            portalRequestGenerationRef.current += 1;
+        };
     }, [loadReceiptData, retryKey]);
 
     async function reloadAfterConflict() {
@@ -165,16 +259,12 @@ export default function AcknowledgementDetailPage() {
                 ...value,
                 expectedRevision: receipt.revisionNumber,
             });
-            setReceipt(payload.receipt);
+            applyReceipt(payload.receipt);
             setIsEditing(false);
-            setTransientPin(null);
-            const portalPayload = await requestPortal(
-                payload.receipt.payerPersonId,
-            );
-            setPortal(portalPayload.portal);
             setSuccess(
                 "Receipt updated. Current confirmations were reset and the prior revision remains in history.",
             );
+            await refreshPortal(payload.receipt.payerPersonId);
         } catch (caught) {
             if (caught instanceof ReceiptRequestError && caught.isConflict) {
                 await reloadAfterConflict();
@@ -215,10 +305,13 @@ export default function AcknowledgementDetailPage() {
                           expectedRevision: receipt.revisionNumber,
                       };
             const payload = await requestReceiptAction(receipt.id, action);
-            setReceipt(payload.receipt);
+            applyReceipt(payload.receipt);
             if (payload.portalCredential) {
+                portalRequestGenerationRef.current += 1;
                 setPortal(payload.portalCredential.portal);
                 setTransientPin(payload.portalCredential.pin);
+                setPortalError(null);
+                setIsPortalLoading(false);
             }
             setSuccess(
                 type === "publish"
@@ -253,13 +346,18 @@ export default function AcknowledgementDetailPage() {
         if (!receipt) {
             throw new Error("Receipt is not loaded.");
         }
-        const result = await requestPortalAction(receipt.payerPersonId, action);
-        return result;
+        return requestPortalAction(receipt.payerPersonId, action);
     }
 
     function acceptPortalResult(result: PayerPortalCredentialResult) {
+        if (!receipt || result.portal.personId !== receipt.payerPersonId) {
+            return;
+        }
+        portalRequestGenerationRef.current += 1;
         setPortal(result.portal);
         setTransientPin(result.pin);
+        setPortalError(null);
+        setIsPortalLoading(false);
     }
 
     if (isLoading) {
@@ -288,7 +386,7 @@ export default function AcknowledgementDetailPage() {
                     </p>
                     <button
                         type="button"
-                        className="btn btn-warning mt-4"
+                        className="btn btn-warning mt-4 min-h-11"
                         onClick={() => setRetryKey((key) => key + 1)}
                     >
                         Retry
@@ -315,6 +413,9 @@ export default function AcknowledgementDetailPage() {
             : receipt.payerConfirmedAt || receipt.receiverConfirmedAt
               ? "confirmed"
               : null;
+    const activeProofs = receipt.proofs.filter(
+        (proof) => proof.removedAt === null,
+    );
 
     return (
         <div className="receipt-shell">
@@ -344,6 +445,7 @@ export default function AcknowledgementDetailPage() {
                             <Button
                                 type="button"
                                 variant="outline"
+                                className="min-h-11"
                                 onClick={() => {
                                     setError(null);
                                     setSuccess(null);
@@ -377,7 +479,7 @@ export default function AcknowledgementDetailPage() {
                     <span>{error}</span>
                     <button
                         type="button"
-                        className="btn btn-outline btn-sm"
+                        className="btn btn-outline btn-sm min-h-11"
                         onClick={() => setRetryKey((key) => key + 1)}
                     >
                         Retry / reload
@@ -550,19 +652,19 @@ export default function AcknowledgementDetailPage() {
                                     Current proof metadata
                                 </h2>
                                 <p className="text-sm text-slate-400">
-                                    {receipt.proofs.length} of 5 active proof
+                                    {activeProofs.length} of 5 active proof
                                     images. Uploading arrives in the next
                                     workflow.
                                 </p>
                             </div>
                         </div>
-                        {receipt.proofs.length === 0 ? (
+                        {activeProofs.length === 0 ? (
                             <p className="rounded-lg border border-dashed border-white/10 p-4 text-sm text-slate-400">
                                 No active proof images supplied.
                             </p>
                         ) : (
                             <ul className="grid gap-3 sm:grid-cols-2">
-                                {receipt.proofs.map((proof) => (
+                                {activeProofs.map((proof) => (
                                     <li
                                         key={proof.id}
                                         className="rounded-xl border border-white/10 bg-black/20 p-3"
@@ -594,12 +696,52 @@ export default function AcknowledgementDetailPage() {
                             onConfirm={() => runReceiptAction("confirm")}
                             isSubmitting={pendingAction === "confirm"}
                         />
-                        <PortalAccessCard
-                            portal={portal}
-                            transientPin={transientPin}
-                            onAction={runPortalAction}
-                            onResult={acceptPortalResult}
-                        />
+                        {isPortalLoading ? (
+                            <section
+                                className="ledger-panel flex min-h-48 items-center justify-center gap-3 text-slate-300"
+                                aria-label="Payer portal access"
+                                role="status"
+                            >
+                                <span className="loading loading-spinner" />
+                                Loading payer portal access…
+                            </section>
+                        ) : portalError ? (
+                            <section
+                                className="ledger-panel space-y-3"
+                                aria-labelledby="portal-error-title"
+                            >
+                                <h2
+                                    id="portal-error-title"
+                                    className="text-lg font-semibold text-white"
+                                >
+                                    Payer portal access
+                                </h2>
+                                <p
+                                    className="text-sm text-rose-200"
+                                    role="alert"
+                                >
+                                    {portalError}
+                                </p>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    className="min-h-11"
+                                    onClick={() =>
+                                        refreshPortal(receipt.payerPersonId)
+                                    }
+                                >
+                                    Retry portal access
+                                </Button>
+                            </section>
+                        ) : !portal ||
+                          portal.personId === receipt.payerPersonId ? (
+                            <PortalAccessCard
+                                portal={portal}
+                                transientPin={transientPin}
+                                onAction={runPortalAction}
+                                onResult={acceptPortalResult}
+                            />
+                        ) : null}
                     </div>
 
                     {!receipt.voidedAt ? (
@@ -623,7 +765,7 @@ export default function AcknowledgementDetailPage() {
                                     <Button
                                         type="button"
                                         color="info"
-                                        className="mt-3"
+                                        className="mt-3 min-h-11"
                                         loading={pendingAction === "publish"}
                                         onClick={() =>
                                             runReceiptAction("publish")
@@ -666,7 +808,7 @@ export default function AcknowledgementDetailPage() {
                                     type="button"
                                     color="error"
                                     variant="outline"
-                                    className="mt-3"
+                                    className="mt-3 min-h-11"
                                     loading={pendingAction === "void"}
                                     onClick={() => runReceiptAction("void")}
                                 >
@@ -713,25 +855,61 @@ export default function AcknowledgementDetailPage() {
                                 </p>
                             ) : (
                                 <ol className="mt-3 space-y-3 border-l border-white/10 pl-5">
-                                    {receipt.events.map((event) => (
-                                        <li key={event.id} className="relative">
-                                            <span className="absolute -left-[1.45rem] top-1.5 h-2 w-2 rounded-full bg-amber-300" />
-                                            <p className="font-medium text-slate-100">
-                                                {event.eventType
-                                                    .replaceAll("_", " ")
-                                                    .replace(/^\w/, (letter) =>
-                                                        letter.toUpperCase(),
+                                    {receipt.events.map((event) => {
+                                        const details = readableEventDetails(
+                                            event.details,
+                                        );
+                                        return (
+                                            <li
+                                                key={event.id}
+                                                className="relative"
+                                            >
+                                                <span className="absolute -left-[1.45rem] top-1.5 h-2 w-2 rounded-full bg-amber-300" />
+                                                <p className="font-medium text-slate-100">
+                                                    {event.eventType
+                                                        .replaceAll("_", " ")
+                                                        .replace(
+                                                            /^\\w/,
+                                                            (letter) =>
+                                                                letter.toUpperCase(),
+                                                        )}
+                                                </p>
+                                                <p className="mt-0.5 text-xs text-slate-400">
+                                                    {event.actorRole} · revision{" "}
+                                                    {event.revisionNumber} ·{" "}
+                                                    {formatReceiptDateTime(
+                                                        event.createdAt,
                                                     )}
-                                            </p>
-                                            <p className="mt-0.5 text-xs text-slate-400">
-                                                {event.actorRole} · revision{" "}
-                                                {event.revisionNumber} ·{" "}
-                                                {formatReceiptDateTime(
-                                                    event.createdAt,
-                                                )}
-                                            </p>
-                                        </li>
-                                    ))}
+                                                </p>
+                                                {details.length > 0 ? (
+                                                    <dl className="mt-2 grid gap-1 text-xs text-slate-300">
+                                                        {details.map(
+                                                            (detail) => (
+                                                                <div
+                                                                    key={
+                                                                        detail.key
+                                                                    }
+                                                                    className="flex flex-wrap gap-1"
+                                                                >
+                                                                    <dt className="text-slate-500">
+                                                                        {
+                                                                            detail.label
+                                                                        }
+                                                                        :
+                                                                    </dt>
+                                                                    <dd>
+                                                                        {
+                                                                            detail.value
+                                                                        }
+                                                                    </dd>
+                                                                </div>
+                                                            ),
+                                                        )}
+                                                    </dl>
+                                                ) : null}
+                                            </li>
+                                        );
+                                    })}
                                 </ol>
                             )}
                         </div>
@@ -746,26 +924,186 @@ export default function AcknowledgementDetailPage() {
                                 </p>
                             ) : (
                                 <ul className="mt-3 grid gap-3 sm:grid-cols-2">
-                                    {receipt.revisions.map((revision) => (
-                                        <li
-                                            key={revision.id}
-                                            className="rounded-xl border border-white/10 bg-black/20 p-4"
-                                        >
-                                            <p className="font-mono text-amber-100">
-                                                Revision{" "}
-                                                {revision.revisionNumber}
-                                            </p>
-                                            <p className="mt-1 text-sm text-slate-200">
-                                                {revision.changeReason}
-                                            </p>
-                                            <p className="mt-2 text-xs text-slate-500">
-                                                {revision.changedByRole} ·{" "}
-                                                {formatReceiptDateTime(
-                                                    revision.createdAt,
-                                                )}
-                                            </p>
-                                        </li>
-                                    ))}
+                                    {receipt.revisions.map((revision) => {
+                                        const snapshot =
+                                            revision.snapshot.receipt;
+                                        return (
+                                            <li key={revision.id}>
+                                                <details className="group rounded-xl border border-white/10 bg-black/20">
+                                                    <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 p-4 focus:outline-none focus:ring-2 focus:ring-amber-300">
+                                                        <span>
+                                                            <span className="block font-mono text-amber-100">
+                                                                Revision{" "}
+                                                                {
+                                                                    revision.revisionNumber
+                                                                }
+                                                            </span>
+                                                            <span className="mt-1 block text-sm text-slate-200">
+                                                                {
+                                                                    revision.changeReason
+                                                                }
+                                                            </span>
+                                                        </span>
+                                                        <span className="text-xs text-slate-500 group-open:hidden">
+                                                            Expand
+                                                        </span>
+                                                        <span className="hidden text-xs text-slate-500 group-open:inline">
+                                                            Collapse
+                                                        </span>
+                                                    </summary>
+                                                    <div className="space-y-4 border-t border-white/10 p-4">
+                                                        <div className="flex flex-wrap items-center justify-between gap-2">
+                                                            <ReceiptStatusBadge
+                                                                status={
+                                                                    snapshot.status
+                                                                }
+                                                            />
+                                                            <span className="text-xs text-slate-500">
+                                                                {
+                                                                    revision.changedByRole
+                                                                }{" "}
+                                                                ·{" "}
+                                                                {formatReceiptDateTime(
+                                                                    revision.createdAt,
+                                                                )}
+                                                            </span>
+                                                        </div>
+                                                        <dl className="grid gap-3 text-sm sm:grid-cols-2">
+                                                            <DetailTerm label="Payer">
+                                                                {
+                                                                    snapshot.payerName
+                                                                }
+                                                            </DetailTerm>
+                                                            <DetailTerm label="Receiver">
+                                                                {
+                                                                    snapshot.receiverName
+                                                                }
+                                                            </DetailTerm>
+                                                            <DetailTerm label="Amount">
+                                                                {formatReceiptAmount(
+                                                                    snapshot.amount,
+                                                                    snapshot.currency,
+                                                                )}
+                                                            </DetailTerm>
+                                                            <DetailTerm label="Payment date">
+                                                                {formatReceiptDate(
+                                                                    snapshot.paymentDate,
+                                                                )}
+                                                            </DetailTerm>
+                                                            <DetailTerm label="Payer confirmation">
+                                                                {snapshot.payerConfirmedAt ? (
+                                                                    <time
+                                                                        dateTime={
+                                                                            snapshot.payerConfirmedAt
+                                                                        }
+                                                                    >
+                                                                        {formatReceiptDateTime(
+                                                                            snapshot.payerConfirmedAt,
+                                                                        )}
+                                                                    </time>
+                                                                ) : (
+                                                                    "Pending"
+                                                                )}
+                                                            </DetailTerm>
+                                                            <DetailTerm label="Receiver confirmation">
+                                                                {snapshot.receiverConfirmedAt ? (
+                                                                    <time
+                                                                        dateTime={
+                                                                            snapshot.receiverConfirmedAt
+                                                                        }
+                                                                    >
+                                                                        {formatReceiptDateTime(
+                                                                            snapshot.receiverConfirmedAt,
+                                                                        )}
+                                                                    </time>
+                                                                ) : (
+                                                                    "Pending"
+                                                                )}
+                                                            </DetailTerm>
+                                                        </dl>
+                                                        <div>
+                                                            <h4 className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                                                                Transaction
+                                                                snapshot
+                                                            </h4>
+                                                            {revision.snapshot
+                                                                .transactions
+                                                                .length ===
+                                                            0 ? (
+                                                                <p className="mt-2 text-sm text-slate-400">
+                                                                    No
+                                                                    transaction
+                                                                    references.
+                                                                </p>
+                                                            ) : (
+                                                                <ul className="mt-2 space-y-2">
+                                                                    {revision.snapshot.transactions.map(
+                                                                        (
+                                                                            transaction,
+                                                                        ) => (
+                                                                            <li
+                                                                                key={
+                                                                                    transaction.id
+                                                                                }
+                                                                                className="flex justify-between gap-3 text-sm"
+                                                                            >
+                                                                                <span className="text-slate-200">
+                                                                                    {
+                                                                                        transaction.description
+                                                                                    }
+                                                                                </span>
+                                                                                <span className="font-mono text-amber-100">
+                                                                                    {formatReceiptAmount(
+                                                                                        transaction.amount,
+                                                                                    )}
+                                                                                </span>
+                                                                            </li>
+                                                                        ),
+                                                                    )}
+                                                                </ul>
+                                                            )}
+                                                        </div>
+                                                        <div>
+                                                            <h4 className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                                                                Proof snapshot
+                                                            </h4>
+                                                            {revision.snapshot
+                                                                .proofs
+                                                                .length ===
+                                                            0 ? (
+                                                                <p className="mt-2 text-sm text-slate-400">
+                                                                    No proof
+                                                                    metadata.
+                                                                </p>
+                                                            ) : (
+                                                                <ul className="mt-2 space-y-2">
+                                                                    {revision.snapshot.proofs.map(
+                                                                        (
+                                                                            proof,
+                                                                        ) => (
+                                                                            <li
+                                                                                key={
+                                                                                    proof.id
+                                                                                }
+                                                                                className="text-sm text-slate-200"
+                                                                            >
+                                                                                {
+                                                                                    proof.originalFilename
+                                                                                }
+                                                                                {proof.removedAt
+                                                                                    ? " — removed"
+                                                                                    : ""}
+                                                                            </li>
+                                                                        ),
+                                                                    )}
+                                                                </ul>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </details>
+                                            </li>
+                                        );
+                                    })}
                                 </ul>
                             )}
                         </div>

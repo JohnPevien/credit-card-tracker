@@ -23,11 +23,19 @@ export class ReceiptRequestError extends Error {
     }
 }
 
-async function readPayload(response: Response): Promise<unknown> {
-    try {
-        return await response.json();
-    } catch {
-        return null;
+export class ReceiptAuthExpiredError extends ReceiptRequestError {
+    constructor() {
+        super("Your receiver session expired. Sign in again.", 401);
+        this.name = "ReceiptAuthExpiredError";
+    }
+}
+
+function navigateToReceiverLogin() {
+    if (
+        typeof window !== "undefined" &&
+        window.location.pathname !== "/enter-password"
+    ) {
+        window.location.assign("/enter-password");
     }
 }
 
@@ -56,7 +64,40 @@ export async function requestJson<T>(
             ...init?.headers,
         },
     });
-    const payload = await readPayload(response);
+    const contentType =
+        response.headers.get("content-type")?.toLowerCase() ?? "";
+    const isJson = contentType.includes("application/json");
+    const isHtml = contentType.includes("text/html");
+    const isLoginDestination = response.url.includes("/enter-password");
+
+    if (response.status === 401 || isLoginDestination || isHtml) {
+        navigateToReceiverLogin();
+        throw new ReceiptAuthExpiredError();
+    }
+
+    if (response.redirected) {
+        throw new ReceiptRequestError(
+            "The API request was redirected unexpectedly.",
+            response.status,
+        );
+    }
+
+    if (!isJson) {
+        throw new ReceiptRequestError(
+            "The server returned a non-JSON response.",
+            response.status,
+        );
+    }
+
+    let payload: unknown;
+    try {
+        payload = await response.json();
+    } catch {
+        throw new ReceiptRequestError(
+            "The server returned invalid JSON.",
+            response.status,
+        );
+    }
 
     if (!response.ok) {
         throw new ReceiptRequestError(

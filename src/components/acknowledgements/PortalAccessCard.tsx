@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
     Ban,
     Check,
@@ -28,6 +28,15 @@ type PortalAccessCardProps = {
     onResult?: (result: PayerPortalCredentialResult) => void;
 };
 
+const confirmationMessages: Partial<Record<PortalAdminAction["type"], string>> =
+    {
+        "reset-pin":
+            "Reset this payer PIN? The previous PIN will stop working immediately.",
+        "rotate-link":
+            "Rotate this payer portal link? The previous link will stop working immediately.",
+        revoke: "Revoke payer portal access? The payer will be signed out.",
+    };
+
 export default function PortalAccessCard({
     portal,
     transientPin,
@@ -39,17 +48,58 @@ export default function PortalAccessCard({
     >(null);
     const [message, setMessage] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [hydratedOrigin, setHydratedOrigin] = useState<string | null>(null);
+    const mountedRef = useRef(true);
+    const pendingRef = useRef<PortalAdminAction["type"] | null>(null);
+    const requestGenerationRef = useRef(0);
 
-    const portalUrl = portal
-        ? `${typeof window === "undefined" ? "" : window.location.origin}/payer/${portal.publicId}`
-        : null;
+    const portalPath = portal ? `/payer/${portal.publicId}` : null;
+    const displayedPortalUrl =
+        portalPath && hydratedOrigin
+            ? `${hydratedOrigin}${portalPath}`
+            : portalPath;
+    const controlsDisabled = pendingAction !== null;
+
+    useEffect(() => {
+        setHydratedOrigin(window.location.origin);
+        return () => {
+            mountedRef.current = false;
+            requestGenerationRef.current += 1;
+        };
+    }, []);
+
+    useEffect(() => {
+        requestGenerationRef.current += 1;
+        pendingRef.current = null;
+        setPendingAction(null);
+        setMessage(null);
+        setError(null);
+    }, [portal?.credentialVersion, portal?.personId, portal?.publicId]);
 
     async function runAction(action: PortalAdminAction) {
+        if (pendingRef.current) {
+            return;
+        }
+
+        const confirmationMessage = confirmationMessages[action.type];
+        if (confirmationMessage && !window.confirm(confirmationMessage)) {
+            return;
+        }
+
+        pendingRef.current = action.type;
+        const requestGeneration = ++requestGenerationRef.current;
         setPendingAction(action.type);
         setError(null);
         setMessage(null);
+
         try {
             const result = await onAction(action);
+            if (
+                !mountedRef.current ||
+                requestGeneration !== requestGenerationRef.current
+            ) {
+                return;
+            }
             onResult?.(result);
             setMessage(
                 action.type === "generate-pin"
@@ -63,13 +113,25 @@ export default function PortalAccessCard({
                           : "Portal access reactivated.",
             );
         } catch (caught) {
+            if (
+                !mountedRef.current ||
+                requestGeneration !== requestGenerationRef.current
+            ) {
+                return;
+            }
             setError(
                 caught instanceof Error
                     ? caught.message
                     : "Portal access could not be changed.",
             );
         } finally {
-            setPendingAction(null);
+            if (
+                mountedRef.current &&
+                requestGeneration === requestGenerationRef.current
+            ) {
+                pendingRef.current = null;
+                setPendingAction(null);
+            }
         }
     }
 
@@ -83,6 +145,15 @@ export default function PortalAccessCard({
                 `Could not copy ${label.toLowerCase()}. Select it manually.`,
             );
         }
+    }
+
+    function copyPortalLink() {
+        if (!portalPath) {
+            setError("The portal link is not available.");
+            return;
+        }
+        const fullUrl = new URL(portalPath, window.location.origin).toString();
+        void copyValue(fullUrl, "Portal link");
     }
 
     return (
@@ -133,8 +204,9 @@ export default function PortalAccessCard({
                     <Button
                         type="button"
                         color="info"
-                        className="mt-3"
+                        className="mt-3 min-h-11"
                         loading={pendingAction === "generate-pin"}
+                        disabled={controlsDisabled}
                         onClick={() => runAction({ type: "generate-pin" })}
                     >
                         Generate portal and PIN
@@ -154,16 +226,14 @@ export default function PortalAccessCard({
                                 id="payer-portal-url"
                                 className="input input-bordered min-w-0 flex-1 bg-black/30 font-mono text-sm"
                                 readOnly
-                                value={portalUrl ?? ""}
+                                value={displayedPortalUrl ?? ""}
                             />
                             <Button
                                 type="button"
                                 variant="outline"
-                                onClick={() =>
-                                    portalUrl
-                                        ? copyValue(portalUrl, "Portal link")
-                                        : undefined
-                                }
+                                className="min-h-11"
+                                disabled={controlsDisabled}
+                                onClick={copyPortalLink}
                             >
                                 <Copy className="h-4 w-4" aria-hidden="true" />
                                 Copy link
@@ -188,8 +258,10 @@ export default function PortalAccessCard({
                                     color="warning"
                                     variant="outline"
                                     size="sm"
+                                    className="min-h-11"
+                                    disabled={controlsDisabled}
                                     onClick={() =>
-                                        copyValue(transientPin, "PIN")
+                                        void copyValue(transientPin, "PIN")
                                     }
                                 >
                                     <Copy
@@ -251,7 +323,9 @@ export default function PortalAccessCard({
                             type="button"
                             size="sm"
                             variant="outline"
+                            className="min-h-11"
                             loading={pendingAction === "reset-pin"}
+                            disabled={controlsDisabled}
                             onClick={() => runAction({ type: "reset-pin" })}
                         >
                             <RefreshCw className="h-4 w-4" aria-hidden="true" />
@@ -261,7 +335,9 @@ export default function PortalAccessCard({
                             type="button"
                             size="sm"
                             variant="outline"
+                            className="min-h-11"
                             loading={pendingAction === "rotate-link"}
+                            disabled={controlsDisabled}
                             onClick={() => runAction({ type: "rotate-link" })}
                         >
                             <RotateCw className="h-4 w-4" aria-hidden="true" />
@@ -272,10 +348,12 @@ export default function PortalAccessCard({
                             size="sm"
                             color={portal.revokedAt ? "success" : "error"}
                             variant="outline"
+                            className="min-h-11"
                             loading={
                                 pendingAction ===
                                 (portal.revokedAt ? "reactivate" : "revoke")
                             }
+                            disabled={controlsDisabled}
                             onClick={() =>
                                 runAction({
                                     type: portal.revokedAt

@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
     CalendarDays,
@@ -68,7 +68,15 @@ function ConfirmationMark({
                     aria-hidden="true"
                 />
             )}
-            {label}: {date ? "confirmed" : "pending"}
+            {label}:{" "}
+            {date ? (
+                <>
+                    <span className="sr-only">confirmed </span>
+                    <time dateTime={date}>{formatReceiptDateTime(date)}</time>
+                </>
+            ) : (
+                "pending"
+            )}
         </span>
     );
 }
@@ -82,7 +90,7 @@ function ReceiptActions({
         <div className="flex flex-wrap gap-2">
             <Link
                 href={`/acknowledgements/${receipt.id}`}
-                className="btn btn-outline btn-sm focus:outline-none focus:ring-2 focus:ring-amber-300"
+                className="btn btn-outline btn-sm min-h-11 focus:outline-none focus:ring-2 focus:ring-amber-300"
             >
                 <Eye className="h-4 w-4" aria-hidden="true" />
                 View
@@ -90,7 +98,7 @@ function ReceiptActions({
             {!receipt.voidedAt ? (
                 <Link
                     href={`/acknowledgements/${receipt.id}?edit=1`}
-                    className="btn btn-ghost btn-sm focus:outline-none focus:ring-2 focus:ring-amber-300"
+                    className="btn btn-ghost btn-sm min-h-11 focus:outline-none focus:ring-2 focus:ring-amber-300"
                 >
                     <Pencil className="h-4 w-4" aria-hidden="true" />
                     Edit
@@ -168,51 +176,104 @@ export default function AcknowledgementsPage() {
     });
     const [isLoading, setIsLoading] = useState(true);
     const [isFiltering, setIsFiltering] = useState(false);
+    const [isReady, setIsReady] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [retryKey, setRetryKey] = useState(0);
+    const requestGenerationRef = useRef(0);
+    const activeControllerRef = useRef<AbortController | null>(null);
 
-    useEffect(() => {
-        const controller = new AbortController();
+    const loadReceipts = useCallback(
+        async ({
+            search = "",
+            includeMeta = false,
+        }: {
+            search?: string;
+            includeMeta?: boolean;
+        }) => {
+            activeControllerRef.current?.abort();
+            const controller = new AbortController();
+            activeControllerRef.current = controller;
+            const requestGeneration = ++requestGenerationRef.current;
 
-        async function loadDashboard() {
-            setIsLoading(true);
+            if (includeMeta) {
+                setIsLoading(true);
+                setIsReady(false);
+            } else {
+                setIsFiltering(true);
+            }
             setError(null);
+
             try {
-                const [receiptPayload, metaPayload] = await Promise.all([
-                    requestJson<ReceiptListPayload>("/api/acknowledgements", {
-                        signal: controller.signal,
-                    }),
-                    requestJson<ReceiptFormMeta>("/api/acknowledgements/meta", {
-                        signal: controller.signal,
-                    }),
-                ]);
-                setReceipts(receiptPayload.receipts);
-                setMeta(metaPayload);
+                if (includeMeta) {
+                    const [receiptPayload, metaPayload] = await Promise.all([
+                        requestJson<ReceiptListPayload>(
+                            `/api/acknowledgements${search}`,
+                            { signal: controller.signal },
+                        ),
+                        requestJson<ReceiptFormMeta>(
+                            "/api/acknowledgements/meta",
+                            { signal: controller.signal },
+                        ),
+                    ]);
+                    if (
+                        controller.signal.aborted ||
+                        requestGeneration !== requestGenerationRef.current
+                    ) {
+                        return;
+                    }
+                    setReceipts(receiptPayload.receipts);
+                    setMeta(metaPayload);
+                    setIsReady(true);
+                } else {
+                    const payload = await requestJson<ReceiptListPayload>(
+                        `/api/acknowledgements${search}`,
+                        { signal: controller.signal },
+                    );
+                    if (
+                        controller.signal.aborted ||
+                        requestGeneration !== requestGenerationRef.current
+                    ) {
+                        return;
+                    }
+                    setReceipts(payload.receipts);
+                }
             } catch (caught) {
                 if (
-                    caught instanceof DOMException &&
-                    caught.name === "AbortError"
+                    controller.signal.aborted ||
+                    requestGeneration !== requestGenerationRef.current
                 ) {
                     return;
                 }
                 setError(
                     caught instanceof ReceiptRequestError
                         ? caught.message
-                        : "The receipt ledger could not be loaded.",
+                        : includeMeta
+                          ? "The receipt ledger could not be loaded."
+                          : "Filters could not be applied.",
                 );
             } finally {
-                if (!controller.signal.aborted) {
+                if (requestGeneration === requestGenerationRef.current) {
                     setIsLoading(false);
+                    setIsFiltering(false);
                 }
             }
-        }
+        },
+        [],
+    );
 
-        void loadDashboard();
-        return () => controller.abort();
-    }, [retryKey]);
+    useEffect(() => {
+        void loadReceipts({ includeMeta: true });
+        return () => {
+            activeControllerRef.current?.abort();
+            requestGenerationRef.current += 1;
+        };
+    }, [loadReceipts, retryKey]);
 
     async function applyFilters(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
+        if (!isReady || isFiltering) {
+            return;
+        }
         const search = new URLSearchParams();
         const entries = Object.entries(filters) as Array<
             [keyof ReceiptFilters, string]
@@ -223,48 +284,25 @@ export default function AcknowledgementsPage() {
             }
         }
 
-        setIsFiltering(true);
-        setError(null);
-        try {
-            const payload = await requestJson<ReceiptListPayload>(
-                `/api/acknowledgements${search.size ? `?${search}` : ""}`,
-            );
-            setReceipts(payload.receipts);
-        } catch (caught) {
-            setError(
-                caught instanceof ReceiptRequestError
-                    ? caught.message
-                    : "Filters could not be applied.",
-            );
-        } finally {
-            setIsFiltering(false);
-        }
+        await loadReceipts({
+            search: search.size ? `?${search}` : "",
+        });
     }
 
     async function clearFilters() {
+        if (!isReady || isFiltering) {
+            return;
+        }
         setFilters({
             payerPersonId: "",
             status: "",
             paymentDateFrom: "",
             paymentDateTo: "",
         });
-        setIsFiltering(true);
-        setError(null);
-        try {
-            const payload = await requestJson<ReceiptListPayload>(
-                "/api/acknowledgements",
-            );
-            setReceipts(payload.receipts);
-        } catch (caught) {
-            setError(
-                caught instanceof Error
-                    ? caught.message
-                    : "The receipt ledger could not be refreshed.",
-            );
-        } finally {
-            setIsFiltering(false);
-        }
+        await loadReceipts({});
     }
+
+    const filtersDisabled = !isReady || isLoading || isFiltering;
 
     return (
         <div className="receipt-shell">
@@ -281,7 +319,7 @@ export default function AcknowledgementsPage() {
                 </div>
                 <Link
                     href="/acknowledgements/new"
-                    className="btn btn-warning focus:outline-none focus:ring-2 focus:ring-amber-200"
+                    className="btn btn-warning min-h-11 focus:outline-none focus:ring-2 focus:ring-amber-200"
                 >
                     <Plus className="h-4 w-4" aria-hidden="true" />
                     Create receipt
@@ -300,6 +338,7 @@ export default function AcknowledgementsPage() {
                     <select
                         className="select select-bordered w-full bg-black/30 focus:outline-none focus:ring-2 focus:ring-amber-300"
                         value={filters.payerPersonId}
+                        disabled={filtersDisabled}
                         onChange={(event) =>
                             setFilters((current) => ({
                                 ...current,
@@ -322,6 +361,7 @@ export default function AcknowledgementsPage() {
                     <select
                         className="select select-bordered w-full bg-black/30 focus:outline-none focus:ring-2 focus:ring-amber-300"
                         value={filters.status}
+                        disabled={filtersDisabled}
                         onChange={(event) =>
                             setFilters((current) => ({
                                 ...current,
@@ -346,6 +386,7 @@ export default function AcknowledgementsPage() {
                         type="date"
                         className="input input-bordered w-full bg-black/30 focus:outline-none focus:ring-2 focus:ring-amber-300"
                         value={filters.paymentDateFrom}
+                        disabled={filtersDisabled}
                         onChange={(event) =>
                             setFilters((current) => ({
                                 ...current,
@@ -362,6 +403,7 @@ export default function AcknowledgementsPage() {
                         type="date"
                         className="input input-bordered w-full bg-black/30 focus:outline-none focus:ring-2 focus:ring-amber-300"
                         value={filters.paymentDateTo}
+                        disabled={filtersDisabled}
                         onChange={(event) =>
                             setFilters((current) => ({
                                 ...current,
@@ -374,7 +416,7 @@ export default function AcknowledgementsPage() {
                     <button
                         type="submit"
                         className="btn btn-warning flex-1"
-                        disabled={isFiltering}
+                        disabled={filtersDisabled}
                     >
                         {isFiltering ? (
                             <span className="loading loading-spinner loading-sm" />
@@ -383,10 +425,10 @@ export default function AcknowledgementsPage() {
                     </button>
                     <button
                         type="button"
-                        className="btn btn-ghost btn-square"
+                        className="btn btn-ghost btn-square min-h-11 min-w-11"
                         onClick={clearFilters}
                         aria-label="Clear receipt filters"
-                        disabled={isFiltering}
+                        disabled={filtersDisabled}
                     >
                         <RotateCcw className="h-4 w-4" aria-hidden="true" />
                     </button>
@@ -401,7 +443,7 @@ export default function AcknowledgementsPage() {
                     <span>{error}</span>
                     <button
                         type="button"
-                        className="btn btn-outline btn-sm"
+                        className="btn btn-outline btn-sm min-h-11"
                         onClick={() => setRetryKey((key) => key + 1)}
                     >
                         Retry

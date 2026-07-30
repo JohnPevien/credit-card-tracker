@@ -46,6 +46,10 @@ describe("ReceiptForm", () => {
         const onSubmit = vi.fn();
         const fetchMock = vi.fn().mockResolvedValue({
             ok: true,
+            status: 200,
+            redirected: false,
+            url: "http://localhost/api/acknowledgements/meta",
+            headers: new Headers({ "Content-Type": "application/json" }),
             json: async () => ({
                 persons: [{ id: payerId, name: "Alex Rivera" }],
                 transactions: [
@@ -110,6 +114,10 @@ describe("ReceiptForm", () => {
             "fetch",
             vi.fn().mockResolvedValue({
                 ok: true,
+                status: 200,
+                redirected: false,
+                url: "http://localhost/api/acknowledgements/meta",
+                headers: new Headers({ "Content-Type": "application/json" }),
                 json: async () => ({
                     persons: [{ id: payerId, name: "Alex Rivera" }],
                     transactions: [],
