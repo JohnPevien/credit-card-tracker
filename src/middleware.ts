@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
     SITE_ACCESS_COOKIE_NAME,
-    SITE_ACCESS_COOKIE_VALUE,
     PUBLIC_PATHS,
 } from "@/lib/constants/constants";
+import { verifyReceiverSessionToken } from "@/lib/auth/receiverSession";
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
     // Skip auth in development mode
     if (process.env.NODE_ENV === "development") {
         return NextResponse.next();
@@ -34,7 +34,10 @@ export function middleware(request: NextRequest) {
     const accessCookie = request.cookies.get(SITE_ACCESS_COOKIE_NAME);
 
     // Redirect to password entry page if not authenticated
-    if (!accessCookie || accessCookie.value !== SITE_ACCESS_COOKIE_VALUE) {
+    if (
+        !accessCookie ||
+        !(await verifyReceiverSessionToken(accessCookie.value))
+    ) {
         const url = new URL("/enter-password", request.url);
         return NextResponse.redirect(url);
     }

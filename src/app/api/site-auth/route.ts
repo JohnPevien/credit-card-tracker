@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
     SITE_ACCESS_COOKIE_NAME,
-    SITE_ACCESS_COOKIE_VALUE,
     SITE_ACCESS_COOKIE_MAX_AGE,
     isCookieSecure,
 } from "@/lib/constants/constants";
+import { createReceiverSessionToken } from "@/lib/auth/receiverSession";
 
 export async function POST(request: NextRequest) {
     try {
@@ -16,6 +16,16 @@ export async function POST(request: NextRequest) {
                 {
                     message:
                         "Server misconfiguration: Site password not configured",
+                },
+                { status: 500 },
+            );
+        }
+
+        if (!process.env.SITE_SESSION_SECRET) {
+            return NextResponse.json(
+                {
+                    message:
+                        "Server misconfiguration: Site session secret not configured",
                 },
                 { status: 500 },
             );
@@ -42,10 +52,11 @@ export async function POST(request: NextRequest) {
             { message: "Authentication successful" },
             { status: 200 },
         );
+        const token = await createReceiverSessionToken();
         // Set authentication cookie directly on the response
         response.cookies.set({
             name: SITE_ACCESS_COOKIE_NAME,
-            value: SITE_ACCESS_COOKIE_VALUE,
+            value: token,
             maxAge: SITE_ACCESS_COOKIE_MAX_AGE,
             httpOnly: true,
             secure: isCookieSecure(),
