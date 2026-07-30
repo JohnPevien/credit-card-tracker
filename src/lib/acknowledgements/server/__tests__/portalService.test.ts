@@ -4,6 +4,7 @@ import {
     PortalConflictError,
     PortalNotFoundError,
     createPortalService,
+    derivePortalScopeHash,
 } from "../portalService";
 
 const PUBLIC_ID = "00000000-0000-4000-8000-000000000040";
@@ -107,6 +108,59 @@ class FakeClient {
     }
 }
 
+class ScopeBucketClient {
+    private readonly counts = new Map<string, number>();
+
+    constructor(private readonly knownPublicIds = new Set<string>()) {}
+
+    from(): never {
+        throw new Error("Scope bucket test does not use table queries");
+    }
+
+    async rpc(name: string, args: Record<string, unknown>) {
+        if (name === "ack_finalize_payer_portal_attempt") {
+            return { data: null, error: null };
+        }
+        if (name !== "ack_reserve_payer_portal_attempt") {
+            throw new Error(`Unexpected RPC ${name}`);
+        }
+
+        const key = `${String(args.p_portal_scope_hash)}:${String(
+            args.p_network_hash,
+        )}`;
+        const count = this.counts.get(key) ?? 0;
+        if (count >= 5) {
+            return {
+                data: {
+                    allowed: false,
+                    retry_after_seconds: 30,
+                    portal: null,
+                },
+                error: null,
+            };
+        }
+        this.counts.set(key, count + 1);
+
+        const publicId = String(args.p_public_id);
+        return {
+            data: {
+                allowed: true,
+                reservation_id: String(args.p_reservation_id),
+                portal: this.knownPublicIds.has(publicId)
+                    ? {
+                          person_id: PERSON_ID,
+                          public_id: publicId,
+                          credential_version: 1,
+                          revoked_at: null,
+                          pin_hash: "scrypt$salt$hash",
+                      }
+                    : null,
+            },
+            error: null,
+        };
+    }
+}
+
 const receiptRow = {
     id: RECEIPT_ID,
     receipt_number: "AR-2026-000001",
@@ -179,7 +233,7 @@ describe("payer portal unlock throttling", () => {
 
         expect(result).toEqual({ kind: "invalid" });
         expect(verifyPin).toHaveBeenCalledWith("123456", "scrypt$salt$hash");
-        expect(client.rpcCalls).toHaveLength(1);
+        expect(client.rpcCalls).toHaveLength(2);
         expect(client.rpcCalls[0]).toMatchObject({
             name: "ack_reserve_payer_portal_attempt",
             args: {
@@ -188,8 +242,19 @@ describe("payer portal unlock throttling", () => {
             },
         });
         const networkHash = client.rpcCalls[0].args.p_network_hash;
+        const portalScopeHash = client.rpcCalls[0].args.p_portal_scope_hash;
         expect(networkHash).toMatch(/^[a-f0-9]{64}$/);
         expect(networkHash).not.toBe("203.0.113.10");
+        expect(portalScopeHash).toMatch(/^[a-f0-9]{64}$/);
+        expect(portalScopeHash).toBe(derivePortalScopeHash(PUBLIC_ID, SECRET));
+        expect(client.rpcCalls[1]).toEqual({
+            name: "ack_finalize_payer_portal_attempt",
+            args: {
+                p_reservation_id: RESERVATION_ID,
+                p_portal_scope_hash: portalScopeHash,
+                p_network_hash: networkHash,
+            },
+        });
     });
 
     it("uses comparable PIN work for an unknown portal and returns the same generic result", async () => {
@@ -213,7 +278,10 @@ describe("payer portal unlock throttling", () => {
         ).resolves.toEqual({ kind: "invalid" });
         expect(verifyPin).toHaveBeenCalledOnce();
         expect(verifyPin.mock.calls[0][1]).toMatch(/^scrypt\$/);
-        expect(client.rpcCalls).toHaveLength(1);
+        expect(client.rpcCalls.map(({ name }) => name)).toEqual([
+            "ack_reserve_payer_portal_attempt",
+            "ack_finalize_payer_portal_attempt",
+        ]);
     });
 
     it("returns a bounded retry after five reserved failures without doing scrypt work", async () => {
@@ -287,6 +355,8 @@ describe("payer portal unlock throttling", () => {
             p_reservation_id: RESERVATION_ID,
             p_public_id: PUBLIC_ID,
             p_credential_version: 4,
+            p_portal_scope_hash: client.rpcCalls[0].args.p_portal_scope_hash,
+            p_network_hash: client.rpcCalls[0].args.p_network_hash,
         });
     });
 
@@ -313,7 +383,69 @@ describe("payer portal unlock throttling", () => {
                 vi.fn(async () => true),
             ).unlockPortal(PUBLIC_ID, "123456", null),
         ).resolves.toEqual({ kind: "invalid" });
-        expect(client.rpcCalls).toHaveLength(1);
+        expect(client.rpcCalls.map(({ name }) => name)).toEqual([
+            "ack_reserve_payer_portal_attempt",
+            "ack_finalize_payer_portal_attempt",
+        ]);
+    });
+
+    it("isolates random unknown candidates and applies the same per-candidate window whether the target exists or not", async () => {
+        const randomUnknownIds = [
+            "00000000-0000-4000-8000-000000000041",
+            "00000000-0000-4000-8000-000000000042",
+            "00000000-0000-4000-8000-000000000043",
+            "00000000-0000-4000-8000-000000000044",
+            "00000000-0000-4000-8000-000000000045",
+        ];
+        const primedClient = new ScopeBucketClient(new Set([PUBLIC_ID]));
+        const primedService = createPortalService(primedClient, {
+            verifyPin: rejectPin,
+            sessionSecret: SECRET,
+            createReservationId: () => RESERVATION_ID,
+        });
+
+        for (const publicId of randomUnknownIds) {
+            await primedService.unlockPortal(publicId, "123456", null);
+        }
+        await expect(
+            primedService.unlockPortal(PUBLIC_ID, "123456", null),
+        ).resolves.toEqual({ kind: "invalid" });
+
+        const runTargetWindow = async (known: boolean) => {
+            const client = new ScopeBucketClient(
+                known ? new Set([PUBLIC_ID]) : new Set(),
+            );
+            const service = createPortalService(client, {
+                verifyPin: rejectPin,
+                sessionSecret: SECRET,
+                createReservationId: () => RESERVATION_ID,
+            });
+            const outcomes = [];
+            for (let attempt = 0; attempt < 6; attempt += 1) {
+                outcomes.push(
+                    (await service.unlockPortal(PUBLIC_ID, "123456", null))
+                        .kind,
+                );
+            }
+            return outcomes;
+        };
+
+        expect(await runTargetWindow(true)).toEqual([
+            "invalid",
+            "invalid",
+            "invalid",
+            "invalid",
+            "invalid",
+            "rate_limited",
+        ]);
+        expect(await runTargetWindow(false)).toEqual([
+            "invalid",
+            "invalid",
+            "invalid",
+            "invalid",
+            "invalid",
+            "rate_limited",
+        ]);
     });
 });
 
@@ -449,19 +581,9 @@ describe("payer-scoped published receipts", () => {
         }
     });
 
-    it("checks ownership, publication, and void state before confirming as payer", async () => {
+    it("passes the authorized person into one payer-specific atomic confirmation RPC", async () => {
         const client = new FakeClient();
-        client.queueTable("acknowledgement_receipts", {
-            data: {
-                id: RECEIPT_ID,
-                revision_number: 3,
-                payer_person_id: PERSON_ID,
-                published_at: "2026-07-30T01:00:00.000Z",
-                voided_at: null,
-            },
-            error: null,
-        });
-        client.queueRpc("ack_confirm_receipt", {
+        client.queueRpc("ack_confirm_payer_receipt", {
             data: { id: RECEIPT_ID },
             error: null,
         });
@@ -484,24 +606,15 @@ describe("payer-scoped published receipts", () => {
             3,
         );
 
-        expect(
-            client.queries.get("acknowledgement_receipts")?.[0].operations,
-        ).toEqual(
-            expect.arrayContaining([
-                { kind: "eq", args: ["id", RECEIPT_ID] },
-                { kind: "eq", args: ["payer_person_id", PERSON_ID] },
-                { kind: "not", args: ["published_at", "is", null] },
-                { kind: "is", args: ["voided_at", null] },
-            ]),
-        );
         expect(client.rpcCalls[0]).toEqual({
-            name: "ack_confirm_receipt",
+            name: "ack_confirm_payer_receipt",
             args: {
                 p_receipt_id: RECEIPT_ID,
                 p_expected_revision: 3,
-                p_role: "payer",
+                p_authorized_person_id: PERSON_ID,
             },
         });
+        expect(client.fromCalls).not.toContain("acknowledgement_receipts");
     });
 
     it.each([
@@ -511,17 +624,7 @@ describe("payer-scoped published receipts", () => {
         "keeps database conflict and not-found semantics",
         async (error, Type) => {
             const client = new FakeClient();
-            client.queueTable("acknowledgement_receipts", {
-                data: {
-                    id: RECEIPT_ID,
-                    revision_number: 3,
-                    payer_person_id: PERSON_ID,
-                    published_at: "2026-07-30T01:00:00.000Z",
-                    voided_at: null,
-                },
-                error: null,
-            });
-            client.queueRpc("ack_confirm_receipt", {
+            client.queueRpc("ack_confirm_payer_receipt", {
                 data: null,
                 error,
             });

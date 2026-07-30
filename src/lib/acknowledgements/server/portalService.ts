@@ -237,6 +237,15 @@ export function derivePortalNetworkHash(
         .digest("hex");
 }
 
+export function derivePortalScopeHash(
+    publicId: string,
+    secret: string,
+): string {
+    return createHmac("sha256", secret)
+        .update(`payer-portal-scope:v1:${publicId.toLowerCase()}`)
+        .digest("hex");
+}
+
 const boundedRetryAfter = (value: unknown) => {
     const seconds = Number(value);
     if (!Number.isFinite(seconds)) {
@@ -267,14 +276,17 @@ export function createPortalService(
         }
 
         const reservationId = createReservationId();
+        const portalScopeHash = derivePortalScopeHash(publicId, sessionSecret);
+        const networkHash = derivePortalNetworkHash(
+            requestAddress,
+            sessionSecret,
+        );
         const { data, error } = await client.rpc(
             "ack_reserve_payer_portal_attempt",
             {
                 p_public_id: publicId,
-                p_network_hash: derivePortalNetworkHash(
-                    requestAddress,
-                    sessionSecret,
-                ),
+                p_portal_scope_hash: portalScopeHash,
+                p_network_hash: networkHash,
                 p_reservation_id: reservationId,
             },
         );
@@ -307,6 +319,20 @@ export function createPortalService(
             !Number.isInteger(credentialVersion) ||
             credentialVersion < 1
         ) {
+            const finalizeResult = await client.rpc(
+                "ack_finalize_payer_portal_attempt",
+                {
+                    p_reservation_id: reservationId,
+                    p_portal_scope_hash: portalScopeHash,
+                    p_network_hash: networkHash,
+                },
+            );
+            if (finalizeResult.error) {
+                throwDatabaseError(
+                    finalizeResult.error,
+                    "Unable to finalize payer portal verification",
+                );
+            }
             return { kind: "invalid" };
         }
 
@@ -316,6 +342,8 @@ export function createPortalService(
                 p_reservation_id: reservationId,
                 p_public_id: publicId,
                 p_credential_version: credentialVersion,
+                p_portal_scope_hash: portalScopeHash,
+                p_network_hash: networkHash,
             },
         );
         if (completeResult.error) {
@@ -430,28 +458,10 @@ export function createPortalService(
         receiptId: string,
         expectedRevision: number,
     ): Promise<PayerPortalReceiptDetail> => {
-        const ownershipResult = await client
-            .from("acknowledgement_receipts")
-            .select("id,payer_person_id,revision_number,published_at,voided_at")
-            .eq("id", receiptId)
-            .eq("payer_person_id", authorizedPersonId)
-            .not("published_at", "is", null)
-            .is("voided_at", null)
-            .maybeSingle();
-        if (ownershipResult.error) {
-            throwDatabaseError(
-                ownershipResult.error,
-                "Unable to authorize payer confirmation",
-            );
-        }
-        if (!ownershipResult.data) {
-            throw new PortalNotFoundError("Receipt is unavailable");
-        }
-
-        const { error } = await client.rpc("ack_confirm_receipt", {
+        const { error } = await client.rpc("ack_confirm_payer_receipt", {
             p_receipt_id: receiptId,
             p_expected_revision: expectedRevision,
-            p_role: "payer",
+            p_authorized_person_id: authorizedPersonId,
         });
         if (error) {
             throwDatabaseError(error, "Unable to confirm payer receipt");
