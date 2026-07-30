@@ -6,6 +6,14 @@ export interface NavLink {
     icon: NavigationIconKey;
 }
 
+export interface NavCard {
+    id: string;
+    href: string;
+    title: string;
+    description: string;
+    icon: NavigationIconKey;
+}
+
 export const NAV_LINKS: NavLink[] = [
     {
         label: "Home",
@@ -32,13 +40,19 @@ export const NAV_LINKS: NavLink[] = [
         href: "/transactions",
         icon: "FileText",
     },
+    {
+        label: "Acknowledgements",
+        href: "/acknowledgements",
+        icon: "ReceiptText",
+    },
 ];
 
-export const NAV_CARDS = [
+export const NAV_CARDS: NavCard[] = [
     {
         id: "credit-cards",
         href: "/credit-cards",
         title: "Credit Cards",
+        icon: "CreditCard",
         description:
             "Manage your credit cards with their details, including supplementary cards",
     },
@@ -46,19 +60,30 @@ export const NAV_CARDS = [
         id: "persons",
         href: "/persons",
         title: "Persons",
+        icon: "Users",
         description: "Track who's using your credit cards",
     },
     {
         id: "purchases",
         href: "/purchases",
         title: "Purchases",
+        icon: "ShoppingBag",
         description: "Record purchases with installment options and BNPL",
     },
     {
         id: "transactions",
         href: "/transactions",
         title: "Transactions",
+        icon: "FileText",
         description: "Track all transactions including payments",
+    },
+    {
+        id: "acknowledgements",
+        href: "/acknowledgements",
+        title: "Acknowledgements",
+        icon: "ReceiptText",
+        description:
+            "Issue payment receipts and track confirmation from both parties",
     },
 ];
 

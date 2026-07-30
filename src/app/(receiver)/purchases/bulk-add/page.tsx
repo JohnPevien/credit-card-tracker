@@ -28,7 +28,9 @@ export default function BulkAddPurchasesPage() {
                 setPersons(personsData);
             } catch (err) {
                 console.error("Failed to load metadata for bulk add:", err);
-                setError("Failed to load credit cards or persons. Please try again.");
+                setError(
+                    "Failed to load credit cards or persons. Please try again.",
+                );
             } finally {
                 setIsLoading(false);
             }
@@ -36,16 +38,18 @@ export default function BulkAddPurchasesPage() {
         loadMetadata();
     }, []);
 
-    const handleSubmit = async (purchases: Array<{
-        credit_card_id: string;
-        person_id: string;
-        purchase_date: string;
-        billing_start_date: string;
-        total_amount: number;
-        description: string;
-        num_installments: number;
-        is_bnpl: boolean;
-    }>) => {
+    const handleSubmit = async (
+        purchases: Array<{
+            credit_card_id: string;
+            person_id: string;
+            purchase_date: string;
+            billing_start_date: string;
+            total_amount: number;
+            description: string;
+            num_installments: number;
+            is_bnpl: boolean;
+        }>,
+    ) => {
         try {
             await DataService.bulkCreatePurchasesWithTransactions(purchases);
             router.push("/purchases");
@@ -60,7 +64,9 @@ export default function BulkAddPurchasesPage() {
         return (
             <div className="container mx-auto p-8 text-center">
                 <LoadingSpinner />
-                <p className="mt-2 text-gray-400">Loading forms and account details...</p>
+                <p className="mt-2 text-gray-400">
+                    Loading forms and account details...
+                </p>
             </div>
         );
     }
@@ -78,7 +84,8 @@ export default function BulkAddPurchasesPage() {
                 <div>
                     <h1 className="heading-page">Bulk Add Purchases</h1>
                     <p className="text-gray-400 text-sm mt-1">
-                        Add multiple purchases to the system in a single operation.
+                        Add multiple purchases to the system in a single
+                        operation.
                     </p>
                 </div>
             </div>

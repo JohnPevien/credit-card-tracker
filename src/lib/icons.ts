@@ -5,6 +5,7 @@ import {
     Users,
     ShoppingBag,
     FileText,
+    ReceiptText,
     LucideIcon,
 } from "lucide-react";
 
@@ -13,7 +14,8 @@ export type NavigationIconKey =
     | "CreditCard"
     | "Users"
     | "ShoppingBag"
-    | "FileText";
+    | "FileText"
+    | "ReceiptText";
 
 const NAVIGATION_ICON_MAP: Record<NavigationIconKey, LucideIcon> = {
     Home,
@@ -21,6 +23,7 @@ const NAVIGATION_ICON_MAP: Record<NavigationIconKey, LucideIcon> = {
     Users,
     ShoppingBag,
     FileText,
+    ReceiptText,
 };
 
 export const DEFAULT_ICON_CLASS_NAME =
