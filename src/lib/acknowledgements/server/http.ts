@@ -17,6 +17,12 @@ const NO_STORE_HEADERS = {
     "Cache-Control": "no-store",
 };
 
+const PUBLIC_NO_STORE_HEADERS = {
+    ...NO_STORE_HEADERS,
+    "Referrer-Policy": "no-referrer",
+    "X-Robots-Tag": "noindex, nofollow",
+};
+
 export function jsonNoStore(
     body: unknown,
     init: { status?: number } = {},
@@ -29,6 +35,69 @@ export function jsonNoStore(
 
 export function unauthorizedResponse(): NextResponse {
     return jsonNoStore({ error: "Unauthorized" }, { status: 401 });
+}
+
+export function publicJsonNoStore(
+    body: unknown,
+    init: { status?: number; headers?: HeadersInit } = {},
+): NextResponse {
+    return NextResponse.json(body, {
+        status: init.status,
+        headers: {
+            ...PUBLIC_NO_STORE_HEADERS,
+            ...Object.fromEntries(new Headers(init.headers)),
+        },
+    });
+}
+
+export function publicPortalUnavailableResponse(
+    status = 401,
+    retryAfterSeconds?: number,
+): NextResponse {
+    return publicJsonNoStore(
+        { error: "Portal unavailable" },
+        {
+            status,
+            ...(retryAfterSeconds
+                ? { headers: { "Retry-After": String(retryAfterSeconds) } }
+                : {}),
+        },
+    );
+}
+
+export function publicRouteErrorResponse(error: unknown): NextResponse {
+    if (error instanceof ZodError || error instanceof SyntaxError) {
+        return publicJsonNoStore({ error: "Invalid request" }, { status: 400 });
+    }
+    if (error instanceof Error && error.name === "PortalConflictError") {
+        return publicJsonNoStore(
+            { error: "Receipt revision conflict" },
+            { status: 409 },
+        );
+    }
+    if (error instanceof Error && error.name === "PortalNotFoundError") {
+        return publicJsonNoStore(
+            { error: "Receipt unavailable" },
+            { status: 404 },
+        );
+    }
+    return publicJsonNoStore(
+        { error: "Internal server error" },
+        { status: 500 },
+    );
+}
+
+export function isSameOriginRequest(request: Request): boolean {
+    const origin = request.headers.get("origin");
+    if (!origin) {
+        return false;
+    }
+
+    try {
+        return new URL(origin).origin === new URL(request.url).origin;
+    } catch {
+        return false;
+    }
 }
 
 export function routeErrorResponse(error: unknown): NextResponse {

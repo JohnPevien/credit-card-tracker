@@ -5,30 +5,57 @@ import {
 } from "@/lib/constants/constants";
 import { verifyReceiverSessionToken } from "@/lib/auth/receiverSession";
 
+const PAYER_PAGE_PATTERN = /^\/payer\/[^/]+\/?$/;
+const PAYER_API_PATTERN =
+    /^\/api\/public\/payer-portals\/[^/]+\/(?:unlock|lock|receipts(?:\/[^/]+(?:\/confirm)?)?)\/?$/;
+
+export function isPublicRequestPath(pathname: string): boolean {
+    return (
+        PUBLIC_PATHS.some(
+            (path) => pathname === path || pathname === `${path}/`,
+        ) ||
+        PAYER_PAGE_PATTERN.test(pathname) ||
+        PAYER_API_PATTERN.test(pathname)
+    );
+}
+
+const applyPayerPublicHeaders = (response: NextResponse) => {
+    response.headers.set("Cache-Control", "no-store");
+    response.headers.set("Referrer-Policy", "no-referrer");
+    response.headers.set("X-Robots-Tag", "noindex, nofollow");
+    return response;
+};
+
 export async function middleware(request: NextRequest) {
+    const { pathname } = request.nextUrl;
+    const isPayerPublicPath =
+        PAYER_PAGE_PATTERN.test(pathname) || PAYER_API_PATTERN.test(pathname);
+    const nextResponse = () => {
+        const response = NextResponse.next();
+        return isPayerPublicPath ? applyPayerPublicHeaders(response) : response;
+    };
+
     // Skip auth in development mode
     if (process.env.NODE_ENV === "development") {
-        return NextResponse.next();
+        return nextResponse();
     }
 
     // Skip middleware if SITE_PASSWORD is not set
     const sitePassword = process.env.SITE_PASSWORD;
     if (!sitePassword || sitePassword === "") {
-        return NextResponse.next();
+        return nextResponse();
     }
 
-    const { pathname } = request.nextUrl;
-
     // Check if path is public or static asset
-    const isPublicPath = PUBLIC_PATHS.some((path) => pathname.startsWith(path));
+    const isPublicPath = isPublicRequestPath(pathname);
     const isStaticAsset =
         pathname.startsWith("/_next/") ||
-        pathname.startsWith("/favicon.ico") ||
+        pathname === "/favicon.ico" ||
         pathname.startsWith("/images/");
 
     // Allow access to public paths and static assets
     if (isPublicPath || isStaticAsset) {
-        return NextResponse.next();
+        return nextResponse();
     }
     // Check for authentication cookie
     const accessCookie = request.cookies.get(SITE_ACCESS_COOKIE_NAME);
@@ -46,16 +73,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
 }
 
-// Define which paths the middleware should be executed on
+// Run exact public-path decisions inside middleware so prefix lookalikes
+// cannot bypass the receiver gate at matcher level.
 export const config = {
-    matcher: [
-        /*
-         * Match all request paths except:
-         * 1. /_next (Next.js internals)
-         * 2. /api/site-auth (API endpoint for authentication)
-         * 3. /enter-password (Password entry page)
-         * 4. /favicon.ico, /images (Static files)
-         */
-        "/((?!_next|favicon.ico|images|api/site-auth|enter-password).*)",
-    ],
+    matcher: ["/((?!_next/static|_next/image).*)"],
 };

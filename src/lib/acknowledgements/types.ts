@@ -143,6 +143,38 @@ export interface PayerPortalCredentialResult {
     pin: string | null;
 }
 
+export interface PayerPortalReceipt {
+    id: string;
+    receiptNumber: string;
+    payerName: string;
+    receiverName: string;
+    amount: number;
+    currency: string;
+    paymentDate: string;
+    notes: string | null;
+    revisionNumber: number;
+    publishedAt: string;
+    payerConfirmedAt: string | null;
+    receiverConfirmedAt: string | null;
+    completedAt: string | null;
+    isCompleted: boolean;
+    voidedAt: string | null;
+    voidReason: string | null;
+    status: Exclude<ReceiptStatus, "draft">;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface PayerPortalReceiptSummary extends PayerPortalReceipt {
+    transactionCount: number;
+    proofCount: number;
+}
+
+export interface PayerPortalReceiptDetail extends PayerPortalReceipt {
+    transactions: ReceiptTransactionReference[];
+    proofs: ReceiptProof[];
+}
+
 export interface ReceiverReceiptActionResult {
     receipt: AcknowledgementReceiptDetail;
     portalCredential: PayerPortalCredentialResult | null;
