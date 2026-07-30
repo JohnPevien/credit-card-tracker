@@ -177,8 +177,19 @@ describe("AcknowledgementDetailPage", () => {
                     snapshot: {
                         receipt: {
                             ...baseReceipt,
+                            receiptNumber: "AR-HISTORY-001",
                             receiverName: "Old Receiver",
+                            notes: "Historical settlement note",
                             revisionNumber: 1,
+                            status: "voided" as const,
+                            publishedAt: "2026-07-29T00:01:00.000Z",
+                            payerConfirmedAt: "2026-07-29T00:02:00.000Z",
+                            receiverConfirmedAt: "2026-07-29T00:03:00.000Z",
+                            completedAt: "2026-07-29T00:03:00.000Z",
+                            voidedAt: "2026-07-29T00:04:00.000Z",
+                            voidReason: "Duplicate acknowledgement",
+                            createdAt: "2026-07-28T00:00:00.000Z",
+                            updatedAt: "2026-07-29T00:04:00.000Z",
                         },
                         transactions: [
                             {
@@ -197,8 +208,8 @@ describe("AcknowledgementDetailPage", () => {
                                 contentType: "image/jpeg" as const,
                                 sizeBytes: 4096,
                                 uploaderRole: "payer" as const,
-                                removedAt: null,
-                                createdAt: "2026-07-29T00:00:00.000Z",
+                                removedAt: "2026-07-29T02:00:00.000Z",
+                                createdAt: "2026-07-29T01:00:00.000Z",
                             },
                         ],
                     },
@@ -247,10 +258,64 @@ describe("AcknowledgementDetailPage", () => {
 
         const revisionSummary = screen.getByText("Revision 1");
         fireEvent.click(revisionSummary);
+        const revisionDetails = revisionSummary.closest("details");
+        expect(revisionDetails).not.toBeNull();
+        const revisionView = within(revisionDetails!);
+        const receiptSnapshot = revisionView
+            .getByRole("heading", { name: "Receipt snapshot" })
+            .closest("section");
+        expect(receiptSnapshot).not.toBeNull();
+        const receiptSnapshotView = within(receiptSnapshot!);
 
-        expect(screen.getByText("Old Receiver")).toBeInTheDocument();
-        expect(screen.getByText("Historical transfer")).toBeInTheDocument();
-        expect(screen.getByText("old-proof.jpg")).toBeInTheDocument();
+        expect(
+            receiptSnapshotView.getByText("AR-HISTORY-001"),
+        ).toBeInTheDocument();
+        expect(
+            receiptSnapshotView.getByText("Historical settlement note"),
+        ).toBeInTheDocument();
+        expect(
+            receiptSnapshotView.getByText("Duplicate acknowledgement"),
+        ).toBeInTheDocument();
+        for (const label of [
+            "Published",
+            "Completed",
+            "Voided",
+            "Created",
+            "Updated",
+        ]) {
+            expect(
+                receiptSnapshotView.getByText(label, { selector: "dt" }),
+            ).toBeInTheDocument();
+        }
+
+        expect(revisionView.getByText("Old Receiver")).toBeInTheDocument();
+        expect(
+            revisionView.getByText("Historical transfer"),
+        ).toBeInTheDocument();
+        expect(revisionView.getByText("Transaction date")).toBeInTheDocument();
+        expect(revisionView.getByText("Reference created")).toBeInTheDocument();
+
+        expect(revisionView.getByText("old-proof.jpg")).toBeInTheDocument();
+        expect(revisionView.getByText("image/jpeg")).toBeInTheDocument();
+        expect(revisionView.getByText("4,096 bytes")).toBeInTheDocument();
+        const proofSnapshot = revisionView
+            .getByText("old-proof.jpg")
+            .closest("li");
+        expect(proofSnapshot).not.toBeNull();
+        const proofSnapshotView = within(proofSnapshot!);
+        expect(
+            proofSnapshotView.getByText("Uploader", { selector: "dt" })
+                .nextElementSibling,
+        ).toHaveTextContent("payer");
+        expect(
+            proofSnapshotView.getByText("Proof created", { selector: "dt" })
+                .nextElementSibling,
+        ).toHaveTextContent("Jul 29, 2026");
+        expect(
+            proofSnapshotView.getByText("Removed", { selector: "dt" })
+                .nextElementSibling,
+        ).toHaveTextContent("Jul 29, 2026");
+
         expect(screen.getByText("Duplicate evidence")).toBeInTheDocument();
         expect(
             screen.queryByText("private/raw/path.jpg"),

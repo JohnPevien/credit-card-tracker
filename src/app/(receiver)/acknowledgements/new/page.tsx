@@ -110,7 +110,7 @@ export default function NewAcknowledgementPage() {
                     {!isSubmitting ? (
                         <button
                             type="button"
-                            className="btn btn-outline btn-sm"
+                            className="btn btn-outline btn-sm min-h-11"
                             onClick={() => setRetryKey((key) => key + 1)}
                         >
                             Retry loading

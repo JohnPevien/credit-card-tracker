@@ -1,4 +1,10 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import {
+    act,
+    fireEvent,
+    render,
+    screen,
+    waitFor,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -109,6 +115,56 @@ describe("PortalAccessCard", () => {
         await deferredAction;
 
         expect(onResult).not.toHaveBeenCalled();
+    });
+
+    it("delivers an action result and re-enables controls in React StrictMode", async () => {
+        const user = userEvent.setup();
+        let resolveAction:
+            | ((value: { portal: typeof portal; pin: string | null }) => void)
+            | undefined;
+        const deferredAction = new Promise<{
+            portal: typeof portal;
+            pin: string | null;
+        }>((resolve) => {
+            resolveAction = resolve;
+        });
+        const onResult = vi.fn();
+        vi.spyOn(window, "confirm").mockReturnValue(true);
+
+        render(
+            <PortalAccessCard
+                portal={portal}
+                transientPin={null}
+                onAction={() => deferredAction}
+                onResult={onResult}
+            />,
+            { reactStrictMode: true },
+        );
+
+        await user.click(screen.getByRole("button", { name: "Reset PIN" }));
+        expect(
+            screen.getByRole("button", { name: "Rotate link" }),
+        ).toBeDisabled();
+
+        await act(async () => {
+            resolveAction?.({
+                portal: { ...portal, credentialVersion: 2 },
+                pin: "842619",
+            });
+            await deferredAction;
+        });
+
+        await waitFor(() => {
+            expect(onResult).toHaveBeenCalledOnce();
+        });
+        for (const name of [
+            "Copy link",
+            "Reset PIN",
+            "Rotate link",
+            "Revoke",
+        ]) {
+            expect(screen.getByRole("button", { name })).toBeEnabled();
+        }
     });
 
     it("gives every portal action a mobile-sized tap target", () => {

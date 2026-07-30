@@ -66,6 +66,20 @@ function DetailTerm({
     );
 }
 
+function SnapshotDateTime({
+    value,
+    emptyLabel,
+}: {
+    value: string | null;
+    emptyLabel: string;
+}) {
+    return value ? (
+        <time dateTime={value}>{formatReceiptDateTime(value)}</time>
+    ) : (
+        emptyLabel
+    );
+}
+
 const sensitiveDetailKey = /(storage|path|pin|hash|token|secret)/i;
 
 function readableEventDetails(details: Record<string, unknown>) {
@@ -952,12 +966,7 @@ export default function AcknowledgementDetailPage() {
                                                         </span>
                                                     </summary>
                                                     <div className="space-y-4 border-t border-white/10 p-4">
-                                                        <div className="flex flex-wrap items-center justify-between gap-2">
-                                                            <ReceiptStatusBadge
-                                                                status={
-                                                                    snapshot.status
-                                                                }
-                                                            />
+                                                        <div className="flex justify-end">
                                                             <span className="text-xs text-slate-500">
                                                                 {
                                                                     revision.changedByRole
@@ -968,61 +977,138 @@ export default function AcknowledgementDetailPage() {
                                                                 )}
                                                             </span>
                                                         </div>
-                                                        <dl className="grid gap-3 text-sm sm:grid-cols-2">
-                                                            <DetailTerm label="Payer">
-                                                                {
-                                                                    snapshot.payerName
-                                                                }
-                                                            </DetailTerm>
-                                                            <DetailTerm label="Receiver">
-                                                                {
-                                                                    snapshot.receiverName
-                                                                }
-                                                            </DetailTerm>
-                                                            <DetailTerm label="Amount">
-                                                                {formatReceiptAmount(
-                                                                    snapshot.amount,
-                                                                    snapshot.currency,
-                                                                )}
-                                                            </DetailTerm>
-                                                            <DetailTerm label="Payment date">
-                                                                {formatReceiptDate(
-                                                                    snapshot.paymentDate,
-                                                                )}
-                                                            </DetailTerm>
-                                                            <DetailTerm label="Payer confirmation">
-                                                                {snapshot.payerConfirmedAt ? (
+                                                        <section
+                                                            aria-labelledby={`revision-${revision.id}-receipt`}
+                                                        >
+                                                            <h4
+                                                                id={`revision-${revision.id}-receipt`}
+                                                                className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"
+                                                            >
+                                                                Receipt snapshot
+                                                            </h4>
+                                                            <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
+                                                                <DetailTerm label="Receipt number">
+                                                                    {
+                                                                        snapshot.receiptNumber
+                                                                    }
+                                                                </DetailTerm>
+                                                                <DetailTerm label="Status">
+                                                                    <ReceiptStatusBadge
+                                                                        status={
+                                                                            snapshot.status
+                                                                        }
+                                                                    />
+                                                                </DetailTerm>
+                                                                <DetailTerm label="Revision">
+                                                                    {
+                                                                        snapshot.revisionNumber
+                                                                    }
+                                                                </DetailTerm>
+                                                                <DetailTerm label="Payer">
+                                                                    {
+                                                                        snapshot.payerName
+                                                                    }
+                                                                </DetailTerm>
+                                                                <DetailTerm label="Receiver">
+                                                                    {
+                                                                        snapshot.receiverName
+                                                                    }
+                                                                </DetailTerm>
+                                                                <DetailTerm label="Amount">
+                                                                    {formatReceiptAmount(
+                                                                        snapshot.amount,
+                                                                        snapshot.currency,
+                                                                    )}
+                                                                </DetailTerm>
+                                                                <DetailTerm label="Currency">
+                                                                    {
+                                                                        snapshot.currency
+                                                                    }
+                                                                </DetailTerm>
+                                                                <DetailTerm label="Payment date">
                                                                     <time
                                                                         dateTime={
+                                                                            snapshot.paymentDate
+                                                                        }
+                                                                    >
+                                                                        {formatReceiptDate(
+                                                                            snapshot.paymentDate,
+                                                                        )}
+                                                                    </time>
+                                                                </DetailTerm>
+                                                                <DetailTerm label="Notes">
+                                                                    {snapshot.notes ||
+                                                                        "No notes"}
+                                                                </DetailTerm>
+                                                                <DetailTerm label="Published">
+                                                                    <SnapshotDateTime
+                                                                        value={
+                                                                            snapshot.publishedAt
+                                                                        }
+                                                                        emptyLabel="Not published"
+                                                                    />
+                                                                </DetailTerm>
+                                                                <DetailTerm label="Payer confirmed">
+                                                                    <SnapshotDateTime
+                                                                        value={
                                                                             snapshot.payerConfirmedAt
                                                                         }
-                                                                    >
-                                                                        {formatReceiptDateTime(
-                                                                            snapshot.payerConfirmedAt,
-                                                                        )}
-                                                                    </time>
-                                                                ) : (
-                                                                    "Pending"
-                                                                )}
-                                                            </DetailTerm>
-                                                            <DetailTerm label="Receiver confirmation">
-                                                                {snapshot.receiverConfirmedAt ? (
-                                                                    <time
-                                                                        dateTime={
+                                                                        emptyLabel="Not confirmed"
+                                                                    />
+                                                                </DetailTerm>
+                                                                <DetailTerm label="Receiver confirmed">
+                                                                    <SnapshotDateTime
+                                                                        value={
                                                                             snapshot.receiverConfirmedAt
                                                                         }
-                                                                    >
-                                                                        {formatReceiptDateTime(
-                                                                            snapshot.receiverConfirmedAt,
-                                                                        )}
-                                                                    </time>
-                                                                ) : (
-                                                                    "Pending"
-                                                                )}
-                                                            </DetailTerm>
-                                                        </dl>
-                                                        <div>
-                                                            <h4 className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                                                                        emptyLabel="Not confirmed"
+                                                                    />
+                                                                </DetailTerm>
+                                                                <DetailTerm label="Completed">
+                                                                    <SnapshotDateTime
+                                                                        value={
+                                                                            snapshot.completedAt
+                                                                        }
+                                                                        emptyLabel="Not completed"
+                                                                    />
+                                                                </DetailTerm>
+                                                                <DetailTerm label="Voided">
+                                                                    <SnapshotDateTime
+                                                                        value={
+                                                                            snapshot.voidedAt
+                                                                        }
+                                                                        emptyLabel="Not voided"
+                                                                    />
+                                                                </DetailTerm>
+                                                                <DetailTerm label="Void reason">
+                                                                    {snapshot.voidReason ||
+                                                                        "No void reason"}
+                                                                </DetailTerm>
+                                                                <DetailTerm label="Created">
+                                                                    <SnapshotDateTime
+                                                                        value={
+                                                                            snapshot.createdAt
+                                                                        }
+                                                                        emptyLabel="Unknown"
+                                                                    />
+                                                                </DetailTerm>
+                                                                <DetailTerm label="Updated">
+                                                                    <SnapshotDateTime
+                                                                        value={
+                                                                            snapshot.updatedAt
+                                                                        }
+                                                                        emptyLabel="Unknown"
+                                                                    />
+                                                                </DetailTerm>
+                                                            </dl>
+                                                        </section>
+                                                        <section
+                                                            aria-labelledby={`revision-${revision.id}-transactions`}
+                                                        >
+                                                            <h4
+                                                                id={`revision-${revision.id}-transactions`}
+                                                                className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"
+                                                            >
                                                                 Transaction
                                                                 snapshot
                                                             </h4>
@@ -1045,26 +1131,52 @@ export default function AcknowledgementDetailPage() {
                                                                                 key={
                                                                                     transaction.id
                                                                                 }
-                                                                                className="flex justify-between gap-3 text-sm"
+                                                                                className="rounded-lg border border-white/10 bg-black/20 p-3"
                                                                             >
-                                                                                <span className="text-slate-200">
-                                                                                    {
-                                                                                        transaction.description
-                                                                                    }
-                                                                                </span>
-                                                                                <span className="font-mono text-amber-100">
-                                                                                    {formatReceiptAmount(
-                                                                                        transaction.amount,
-                                                                                    )}
-                                                                                </span>
+                                                                                <dl className="grid gap-3 text-sm sm:grid-cols-2">
+                                                                                    <DetailTerm label="Description">
+                                                                                        {
+                                                                                            transaction.description
+                                                                                        }
+                                                                                    </DetailTerm>
+                                                                                    <DetailTerm label="Amount">
+                                                                                        {formatReceiptAmount(
+                                                                                            transaction.amount,
+                                                                                        )}
+                                                                                    </DetailTerm>
+                                                                                    <DetailTerm label="Transaction date">
+                                                                                        <time
+                                                                                            dateTime={
+                                                                                                transaction.transactionDate
+                                                                                            }
+                                                                                        >
+                                                                                            {formatReceiptDate(
+                                                                                                transaction.transactionDate,
+                                                                                            )}
+                                                                                        </time>
+                                                                                    </DetailTerm>
+                                                                                    <DetailTerm label="Reference created">
+                                                                                        <SnapshotDateTime
+                                                                                            value={
+                                                                                                transaction.createdAt
+                                                                                            }
+                                                                                            emptyLabel="Unknown"
+                                                                                        />
+                                                                                    </DetailTerm>
+                                                                                </dl>
                                                                             </li>
                                                                         ),
                                                                     )}
                                                                 </ul>
                                                             )}
-                                                        </div>
-                                                        <div>
-                                                            <h4 className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                                                        </section>
+                                                        <section
+                                                            aria-labelledby={`revision-${revision.id}-proofs`}
+                                                        >
+                                                            <h4
+                                                                id={`revision-${revision.id}-proofs`}
+                                                                className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"
+                                                            >
                                                                 Proof snapshot
                                                             </h4>
                                                             {revision.snapshot
@@ -1085,20 +1197,53 @@ export default function AcknowledgementDetailPage() {
                                                                                 key={
                                                                                     proof.id
                                                                                 }
-                                                                                className="text-sm text-slate-200"
+                                                                                className="rounded-lg border border-white/10 bg-black/20 p-3"
                                                                             >
-                                                                                {
-                                                                                    proof.originalFilename
-                                                                                }
-                                                                                {proof.removedAt
-                                                                                    ? " — removed"
-                                                                                    : ""}
+                                                                                <dl className="grid gap-3 text-sm sm:grid-cols-2">
+                                                                                    <DetailTerm label="Filename">
+                                                                                        {
+                                                                                            proof.originalFilename
+                                                                                        }
+                                                                                    </DetailTerm>
+                                                                                    <DetailTerm label="Content type">
+                                                                                        {
+                                                                                            proof.contentType
+                                                                                        }
+                                                                                    </DetailTerm>
+                                                                                    <DetailTerm label="Size">
+                                                                                        {proof.sizeBytes.toLocaleString(
+                                                                                            "en-US",
+                                                                                        )}{" "}
+                                                                                        bytes
+                                                                                    </DetailTerm>
+                                                                                    <DetailTerm label="Uploader">
+                                                                                        {
+                                                                                            proof.uploaderRole
+                                                                                        }
+                                                                                    </DetailTerm>
+                                                                                    <DetailTerm label="Proof created">
+                                                                                        <SnapshotDateTime
+                                                                                            value={
+                                                                                                proof.createdAt
+                                                                                            }
+                                                                                            emptyLabel="Unknown"
+                                                                                        />
+                                                                                    </DetailTerm>
+                                                                                    <DetailTerm label="Removed">
+                                                                                        <SnapshotDateTime
+                                                                                            value={
+                                                                                                proof.removedAt
+                                                                                            }
+                                                                                            emptyLabel="Not removed"
+                                                                                        />
+                                                                                    </DetailTerm>
+                                                                                </dl>
                                                                             </li>
                                                                         ),
                                                                     )}
                                                                 </ul>
                                                             )}
-                                                        </div>
+                                                        </section>
                                                     </div>
                                                 </details>
                                             </li>

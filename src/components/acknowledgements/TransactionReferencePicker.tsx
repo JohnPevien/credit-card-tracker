@@ -121,7 +121,7 @@ export default function TransactionReferencePicker({
                     {error}
                 </p>
                 <button
-                    className="btn btn-ghost btn-sm mt-2"
+                    className="btn btn-ghost btn-sm mt-2 min-h-11"
                     type="button"
                     onClick={() => setRetryKey((key) => key + 1)}
                 >

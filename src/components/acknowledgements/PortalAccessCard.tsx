@@ -61,6 +61,7 @@ export default function PortalAccessCard({
     const controlsDisabled = pendingAction !== null;
 
     useEffect(() => {
+        mountedRef.current = true;
         setHydratedOrigin(window.location.origin);
         return () => {
             mountedRef.current = false;
