@@ -80,7 +80,7 @@ async function pingSupabase(): Promise<{
     results: PingResult[];
     anyOk: boolean;
 }> {
-    const { url, key } = getSupabaseCredentials();
+    const { url, key, keyType } = getSupabaseCredentials();
 
     if (!url || !key) {
         const missing = [
@@ -143,6 +143,41 @@ async function pingSupabase(): Promise<{
             error: s.reason?.message ?? String(s.reason),
         };
     });
+
+    // Guaranteed write — this is what actually prevents free-tier pausing.
+    // Reads can be cached/RLS-blocked; an insert via service_role always hits Postgres.
+    // Table may not exist before migration 20260825 is applied — treat "does not exist" as non-fatal.
+    try {
+        const { error: writeError } = await supabase
+            .from("keep_alive_pings")
+            .insert({
+                source: `keep-alive:${keyType}`,
+                meta: { tables: results.filter((r) => r.ok).map((r) => r.table) },
+            } as never);
+
+        if (writeError) {
+            const msg = writeError.message ?? String(writeError);
+            const isMissingTable =
+                msg.includes("does not exist") || msg.includes("keep_alive_pings");
+            results.push({
+                table: "keep_alive_pings:write",
+                ok: false,
+                error: isMissingTable
+                    ? `skipped (migration not yet applied): ${msg}`
+                    : msg,
+            });
+            // Don't fail overall if only the write is missing — reads already count,
+            // but log for visibility.
+            if (isMissingTable) {
+                console.warn(`[keep-alive] write skipped — apply migration 20260825: ${msg}`);
+            }
+        } else {
+            results.push({ table: "keep_alive_pings:write", ok: true });
+        }
+    } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        results.push({ table: "keep_alive_pings:write", ok: false, error: msg });
+    }
 
     return { results, anyOk: results.some((r) => r.ok) };
 }
