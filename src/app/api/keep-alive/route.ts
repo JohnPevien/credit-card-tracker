@@ -4,6 +4,8 @@ import { createClient } from "@supabase/supabase-js";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 export const fetchCache = "force-no-store";
+export const runtime = "nodejs";
+export const maxDuration = 10;
 
 const KEEP_ALIVE_TABLES = [
     "persons",
@@ -101,12 +103,17 @@ async function pingSupabase(): Promise<{
         };
     }
 
-    // Cache-busting fetch: disable Next fetch cache and CDN cache; forces DB hit
-    const noStoreFetch: typeof fetch = (input, init) =>
-        fetch(input as URL | RequestInfo, {
+    // Cache-busting: Next cache off + PostgREST no-cache; count:exact adds Prefer header
+    const noStoreFetch: typeof fetch = (input, init = {}) => {
+        const headers = new Headers(init.headers as HeadersInit | undefined);
+        headers.set("Cache-Control", "no-cache, no-store");
+        headers.set("Pragma", "no-cache");
+        return fetch(input as URL | RequestInfo, {
             ...init,
             cache: "no-store",
+            headers,
         } as RequestInit);
+    };
 
     const supabase = createClient(url, key, {
         auth: { persistSession: false, autoRefreshToken: false },

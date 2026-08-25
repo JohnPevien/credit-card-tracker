@@ -1,12 +1,13 @@
 name: Supabase Keep-Alive
 
-# Backup to Vercel Cron — pings Supabase every day at 17:00 UTC (12h offset
-# from Vercel's 05:00 UTC cron). Either trigger is enough to keep the
-# free-tier project from pausing after 7 days of inactivity, but both
-# together survive a single missed run on one provider.
+# Primary: Vercel Cron pings /api/keep-alive daily at 05:00 UTC (vercel.json).
+# Backup: this workflow pings twice daily at 00:00 + 12:00 UTC (12h cadence).
+# Any single ping prevents the 7-day pause; overlapping providers + 3 pings/day
+# survives missed runs, Hobby daily limit, and month-boundary cron quirks.
 on:
   schedule:
-    - cron: "0 17 * * *"
+    - cron: "0 0 * * *"
+    - cron: "0 12 * * *"
   workflow_dispatch:
 
 jobs:
