@@ -44,3 +44,6 @@ next-env.d.ts
 
 # docs
 /docs
+
+# Private exports (local only, never commit)
+/facebook-export
