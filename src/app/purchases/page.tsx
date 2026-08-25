@@ -111,6 +111,9 @@ export default function PurchasesPage() {
         return matchesPerson && matchesCard && matchesDescription;
     });
 
+    const hasPurchasePrerequisites =
+        creditCards.length > 0 && persons.length > 0;
+
     if (isLoading) {
         return <LoadingSpinner />;
     }
@@ -131,9 +134,28 @@ export default function PurchasesPage() {
     return (
         <div className="container space-y-5 mx-auto">
             <h1 className="heading-page">Purchases</h1>
-            <button onClick={openAddModal} className="btn btn-primary">
-                Add Purchase
-            </button>
+            <div className="space-y-2">
+                <button
+                    onClick={openAddModal}
+                    className="btn btn-primary"
+                    disabled={!hasPurchasePrerequisites}
+                    title={
+                        hasPurchasePrerequisites
+                            ? undefined
+                            : "Add at least one credit card and one person before creating a purchase"
+                    }
+                >
+                    Add Purchase
+                </button>
+                {!hasPurchasePrerequisites && (
+                    <div className="alert alert-info">
+                        <span>
+                            Add at least one person and one credit card before
+                            creating a purchase.
+                        </span>
+                    </div>
+                )}
+            </div>
 
             <TransactionFilters
                 config={{
@@ -241,6 +263,7 @@ export default function PurchasesPage() {
                 <PurchaseForm
                     creditCards={creditCards}
                     persons={persons}
+                    hasPrerequisites={hasPurchasePrerequisites}
                     onSubmit={handleFormSubmit}
                     onCancel={closeModal}
                 />
