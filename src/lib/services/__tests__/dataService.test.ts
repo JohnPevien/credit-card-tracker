@@ -20,14 +20,19 @@ describe("DataService", () => {
                 {
                     id: "purchase-1",
                     description: "Test Purchase",
-                    credit_cards: { id: "card-1", credit_card_name: "Test Card" },
+                    credit_cards: {
+                        id: "card-1",
+                        credit_card_name: "Test Card",
+                    },
                     persons: { id: "person-1", name: "Test Person" },
                 },
             ];
 
             (supabase.from as ReturnType<typeof vi.fn>).mockReturnValue({
                 select: vi.fn().mockReturnValue({
-                    order: vi.fn().mockResolvedValue({ data: mockData, error: null }),
+                    order: vi
+                        .fn()
+                        .mockResolvedValue({ data: mockData, error: null }),
                 }),
             });
 
@@ -35,14 +40,18 @@ describe("DataService", () => {
 
             expect(result).toHaveLength(1);
             expect(result[0]).toHaveProperty("expand");
-            expect(result[0].expand.credit_card).toEqual(mockData[0].credit_cards);
-            expect(result[0].expand.person).toEqual(mockData[0].persons);
+            expect(result[0]?.expand?.credit_card).toEqual(
+                mockData[0]?.credit_cards,
+            );
+            expect(result[0]?.expand?.person).toEqual(mockData[0]?.persons);
         });
 
         it("should return empty array when no data", async () => {
             (supabase.from as ReturnType<typeof vi.fn>).mockReturnValue({
                 select: vi.fn().mockReturnValue({
-                    order: vi.fn().mockResolvedValue({ data: null, error: null }),
+                    order: vi
+                        .fn()
+                        .mockResolvedValue({ data: null, error: null }),
                 }),
             });
 
@@ -56,11 +65,15 @@ describe("DataService", () => {
 
             (supabase.from as ReturnType<typeof vi.fn>).mockReturnValue({
                 select: vi.fn().mockReturnValue({
-                    order: vi.fn().mockResolvedValue({ data: null, error: mockError }),
+                    order: vi
+                        .fn()
+                        .mockResolvedValue({ data: null, error: mockError }),
                 }),
             });
 
-            await expect(DataService.loadPurchases()).rejects.toThrow("Database error");
+            await expect(DataService.loadPurchases()).rejects.toThrow(
+                "Database error",
+            );
         });
     });
 
@@ -70,19 +83,26 @@ describe("DataService", () => {
                 {
                     id: "card-1",
                     credit_card_name: "Test Card",
-                    principal_card: { id: "principal-1", credit_card_name: "Principal" },
+                    principal_card: {
+                        id: "principal-1",
+                        credit_card_name: "Principal",
+                    },
                 },
             ];
 
             (supabase.from as ReturnType<typeof vi.fn>).mockReturnValue({
-                select: vi.fn().mockResolvedValue({ data: mockData, error: null }),
+                select: vi
+                    .fn()
+                    .mockResolvedValue({ data: mockData, error: null }),
             });
 
             const result = await DataService.loadCreditCards();
 
             expect(result).toHaveLength(1);
             expect(result[0]).toHaveProperty("expand");
-            expect(result[0].expand.principal_card).toEqual(mockData[0].principal_card);
+            expect(result[0]?.expand?.principal_card).toEqual(
+                mockData[0]?.principal_card,
+            );
         });
 
         it("should return empty array when no data", async () => {
@@ -99,10 +119,14 @@ describe("DataService", () => {
             const mockError = new Error("Database error");
 
             (supabase.from as ReturnType<typeof vi.fn>).mockReturnValue({
-                select: vi.fn().mockResolvedValue({ data: null, error: mockError }),
+                select: vi
+                    .fn()
+                    .mockResolvedValue({ data: null, error: mockError }),
             });
 
-            await expect(DataService.loadCreditCards()).rejects.toThrow("Database error");
+            await expect(DataService.loadCreditCards()).rejects.toThrow(
+                "Database error",
+            );
         });
     });
 
@@ -114,7 +138,9 @@ describe("DataService", () => {
             ];
 
             (supabase.from as ReturnType<typeof vi.fn>).mockReturnValue({
-                select: vi.fn().mockResolvedValue({ data: mockData, error: null }),
+                select: vi
+                    .fn()
+                    .mockResolvedValue({ data: mockData, error: null }),
             });
 
             const result = await DataService.loadPersons();
@@ -136,16 +162,22 @@ describe("DataService", () => {
             const mockError = new Error("Database error");
 
             (supabase.from as ReturnType<typeof vi.fn>).mockReturnValue({
-                select: vi.fn().mockResolvedValue({ data: null, error: mockError }),
+                select: vi
+                    .fn()
+                    .mockResolvedValue({ data: null, error: mockError }),
             });
 
-            await expect(DataService.loadPersons()).rejects.toThrow("Database error");
+            await expect(DataService.loadPersons()).rejects.toThrow(
+                "Database error",
+            );
         });
     });
 
     describe("deletePurchaseAndTransactions", () => {
         it("should delete transactions first, then purchase", async () => {
-            const mockTransactionEq = vi.fn().mockResolvedValue({ error: null });
+            const mockTransactionEq = vi
+                .fn()
+                .mockResolvedValue({ error: null });
             const mockPurchaseEq = vi.fn().mockResolvedValue({ error: null });
 
             (supabase.from as ReturnType<typeof vi.fn>)
@@ -162,7 +194,10 @@ describe("DataService", () => {
 
             await DataService.deletePurchaseAndTransactions("purchase-1");
 
-            expect(mockTransactionEq).toHaveBeenCalledWith("purchase_id", "purchase-1");
+            expect(mockTransactionEq).toHaveBeenCalledWith(
+                "purchase_id",
+                "purchase-1",
+            );
             expect(mockPurchaseEq).toHaveBeenCalledWith("id", "purchase-1");
         });
 
@@ -215,7 +250,9 @@ describe("DataService", () => {
 
         it("should create purchase and transactions", async () => {
             const mockPurchaseResult = [{ id: "purchase-1" }];
-            const mockTransactionInsert = vi.fn().mockResolvedValue({ error: null });
+            const mockTransactionInsert = vi
+                .fn()
+                .mockResolvedValue({ error: null });
 
             (supabase.from as ReturnType<typeof vi.fn>)
                 .mockReturnValueOnce({
@@ -248,9 +285,14 @@ describe("DataService", () => {
         });
 
         it("should create single transaction without installment suffix", async () => {
-            const singleInstallmentData = { ...purchaseData, num_installments: 1 };
+            const singleInstallmentData = {
+                ...purchaseData,
+                num_installments: 1,
+            };
             const mockPurchaseResult = [{ id: "purchase-1" }];
-            const mockTransactionInsert = vi.fn().mockResolvedValue({ error: null });
+            const mockTransactionInsert = vi
+                .fn()
+                .mockResolvedValue({ error: null });
 
             (supabase.from as ReturnType<typeof vi.fn>)
                 .mockReturnValueOnce({
@@ -265,7 +307,9 @@ describe("DataService", () => {
                     insert: mockTransactionInsert,
                 });
 
-            await DataService.createPurchaseWithTransactions(singleInstallmentData);
+            await DataService.createPurchaseWithTransactions(
+                singleInstallmentData,
+            );
 
             expect(mockTransactionInsert).toHaveBeenCalledWith(
                 expect.objectContaining({
@@ -276,7 +320,9 @@ describe("DataService", () => {
 
         it("should add installment suffix for multiple installments", async () => {
             const mockPurchaseResult = [{ id: "purchase-1" }];
-            const mockTransactionInsert = vi.fn().mockResolvedValue({ error: null });
+            const mockTransactionInsert = vi
+                .fn()
+                .mockResolvedValue({ error: null });
 
             (supabase.from as ReturnType<typeof vi.fn>)
                 .mockReturnValueOnce({
@@ -318,7 +364,9 @@ describe("DataService", () => {
 
             (supabase.from as ReturnType<typeof vi.fn>).mockReturnValue({
                 insert: vi.fn().mockReturnValue({
-                    select: vi.fn().mockResolvedValue({ data: null, error: mockError }),
+                    select: vi
+                        .fn()
+                        .mockResolvedValue({ data: null, error: mockError }),
                 }),
             });
 
@@ -330,7 +378,9 @@ describe("DataService", () => {
         it("should throw error if purchase result is empty", async () => {
             (supabase.from as ReturnType<typeof vi.fn>).mockReturnValue({
                 insert: vi.fn().mockReturnValue({
-                    select: vi.fn().mockResolvedValue({ data: [], error: null }),
+                    select: vi
+                        .fn()
+                        .mockResolvedValue({ data: [], error: null }),
                 }),
             });
 
