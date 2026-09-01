@@ -1,0 +1,178 @@
+name: Supabase Keep-Alive
+
+# Primary: Vercel Cron pings /api/keep-alive daily at 05:00 UTC (vercel.json).
+# Backup: this workflow pings every 6h (00:00, 06:00, 12:00, 18:00 UTC).
+# Any single ping prevents the 7-day pause; 5 pings/day across providers
+# survives missed runs, Hobby 1/day limit, and month-boundary cron quirks.
+on:
+  schedule:
+    - cron: "0 0 * * *"
+    - cron: "0 6 * * *"
+    - cron: "0 12 * * *"
+    - cron: "0 18 * * *"
+  workflow_dispatch:
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ping Vercel keep-alive endpoint
+        id: vercel-ping
+        continue-on-error: true
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          # Vercel Cron secret — if set, sent as Bearer so the endpoint can verify caller
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          # Fallback public URL for forks / manual runs without secrets
+          FALLBACK_URL: "https://credit-card-tracker.vercel.app"
+        run: |
+          set -euo pipefail
+
+          if [ -n "${APP_URL:-}" ]; then
+            TARGET="${APP_URL%/}/api/keep-alive"
+          else
+            echo "::notice::APP_URL secret not set — using FALLBACK_URL ($FALLBACK_URL)"
+            TARGET="${FALLBACK_URL}/api/keep-alive"
+          fi
+
+          echo "→ GET $TARGET"
+
+          AUTH_ARGS=()
+          if [ -n "${CRON_SECRET:-}" ]; then
+            AUTH_ARGS=(-H "Authorization: Bearer $CRON_SECRET")
+          fi
+
+          # Retry 3x with backoff; record status for next step
+          for attempt in 1 2 3; do
+            HTTP_CODE=$(curl -sS -o /tmp/keep-alive.json -w "%{http_code}" \
+              "${AUTH_ARGS[@]}" \
+              -H "Cache-Control: no-cache" \
+              -H "Pragma: no-cache" \
+              --max-time 25 \
+              "$TARGET" || echo "000")
+
+            echo "Attempt $attempt: HTTP $HTTP_CODE"
+            cat /tmp/keep-alive.json || true
+            echo ""
+
+            if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 400 ]; then
+              # Validate the JSON reports ok:true when present, but don't fail on shape change
+              if grep -q '"ok": *true' /tmp/keep-alive.json; then
+                echo "vercel_ok=true" >> "$GITHUB_OUTPUT"
+                echo "ok" > /tmp/vercel_status
+                echo "✓ keep-alive endpoint returned ok:true"
+                exit 0
+              fi
+              if [ "$HTTP_CODE" -eq 200 ]; then
+                echo "vercel_ok=true" >> "$GITHUB_OUTPUT"
+                echo "ok" > /tmp/vercel_status
+                echo "✓ keep-alive endpoint returned HTTP 200"
+                exit 0
+              fi
+            fi
+
+            if [ "$attempt" -lt 3 ]; then
+              echo "Retrying in 10s..."
+              sleep 10
+            fi
+          done
+
+          echo "vercel_ok=false" >> "$GITHUB_OUTPUT"
+          echo "fail" > /tmp/vercel_status
+          echo "::warning::Vercel keep-alive endpoint did not return ok:true after 3 attempts"
+          exit 1
+
+      - name: Direct Supabase ping (guaranteed write)
+        if: always()
+        env:
+          SUPABASE_URL_PRIMARY: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_URL_FALLBACK: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_PRIMARY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_ANON_FALLBACK: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_PRIMARY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_SERVICE_FALLBACK: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          set -euo pipefail
+
+          # Resolve URL / key: NEXT_PUBLIC_* wins, else plain name; service_role > anon
+          URL="${SUPABASE_URL_PRIMARY:-${SUPABASE_URL_FALLBACK:-}}"
+          SERVICE_KEY="${SUPABASE_SERVICE_PRIMARY:-${SUPABASE_SERVICE_FALLBACK:-}}"
+          ANON_KEY="${SUPABASE_ANON_PRIMARY:-${SUPABASE_ANON_FALLBACK:-}}"
+          KEY="${SERVICE_KEY:-$ANON_KEY}"
+          if [ -n "$SERVICE_KEY" ]; then
+            KEY_TYPE="service_role"
+          else
+            KEY_TYPE="anon"
+          fi
+
+          VERCEL_OK="false"
+          if [ -f /tmp/vercel_status ] && grep -q "^ok$" /tmp/vercel_status; then
+            VERCEL_OK="true"
+          fi
+          echo "Vercel endpoint previously: $VERCEL_OK"
+
+          if [ -z "$URL" ] || [ -z "$KEY" ]; then
+            echo "::warning::Supabase secrets not set — skipping direct ping (set SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_* secrets)"
+            if [ "$VERCEL_OK" = "true" ]; then
+              echo "✓ Vercel endpoint already succeeded — no direct ping needed"
+              exit 0
+            fi
+            echo "::warning::No Vercel success and no Supabase secrets — nothing to verify"
+            exit 0
+          fi
+
+          echo "→ Direct PostgREST ping ($KEY_TYPE) to $URL"
+
+          TABLES="persons credit_cards purchases transactions"
+          ANY_OK=false
+
+          for table in $TABLES; do
+            echo "  probing $table..."
+            CODE=$(curl -sS -o /tmp/ping.json -w "%{http_code}" \
+              -H "apikey: $KEY" \
+              -H "Authorization: Bearer $KEY" \
+              -H "Cache-Control: no-cache" \
+              --max-time 15 \
+              "${URL%/}/rest/v1/${table}?select=id&limit=1" || echo "000")
+            echo "    HTTP $CODE $(cat /tmp/ping.json | head -c 200)"
+            if [ "$CODE" -ge 200 ] && [ "$CODE" -lt 400 ]; then
+              ANY_OK=true
+            fi
+          done
+
+          # Guaranteed write to keep_alive_pings (service_role) — this is the true keep-alive
+          WRITE_OK=false
+          if [ -n "$SERVICE_KEY" ]; then
+            echo "→ Inserting keep_alive_pings write ($KEY_TYPE)..."
+            WRITE_CODE=$(curl -sS -o /tmp/write.json -w "%{http_code}" \
+              -X POST \
+              -H "apikey: $SERVICE_KEY" \
+              -H "Authorization: Bearer $SERVICE_KEY" \
+              -H "Content-Type: application/json" \
+              -H "Prefer: return=minimal" \
+              -H "Cache-Control: no-cache" \
+              --max-time 15 \
+              -d "{\"source\":\"github-actions:$KEY_TYPE\"}" \
+              "${URL%/}/rest/v1/keep_alive_pings" || echo "000")
+            echo "  Write HTTP $WRITE_CODE $(cat /tmp/write.json | head -c 300)"
+            if [ "$WRITE_CODE" -ge 200 ] && [ "$WRITE_CODE" -lt 400 ]; then
+              WRITE_OK=true
+              ANY_OK=true
+            else
+              # Table may not exist before migration 20260825 — don't fail if reads succeeded
+              if echo "$(cat /tmp/write.json)" | grep -q "does not exist\|keep_alive_pings"; then
+                echo "::notice::keep_alive_pings table missing — apply migration 20260825_keep_alive_pings.sql for guaranteed writes (reads still ok)"
+              fi
+            fi
+          else
+            echo "::notice::No service_role key — skipping write ping (reads still keep DB awake, but write is recommended)"
+          fi
+
+          if [ "$ANY_OK" = "true" ] || [ "$VERCEL_OK" = "true" ] || [ "$WRITE_OK" = "true" ]; then
+            echo "✓ Supabase is awake (vercel:$VERCEL_OK reads:$ANY_OK write:$WRITE_OK)"
+            exit 0
+          else
+            echo "::error::All pings failed (vercel:$VERCEL_OK reads:$ANY_OK write:$WRITE_OK)"
+            exit 1
+          fi

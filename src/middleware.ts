@@ -50,9 +50,10 @@ export const config = {
          * Match all request paths except:
          * 1. /_next (Next.js internals)
          * 2. /api/site-auth (API endpoint for authentication)
-         * 3. /enter-password (Password entry page)
-         * 4. /favicon.ico, /images (Static files)
+         * 3. /api/keep-alive (Supabase keep-alive cron — must never be auth-gated)
+         * 4. /enter-password (Password entry page)
+         * 5. /favicon.ico, /images (Static files)
          */
-        "/((?!_next|favicon.ico|images|api/site-auth|enter-password).*)",
+        "/((?!_next|favicon.ico|images|api/site-auth|api/keep-alive|enter-password).*)",
     ],
 };
