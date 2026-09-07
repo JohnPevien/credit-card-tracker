@@ -19,6 +19,9 @@ import {
 
 import ConfirmationPanel from "@/components/acknowledgements/ConfirmationPanel";
 import PortalAccessCard from "@/components/acknowledgements/PortalAccessCard";
+import ProofUploader, {
+    type ProofChange,
+} from "@/components/acknowledgements/ProofUploader";
 import ReceiptForm, {
     type ReceiptFormValue,
 } from "@/components/acknowledgements/ReceiptForm";
@@ -226,6 +229,16 @@ export default function AcknowledgementDetailPage() {
                 ) {
                     setIsEditing(true);
                 }
+                if (
+                    typeof window !== "undefined" &&
+                    new URLSearchParams(window.location.search).get(
+                        "proofUpload",
+                    ) === "retry"
+                ) {
+                    setError(
+                        "The draft was saved, but a proof image could not be uploaded. Select it again below and retry.",
+                    );
+                }
             } catch (caught) {
                 if (
                     caught instanceof DOMException &&
@@ -361,6 +374,30 @@ export default function AcknowledgementDetailPage() {
             throw new Error("Receipt is not loaded.");
         }
         return requestPortalAction(receipt.payerPersonId, action);
+    }
+
+    async function handleProofChanged(change: ProofChange) {
+        setError(null);
+        setSuccess(null);
+        if (change.conflict) {
+            await reloadAfterConflict();
+            return;
+        }
+        try {
+            await loadReceiptData();
+            setSuccess(
+                change.removedFileId
+                    ? "Proof removed. The receipt revision and confirmations were updated."
+                    : "Proof saved. The receipt revision and confirmations were updated.",
+            );
+        } catch (caught) {
+            setError(
+                caught instanceof Error
+                    ? caught.message
+                    : "The proof changed, but the receipt could not be refreshed.",
+            );
+            throw caught;
+        }
     }
 
     function acceptPortalResult(result: PayerPortalCredentialResult) {
@@ -649,60 +686,17 @@ export default function AcknowledgementDetailPage() {
                         )}
                     </section>
 
-                    <section
-                        className="ledger-panel space-y-4"
-                        aria-labelledby="proofs-title"
-                    >
-                        <div className="flex items-center gap-3">
-                            <FileImage
-                                className="h-5 w-5 text-sky-200"
-                                aria-hidden="true"
-                            />
-                            <div>
-                                <h2
-                                    id="proofs-title"
-                                    className="text-lg font-semibold text-white"
-                                >
-                                    Current proof metadata
-                                </h2>
-                                <p className="text-sm text-slate-400">
-                                    {activeProofs.length} of 5 active proof
-                                    images. Uploading arrives in the next
-                                    workflow.
-                                </p>
-                            </div>
-                        </div>
-                        {activeProofs.length === 0 ? (
-                            <p className="rounded-lg border border-dashed border-white/10 p-4 text-sm text-slate-400">
-                                No active proof images supplied.
-                            </p>
-                        ) : (
-                            <ul className="grid gap-3 sm:grid-cols-2">
-                                {activeProofs.map((proof) => (
-                                    <li
-                                        key={proof.id}
-                                        className="rounded-xl border border-white/10 bg-black/20 p-3"
-                                    >
-                                        <p className="truncate font-medium text-white">
-                                            {proof.originalFilename}
-                                        </p>
-                                        <p className="mt-1 text-xs text-slate-400">
-                                            {proof.uploaderRole} ·{" "}
-                                            {(
-                                                proof.sizeBytes /
-                                                1024 /
-                                                1024
-                                            ).toFixed(2)}{" "}
-                                            MiB ·{" "}
-                                            {formatReceiptDateTime(
-                                                proof.createdAt,
-                                            )}
-                                        </p>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </section>
+                    <ProofUploader
+                        receiptId={receipt.id}
+                        revisionNumber={receipt.revisionNumber}
+                        proofs={activeProofs}
+                        uploaderRole="receiver"
+                        disabled={
+                            Boolean(receipt.voidedAt) ||
+                            pendingAction !== null
+                        }
+                        onChanged={handleProofChanged}
+                    />
 
                     <div className="grid gap-6 xl:grid-cols-2">
                         <ConfirmationPanel

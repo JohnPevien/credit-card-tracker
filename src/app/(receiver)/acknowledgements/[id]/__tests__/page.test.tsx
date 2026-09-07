@@ -36,6 +36,35 @@ vi.mock("@/components/acknowledgements/receiptApi", () => {
     };
 });
 
+vi.mock("@/components/acknowledgements/ProofUploader", () => ({
+    default: ({
+        revisionNumber,
+        proofs,
+        onChanged,
+    }: {
+        revisionNumber: number;
+        proofs: Array<{ id: string; originalFilename: string }>;
+        onChanged: (change: { revisionNumber: number }) => Promise<void>;
+    }) => (
+        <section aria-labelledby="proofs-title">
+            <h2 id="proofs-title">Current proof metadata</h2>
+            <p>{proofs.length} of 5 active proof images.</p>
+            {proofs.map((proof) => (
+                <p key={proof.id}>{proof.originalFilename}</p>
+            ))}
+            <p>Uploader revision {revisionNumber}</p>
+            <button
+                type="button"
+                onClick={() =>
+                    void onChanged({ revisionNumber: revisionNumber + 1 })
+                }
+            >
+                Simulate proof mutation
+            </button>
+        </section>
+    ),
+}));
+
 import AcknowledgementDetailPage from "../page";
 
 const oldPayerId = "4f2dc79d-62f7-4db4-b661-6cf95dfca3aa";
@@ -103,6 +132,7 @@ describe("AcknowledgementDetailPage", () => {
 
     afterEach(() => {
         vi.clearAllMocks();
+        window.history.replaceState({}, "", "/acknowledgements/receipt");
     });
 
     it("keeps a successful payer edit while isolating a failed new portal refresh", async () => {
@@ -320,5 +350,73 @@ describe("AcknowledgementDetailPage", () => {
         expect(
             screen.queryByText("private/raw/path.jpg"),
         ).not.toBeInTheDocument();
+    });
+
+    it("refreshes the detail and advances uploader revision after a proof mutation", async () => {
+        const user = userEvent.setup();
+        let receiptLoads = 0;
+        receiptApiMocks.requestJson.mockImplementation((url: string) => {
+            if (url.includes("/meta")) {
+                return Promise.resolve(meta);
+            }
+            receiptLoads += 1;
+            return Promise.resolve({
+                receipt:
+                    receiptLoads === 1
+                        ? baseReceipt
+                        : {
+                              ...baseReceipt,
+                              revisionNumber: 3,
+                              status: "awaiting_both" as const,
+                              payerConfirmedAt: null,
+                              receiverConfirmedAt: null,
+                              completedAt: null,
+                              isCompleted: false,
+                              proofs: [
+                                  {
+                                      id: "proof-after-refresh",
+                                      originalFilename: "signed-proof.png",
+                                      contentType: "image/png" as const,
+                                      sizeBytes: 12,
+                                      uploaderRole: "receiver" as const,
+                                      removedAt: null,
+                                      createdAt:
+                                          "2026-07-30T00:07:00.000Z",
+                                      downloadUrl:
+                                          "https://storage.example/signed",
+                                  },
+                              ],
+                          },
+            });
+        });
+        render(<AcknowledgementDetailPage />);
+
+        expect(
+            await screen.findByText("Uploader revision 2"),
+        ).toBeInTheDocument();
+        await user.click(
+            screen.getByRole("button", { name: "Simulate proof mutation" }),
+        );
+
+        expect(
+            await screen.findByText("Uploader revision 3"),
+        ).toBeInTheDocument();
+        expect(screen.getByText("signed-proof.png")).toBeInTheDocument();
+        expect(receiptLoads).toBe(2);
+    });
+
+    it("shows explicit retry context when a draft proof queue failed", async () => {
+        window.history.replaceState(
+            {},
+            "",
+            "/acknowledgements/receipt?proofUpload=retry",
+        );
+        render(<AcknowledgementDetailPage />);
+
+        expect(
+            await screen.findByText(
+                /draft was saved.*proof image.*retry/i,
+            ),
+        ).toBeInTheDocument();
     });
 });

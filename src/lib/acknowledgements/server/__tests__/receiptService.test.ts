@@ -272,6 +272,62 @@ describe("receiver receipt service", () => {
         expect(JSON.stringify(result)).not.toContain("pin_hash");
     });
 
+    it("hydrates only active receiver-detail proofs and never returns raw paths", async () => {
+        const client = new FakeClient();
+        queueReceiptDetail(client);
+        const activeRow = {
+            id: "00000000-0000-4000-8000-000000000060",
+            receipt_id: receiptRow.id,
+            storage_path: `receipts/${receiptRow.id}/tmp/00000000-0000-4000-8000-000000000070`,
+            original_filename: "active.png",
+            content_type: "image/png",
+            size_bytes: 12,
+            uploader_role: "receiver",
+            removed_at: null,
+            created_at: "2026-07-30T01:00:00.000Z",
+        };
+        const removedRow = {
+            ...activeRow,
+            id: "00000000-0000-4000-8000-000000000061",
+            original_filename: "removed.png",
+            removed_at: "2026-07-30T02:00:00.000Z",
+        };
+        client.queueTable("acknowledgement_receipt_files", {
+            data: [activeRow, removedRow],
+            error: null,
+        });
+        const hydrateProofRows = vi.fn(async () => [
+            {
+                id: activeRow.id,
+                originalFilename: activeRow.original_filename,
+                contentType: "image/png" as const,
+                sizeBytes: 12,
+                uploaderRole: "receiver" as const,
+                removedAt: null,
+                createdAt: activeRow.created_at,
+                downloadUrl: "https://storage.example/signed-active",
+            },
+        ]);
+
+        const result = await createReceiptService(client, {
+            hydrateProofRows,
+        }).getReceipt(receiptRow.id);
+
+        expect(hydrateProofRows).toHaveBeenCalledWith([activeRow]);
+        expect(result.proofs).toEqual([
+            expect.objectContaining({
+                originalFilename: "active.png",
+                downloadUrl: "https://storage.example/signed-active",
+            }),
+            expect.objectContaining({
+                originalFilename: "removed.png",
+                removedAt: "2026-07-30T02:00:00.000Z",
+            }),
+        ]);
+        expect(result.proofs[1]).not.toHaveProperty("downloadUrl");
+        expect(JSON.stringify(result)).not.toContain("storage_path");
+    });
+
     it("maps a stale-revision RPC error to ReceiptConflictError", async () => {
         const client = new FakeClient();
         client.queueRpc("ack_update_receipt", {

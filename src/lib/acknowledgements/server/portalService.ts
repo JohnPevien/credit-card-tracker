@@ -42,6 +42,7 @@ type PortalServiceDependencies = {
     verifyPin?: (pin: string, encoded: string) => Promise<boolean>;
     sessionSecret?: string;
     createReservationId?: () => string;
+    hydrateProofRows?: (rows: unknown[]) => Promise<ReceiptProof[]>;
 };
 
 export type PortalSessionIdentity = {
@@ -102,6 +103,8 @@ const PUBLIC_TRANSACTION_COLUMNS = [
 
 const PUBLIC_PROOF_COLUMNS = [
     "id",
+    "receipt_id",
+    "storage_path",
     "original_filename",
     "content_type",
     "size_bytes",
@@ -263,6 +266,7 @@ export function createPortalService(
         dependencies.sessionSecret ??
         process.env.ACKNOWLEDGEMENT_SESSION_SECRET;
     const createReservationId = dependencies.createReservationId ?? randomUUID;
+    const hydrateProofRows = dependencies.hydrateProofRows;
 
     const unlockPortal = async (
         publicId: string,
@@ -444,12 +448,15 @@ export function createPortalService(
             );
         }
 
+        const proofRows = asRecords(proofsResult.data);
         return {
             ...serializeReceipt(receiptResult.data),
             transactions: asRecords(transactionsResult.data).map(
                 serializeTransaction,
             ),
-            proofs: asRecords(proofsResult.data).map(serializeProof),
+            proofs: hydrateProofRows
+                ? await hydrateProofRows(proofRows)
+                : proofRows.map(serializeProof),
         };
     };
 
@@ -479,10 +486,13 @@ export function createPortalService(
 }
 
 const getDefaultService = async () => {
-    const { getServerSupabase } = await import("@/lib/supabase/server");
-    return createPortalService(
-        getServerSupabase() as unknown as PortalDataClient,
-    );
+    const [{ getServerSupabase }, { hydrateProofRows }] = await Promise.all([
+        import("@/lib/supabase/server"),
+        import("./proofService"),
+    ]);
+    return createPortalService(getServerSupabase() as unknown as PortalDataClient, {
+        hydrateProofRows,
+    });
 };
 
 export async function unlockPortal(

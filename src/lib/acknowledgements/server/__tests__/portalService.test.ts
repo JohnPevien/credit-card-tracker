@@ -199,11 +199,15 @@ const serviceWith = (
     verifyPin: (pin: string, encoded: string) => Promise<boolean> = vi.fn(
         rejectPin,
     ),
+    hydrateProofRows?: (
+        rows: unknown[],
+    ) => Promise<import("../../types").ReceiptProof[]>,
 ) =>
     createPortalService(client, {
         verifyPin,
         sessionSecret: SECRET,
         createReservationId: () => RESERVATION_ID,
+        hydrateProofRows,
     });
 
 describe("payer portal unlock throttling", () => {
@@ -612,6 +616,60 @@ describe("payer-scoped published receipts", () => {
                 ]),
             );
         }
+    });
+
+    it("hydrates active payer-detail proofs with safe signed read URLs", async () => {
+        const client = new FakeClient();
+        client.queueTable("acknowledgement_receipt_overview", {
+            data: receiptRow,
+            error: null,
+        });
+        client.queueTable("acknowledgement_receipt_transactions", {
+            data: [],
+            error: null,
+        });
+        const activeRow = {
+            id: "00000000-0000-4000-8000-000000000060",
+            receipt_id: RECEIPT_ID,
+            storage_path: `receipts/${RECEIPT_ID}/tmp/00000000-0000-4000-8000-000000000070`,
+            original_filename: "payer-proof.png",
+            content_type: "image/png",
+            size_bytes: 12,
+            uploader_role: "payer",
+            removed_at: null,
+            created_at: "2026-07-30T00:00:00.000Z",
+        };
+        client.queueTable("acknowledgement_receipt_files", {
+            data: [activeRow],
+            error: null,
+        });
+        const hydrateProofRows = vi.fn(async () => [
+            {
+                id: activeRow.id,
+                originalFilename: activeRow.original_filename,
+                contentType: "image/png" as const,
+                sizeBytes: 12,
+                uploaderRole: "payer" as const,
+                removedAt: null,
+                createdAt: activeRow.created_at,
+                downloadUrl: "https://storage.example/signed-payer-proof",
+            },
+        ]);
+
+        const detail = await serviceWith(
+            client,
+            vi.fn(rejectPin),
+            hydrateProofRows,
+        ).getPublishedReceipt(PERSON_ID, RECEIPT_ID);
+
+        expect(hydrateProofRows).toHaveBeenCalledWith([activeRow]);
+        expect(detail.proofs).toEqual([
+            expect.objectContaining({
+                originalFilename: "payer-proof.png",
+                downloadUrl: "https://storage.example/signed-payer-proof",
+            }),
+        ]);
+        expect(JSON.stringify(detail)).not.toContain("storage_path");
     });
 
     it("passes the authorized person into one payer-specific atomic confirmation RPC", async () => {

@@ -1,7 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { AlertTriangle, FileText, Link2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import {
+    AlertTriangle,
+    FileImage,
+    FileText,
+    Link2,
+    Trash2,
+} from "lucide-react";
 
 import Button from "@/components/base/Button";
 import type {
@@ -35,7 +41,74 @@ type ReceiptFormProps = {
     submitLabel?: string;
     isSubmitting?: boolean;
     confirmationWarning?: "confirmed" | "completed" | null;
+    stagedProofFiles?: File[];
+    onStagedProofFilesChange?: (files: File[]) => void;
 };
+
+const supportedProofTypes = new Set([
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+]);
+const maxProofSizeBytes = 10 * 1024 * 1024;
+
+function StagedProofPreview({
+    file,
+    disabled,
+    onRemove,
+}: {
+    file: File;
+    disabled: boolean;
+    onRemove: () => void;
+}) {
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (typeof URL.createObjectURL !== "function") {
+            return;
+        }
+        const url = URL.createObjectURL(file);
+        setPreviewUrl(url);
+        return () => URL.revokeObjectURL(url);
+    }, [file]);
+
+    return (
+        <li className="flex items-center gap-3 rounded-xl border border-white/10 bg-black/20 p-3">
+            {previewUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                    src={previewUrl}
+                    alt=""
+                    className="h-14 w-14 rounded-lg object-cover"
+                />
+            ) : (
+                <span className="grid h-14 w-14 place-items-center rounded-lg bg-white/5">
+                    <FileImage
+                        className="h-5 w-5 text-slate-400"
+                        aria-hidden="true"
+                    />
+                </span>
+            )}
+            <span className="min-w-0 flex-1">
+                <span className="block truncate text-sm font-medium text-white">
+                    {file.name}
+                </span>
+                <span className="text-xs text-slate-400">
+                    {(file.size / 1024 / 1024).toFixed(2)} MiB
+                </span>
+            </span>
+            <button
+                type="button"
+                className="btn btn-ghost btn-sm min-h-11 min-w-11"
+                aria-label={`Remove staged ${file.name}`}
+                disabled={disabled}
+                onClick={onRemove}
+            >
+                <Trash2 className="h-4 w-4" aria-hidden="true" />
+            </button>
+        </li>
+    );
+}
 
 const emptyValue: ReceiptFormValue = {
     payerPersonId: "",
@@ -82,6 +155,8 @@ export default function ReceiptForm({
     submitLabel = "Save draft",
     isSubmitting = false,
     confirmationWarning = null,
+    stagedProofFiles = [],
+    onStagedProofFilesChange,
 }: ReceiptFormProps) {
     const [value, setValue] = useState<ReceiptFormValue>(() => ({
         ...emptyValue,
@@ -89,6 +164,7 @@ export default function ReceiptForm({
         transactionIds: initialValue?.transactionIds ?? [],
     }));
     const [errors, setErrors] = useState<ReceiptFormErrors>({});
+    const [proofError, setProofError] = useState<string | null>(null);
 
     function setField<Key extends keyof ReceiptFormValue>(
         field: Key,
@@ -370,6 +446,104 @@ export default function ReceiptForm({
                     disabled={isSubmitting}
                 />
             </section>
+
+            {onStagedProofFilesChange ? (
+                <section
+                    className="ledger-panel space-y-4"
+                    aria-labelledby="staged-proofs-title"
+                >
+                    <div className="flex items-center gap-3">
+                        <FileImage
+                            className="h-5 w-5 text-sky-200"
+                            aria-hidden="true"
+                        />
+                        <div>
+                            <h2
+                                id="staged-proofs-title"
+                                className="text-lg font-semibold text-white"
+                            >
+                                Proof images
+                            </h2>
+                            <p className="text-sm text-slate-400">
+                                Optional. Images upload after the draft is
+                                safely created.
+                            </p>
+                        </div>
+                    </div>
+                    {proofError ? (
+                        <p
+                            className="rounded-lg border border-rose-800/60 bg-rose-950/30 p-3 text-sm text-rose-100"
+                            role="alert"
+                        >
+                            {proofError}
+                        </p>
+                    ) : null}
+                    {stagedProofFiles.length > 0 ? (
+                        <ul className="grid gap-3 sm:grid-cols-2">
+                            {stagedProofFiles.map((file, index) => (
+                                <StagedProofPreview
+                                    key={`${file.name}-${file.size}-${file.lastModified}-${index}`}
+                                    file={file}
+                                    disabled={isSubmitting}
+                                    onRemove={() =>
+                                        onStagedProofFilesChange(
+                                            stagedProofFiles.filter(
+                                                (_, fileIndex) =>
+                                                    fileIndex !== index,
+                                            ),
+                                        )
+                                    }
+                                />
+                            ))}
+                        </ul>
+                    ) : null}
+                    <label className="btn btn-outline min-h-11">
+                        Stage proof images
+                        <input
+                            className="sr-only"
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            multiple
+                            aria-label="Stage proof images"
+                            disabled={
+                                isSubmitting || stagedProofFiles.length >= 5
+                            }
+                            onChange={(event) => {
+                                const candidates = Array.from(
+                                    event.currentTarget.files ?? [],
+                                );
+                                const invalid = candidates.find(
+                                    (file) =>
+                                        !supportedProofTypes.has(file.type) ||
+                                        file.size < 1 ||
+                                        file.size > maxProofSizeBytes,
+                                );
+                                if (invalid) {
+                                    setProofError(
+                                        "Choose JPEG, PNG, or WebP images up to 10 MiB each.",
+                                    );
+                                    event.currentTarget.value = "";
+                                    return;
+                                }
+                                const nextFiles = [
+                                    ...stagedProofFiles,
+                                    ...candidates,
+                                ];
+                                if (nextFiles.length > 5) {
+                                    setProofError(
+                                        "A receipt may have at most five proof images.",
+                                    );
+                                    event.currentTarget.value = "";
+                                    return;
+                                }
+                                setProofError(null);
+                                onStagedProofFilesChange(nextFiles);
+                                event.currentTarget.value = "";
+                            }}
+                        />
+                    </label>
+                </section>
+            ) : null}
 
             <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
                 {onCancel ? (

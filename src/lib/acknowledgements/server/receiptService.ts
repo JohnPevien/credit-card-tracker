@@ -44,6 +44,7 @@ type ReceiptServiceDependencies = {
     generatePin?: () => string;
     hashPin?: (pin: string) => Promise<string>;
     createPublicId?: () => string;
+    hydrateProofRows?: (rows: unknown[]) => Promise<ReceiptProof[]>;
 };
 
 const RECEIPT_COLUMNS = [
@@ -82,6 +83,8 @@ const TRANSACTION_COLUMNS = [
 
 const PROOF_COLUMNS = [
     "id",
+    "receipt_id",
+    "storage_path",
     "original_filename",
     "content_type",
     "size_bytes",
@@ -415,6 +418,7 @@ export function createReceiptService(
     const createCredentialPin = dependencies.generatePin ?? generatePin;
     const hashCredentialPin = dependencies.hashPin ?? hashPin;
     const createPublicId = dependencies.createPublicId ?? randomUUID;
+    const hydrateProofRows = dependencies.hydrateProofRows;
 
     const listReceipts = async (
         filters: ReceiptFilters = {},
@@ -476,6 +480,23 @@ export function createReceiptService(
                 .order("created_at", { ascending: false }),
         ]);
 
+        const proofRows = asRecords(
+            requireQueryData(
+                proofsResult.data,
+                proofsResult.error,
+                "Unable to load receipt proofs",
+            ),
+        );
+        const activeProofRows = proofRows.filter(
+            (row) => row.removed_at == null,
+        );
+        const activeProofs = hydrateProofRows
+            ? await hydrateProofRows(activeProofRows)
+            : activeProofRows.map(serializeProof);
+        const activeProofsById = new Map(
+            activeProofs.map((proof) => [proof.id, proof]),
+        );
+
         return {
             ...serializeReceipt(receiptData),
             transactions: asRecords(
@@ -485,13 +506,12 @@ export function createReceiptService(
                     "Unable to load receipt transactions",
                 ),
             ).map(serializeTransaction),
-            proofs: asRecords(
-                requireQueryData(
-                    proofsResult.data,
-                    proofsResult.error,
-                    "Unable to load receipt proofs",
-                ),
-            ).map(serializeProof),
+            proofs: proofRows.map((row) =>
+                row.removed_at == null
+                    ? (activeProofsById.get(stringValue(row, "id")) ??
+                      serializeProof(row))
+                    : serializeProof(row),
+            ),
             revisions: asRecords(
                 requireQueryData(
                     revisionsResult.data,
@@ -676,10 +696,13 @@ export function createReceiptService(
 }
 
 const getDefaultService = async () => {
-    const { getServerSupabase } = await import("@/lib/supabase/server");
-    return createReceiptService(
-        getServerSupabase() as unknown as ReceiptDataClient,
-    );
+    const [{ getServerSupabase }, { hydrateProofRows }] = await Promise.all([
+        import("@/lib/supabase/server"),
+        import("./proofService"),
+    ]);
+    return createReceiptService(getServerSupabase() as unknown as ReceiptDataClient, {
+        hydrateProofRows,
+    });
 };
 
 export async function listReceipts(

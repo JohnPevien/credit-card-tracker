@@ -9,6 +9,10 @@ import ReceiptForm, {
     type ReceiptFormValue,
 } from "@/components/acknowledgements/ReceiptForm";
 import {
+    proofApiBase,
+    uploadProofFile,
+} from "@/components/acknowledgements/ProofUploader";
+import {
     ReceiptRequestError,
     createReceiptRequest,
     requestJson,
@@ -25,6 +29,7 @@ export default function NewAcknowledgementPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [retryKey, setRetryKey] = useState(0);
+    const [stagedProofFiles, setStagedProofFiles] = useState<File[]>([]);
 
     useEffect(() => {
         const controller = new AbortController();
@@ -67,6 +72,28 @@ export default function NewAcknowledgementPage() {
         setError(null);
         try {
             const { receipt } = await createReceiptRequest(value);
+            const apiBase = proofApiBase(receipt.id, "receiver");
+            let expectedRevision = receipt.revisionNumber;
+            let uploadedCount = 0;
+            try {
+                for (const file of stagedProofFiles) {
+                    const result = await uploadProofFile({
+                        apiBase,
+                        file,
+                        expectedRevision,
+                    });
+                    expectedRevision = result.revisionNumber;
+                    uploadedCount += 1;
+                    setStagedProofFiles((current) =>
+                        current.filter((candidate) => candidate !== file),
+                    );
+                }
+            } catch {
+                router.push(
+                    `/acknowledgements/${receipt.id}?proofUpload=retry&uploaded=${uploadedCount}`,
+                );
+                return;
+            }
             router.push(`/acknowledgements/${receipt.id}`);
         } catch (caught) {
             setError(
@@ -145,6 +172,8 @@ export default function NewAcknowledgementPage() {
                     onSubmit={saveDraft}
                     onCancel={() => router.push("/acknowledgements")}
                     isSubmitting={isSubmitting}
+                    stagedProofFiles={stagedProofFiles}
+                    onStagedProofFilesChange={setStagedProofFiles}
                 />
             )}
         </div>

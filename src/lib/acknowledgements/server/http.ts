@@ -87,6 +87,29 @@ export function publicRouteErrorResponse(error: unknown): NextResponse {
     );
 }
 
+export function publicProofRouteErrorResponse(error: unknown): NextResponse {
+    if (
+        error instanceof ZodError ||
+        error instanceof SyntaxError ||
+        (error instanceof Error && error.name === "ReceiptValidationError")
+    ) {
+        return publicJsonNoStore({ error: "Invalid request" }, { status: 400 });
+    }
+    if (error instanceof Error && error.name === "ReceiptConflictError") {
+        return publicJsonNoStore(
+            { error: "Receipt revision conflict" },
+            { status: 409 },
+        );
+    }
+    if (error instanceof Error && error.name === "ReceiptNotFoundError") {
+        return publicJsonNoStore(
+            { error: "Receipt unavailable" },
+            { status: 404 },
+        );
+    }
+    return publicRouteErrorResponse(error);
+}
+
 export function isSameOriginRequest(request: Request): boolean {
     const origin = request.headers.get("origin");
     if (!origin) {
