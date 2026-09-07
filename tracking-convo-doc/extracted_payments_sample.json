@@ -1,0 +1,872 @@
+[
+  {
+    "id": 21,
+    "sender": "CA",
+    "timestamp": "At July 22, 2026, 1:25\u202fPM, CA: Mag upgrade ko claude $100 for 1 month",
+    "text": "Mag upgrade ko claude $100 for 1 month"
+  },
+  {
+    "id": 39,
+    "sender": "You",
+    "timestamp": "At July 16, 2026, 12:06\u202fAM, CA: https://claude.ai/code/artifact/c0ea02ca-e148-4172-881e-d94641094f2f",
+    "text": "https://claude.ai/code/artifact/c0ea02ca-e148-4172-881e-d94641094f2f"
+  },
+  {
+    "id": 49,
+    "sender": "You",
+    "timestamp": "At July 5, 2026, 5:34\u202fPM, You: Pero cash price manang 99k ata",
+    "text": "Pero cash price manang 99k ata"
+  },
+  {
+    "id": 101,
+    "sender": "CA",
+    "timestamp": "At July 4, 2026, 1:53\u202fPM, CA: Pasahan tika 450",
+    "text": "Pasahan tika 450"
+  },
+  {
+    "id": 112,
+    "sender": "CA",
+    "timestamp": "At July 5, 2026, 7:23\u202fAM, CA: Sige kato nalang 450",
+    "text": "Sige kato nalang 450"
+  },
+  {
+    "id": 155,
+    "sender": "You",
+    "timestamp": "At June 30, 2026, 4:43\u202fPM, CA: Kay kung naa sa 40M lang iya limpyo ana, pwede jud ka jack-up ng 5-10M pero apil na ang tax pag transfer ana..",
+    "text": "Kay kung naa sa 40M lang iya limpyo ana, pwede jud ka jack-up ng 5-10M pero apil na ang tax pag transfer ana.."
+  },
+  {
+    "id": 202,
+    "sender": "You",
+    "timestamp": "At June 29, 2026, 12:46\u202fPM, CA: Kung 1 account lang how much? 250?",
+    "text": "Kung 1 account lang how much? 250?"
+  },
+  {
+    "id": 242,
+    "sender": "You",
+    "timestamp": "At June 25, 2026, 8:11\u202fAM, You: Typeless gamita 8,000 words per week libre",
+    "text": "Typeless gamita 8,000 words per week libre"
+  },
+  {
+    "id": 251,
+    "sender": "CA",
+    "timestamp": "At June 25, 2026, 8:31\u202fAM, You: Naa nay existing project ana openwispr pero hasol kaayo i setup. Kanang typeless lisod na na hutdon 8k words",
+    "text": "Naa nay existing project ana openwispr pero hasol kaayo i setup. Kanang typeless lisod na na hutdon 8k words"
+  },
+  {
+    "id": 440,
+    "sender": "CA",
+    "timestamp": "At June 12, 2026, 5:11\u202fPM, CA: Sakto2 lang diau 450+ sqm",
+    "text": "Sakto2 lang diau 450+ sqm"
+  },
+  {
+    "id": 464,
+    "sender": "CA",
+    "timestamp": "At June 7, 2026, 11:09\u202fPM, CA: Naa koy 30k koy. Pero i swipe among ticket sa BTS",
+    "text": "Naa koy 30k koy. Pero i swipe among ticket sa BTS"
+  },
+  {
+    "id": 466,
+    "sender": "You",
+    "timestamp": "At June 8, 2026, 6:47\u202fAM, You: Ang 10k na bayad ha kay mag due nako 11",
+    "text": "Ang 10k na bayad ha kay mag due nako 11"
+  },
+  {
+    "id": 471,
+    "sender": "You",
+    "timestamp": "At June 11, 2026, 3:35\u202fPM, You: Ang 10k i send na",
+    "text": "Ang 10k i send na"
+  },
+  {
+    "id": 509,
+    "sender": "You",
+    "timestamp": "At June 1, 2026, 1:12\u202fPM, You: ang 10,814 + 6k i gcash nlng na tanan",
+    "text": "ang 10,814 + 6k i gcash nlng na tanan"
+  },
+  {
+    "id": 516,
+    "sender": "CA",
+    "timestamp": "At June 3, 2026, 10:28\u202fAM, CA: Koy, naa ka 6k gcash or e-wallet? Pahulama ko today bi. Uli nako tom",
+    "text": "Koy, naa ka 6k gcash or e-wallet? Pahulama ko today bi. Uli nako tom"
+  },
+  {
+    "id": 537,
+    "sender": "CA",
+    "timestamp": "At May 22, 2026, 11:07\u202fAM, You: Dili same say posting sakong eastwest kay dugay mag post si maybank. 3 days posting",
+    "text": "Dili same say posting sakong eastwest kay dugay mag post si maybank. 3 days posting"
+  },
+  {
+    "id": 544,
+    "sender": "CA",
+    "timestamp": "At May 22, 2026, 11:11\u202fAM, CA: I swipe akong balance sa V88 ha",
+    "text": "I swipe akong balance sa V88 ha"
+  },
+  {
+    "id": 545,
+    "sender": "CA",
+    "timestamp": "At May 22, 2026, 11:11\u202fAM, CA: Less 10k",
+    "text": "Less 10k"
+  },
+  {
+    "id": 546,
+    "sender": "CA",
+    "timestamp": "At May 22, 2026, 11:19\u202fAM, You: Ngano less 10k?",
+    "text": "Ngano less 10k?"
+  },
+  {
+    "id": 547,
+    "sender": "You",
+    "timestamp": "At May 22, 2026, 11:20\u202fAM, CA: Less than 10k lang ba",
+    "text": "Less than 10k lang ba"
+  },
+  {
+    "id": 552,
+    "sender": "CA",
+    "timestamp": "At May 25, 2026, 3:50\u202fPM, CA: 10K ako i send unya. Pwede sa friday na ang 6K ha?",
+    "text": "10K ako i send unya. Pwede sa friday na ang 6K ha?"
+  },
+  {
+    "id": 597,
+    "sender": "You",
+    "timestamp": "At May 15, 2026, 10:12\u202fAM, You: Naa kay 1k dira gcash? Pahulam sa bi",
+    "text": "Naa kay 1k dira gcash? Pahulam sa bi"
+  },
+  {
+    "id": 604,
+    "sender": "CA",
+    "timestamp": "At May 15, 2026, 10:15\u202fAM, CA: Naka himo nako invnetory app sa claude code. Less than 2 hours wtf",
+    "text": "Naka himo nako invnetory app sa claude code. Less than 2 hours wtf"
+  },
+  {
+    "id": 608,
+    "sender": "CA",
+    "timestamp": "At May 15, 2026, 11:18\u202fAM, CA: Send ko 10k sa",
+    "text": "Send ko 10k sa"
+  },
+  {
+    "id": 610,
+    "sender": "You",
+    "timestamp": "At May 15, 2026, 11:19\u202fAM, CA: Tapos kung need paka cash this month. Kung ma CC tong kay sa V88 na balance, i CC nalang, tapos i take akong cash",
+    "text": "Tapos kung need paka cash this month. Kung ma CC tong kay sa V88 na balance, i CC nalang, tapos i take akong cash"
+  },
+  {
+    "id": 611,
+    "sender": "CA",
+    "timestamp": "At May 15, 2026, 11:20\u202fAM, CA: Then the week after that 10K napud",
+    "text": "Then the week after that 10K napud"
+  },
+  {
+    "id": 612,
+    "sender": "CA",
+    "timestamp": "At May 15, 2026, 11:20\u202fAM, You: Ok2",
+    "text": "Tapos kung need paka cash this month. Kung ma CC tong kay sa V88 na bala\u2026"
+  },
+  {
+    "id": 629,
+    "sender": "CA",
+    "timestamp": "At May 14, 2026, 9:49\u202fPM, CA: Min 20K, pag nasold CP 40k",
+    "text": "Min 20K, pag nasold CP 40k"
+  },
+  {
+    "id": 634,
+    "sender": "You",
+    "timestamp": "At May 15, 2026, 9:08\u202fAM, You: Kay naa koy i settle na due date sa 18",
+    "text": "Kay naa koy i settle na due date sa 18"
+  },
+  {
+    "id": 640,
+    "sender": "You",
+    "timestamp": "At May 15, 2026, 9:12\u202fAM, CA: Oo.. bayad ko 20K lang sa kung di ma sell tong phonr",
+    "text": "Oo.. bayad ko 20K lang sa kung di ma sell tong phonr"
+  },
+  {
+    "id": 642,
+    "sender": "You",
+    "timestamp": "At May 15, 2026, 9:35\u202fAM, You: Dapat as early as 26 palang makasend naka kay jun 1 ang due date dugay mag post akong payment sa EastWest",
+    "text": "Dapat as early as 26 palang makasend naka kay jun 1 ang due date dugay mag post akong payment sa EastWest"
+  },
+  {
+    "id": 763,
+    "sender": "CA",
+    "timestamp": "At May 5, 2026, 10:20\u202fAM, CA: Kay 1k ni ni bhan2",
+    "text": "Kay 1k ni ni bhan2"
+  },
+  {
+    "id": 791,
+    "sender": "CA",
+    "timestamp": "At May 4, 2026, 11:29\u202fAM, CA: Naka pay naman kog 16k",
+    "text": "Naka pay naman kog 16k"
+  },
+  {
+    "id": 884,
+    "sender": "CA",
+    "timestamp": "At April 30, 2026, 2:18\u202fPM, You: Feeling nako lahi jud ang vibe coded kumpara sa ako way mag gamit AI. Wala man gud review2 pag vibe lang hahaha dili man makabasa sa code",
+    "text": "Feeling nako lahi jud ang vibe coded kumpara sa ako way mag gamit AI. Wala man gud review2 pag vibe lang hahaha dili man makabasa sa code"
+  },
+  {
+    "id": 940,
+    "sender": "CA",
+    "timestamp": "At April 29, 2026, 7:21\u202fPM, You: Sendan tikag stack para di sya magbuot2. Tun-i magbuhat PRD una",
+    "text": "Sendan tikag stack para di sya magbuot2. Tun-i magbuhat PRD una"
+  },
+  {
+    "id": 956,
+    "sender": "You",
+    "timestamp": "At April 29, 2026, 7:25\u202fPM, You: Meaning mag go through repetitions ka with claude hantod mabuo nimo imong PRD na gusto. Ayaw pag one shot kay mag buot2 na sya",
+    "text": "Meaning mag go through repetitions ka with claude hantod mabuo nimo imong PRD na gusto. Ayaw pag one shot kay mag buot2 na sya"
+  },
+  {
+    "id": 961,
+    "sender": "You",
+    "timestamp": "At April 29, 2026, 7:28\u202fPM, CA: Mao ni nahitabo sa akong 1st try codexx.\n\nNag butang pa siag budget 1500-8000$ para sa dev daw hahaha",
+    "text": "Mao ni nahitabo sa akong 1st try codexx.\n\nNag butang pa siag budget 1500-8000$ para sa dev daw hahaha"
+  },
+  {
+    "id": 989,
+    "sender": "You",
+    "timestamp": "At April 29, 2026, 7:19\u202fAM, You: Prep ug another bayad kay naa ko due sa May 5 hahaha",
+    "text": "Prep ug another bayad kay naa ko due sa May 5 hahaha"
+  },
+  {
+    "id": 992,
+    "sender": "CA",
+    "timestamp": "At April 29, 2026, 7:28\u202fAM, CA: 16k na total akong nabayad",
+    "text": "16k na total akong nabayad"
+  },
+  {
+    "id": 1028,
+    "sender": "You",
+    "timestamp": "At April 28, 2026, 8:08\u202fAM, You: Hahaha awa sa cursor naay model dira gpt 5.5 i set ang thinking sa high. Mao na ang gamita kay mas less ang cost",
+    "text": "Hahaha awa sa cursor naay model dira gpt 5.5 i set ang thinking sa high. Mao na ang gamita kay mas less ang cost"
+  },
+  {
+    "id": 1029,
+    "sender": "You",
+    "timestamp": "At April 28, 2026, 8:09\u202fAM, You: Pero ang gamit kay DeepSeek new model nila after a year, ang performance similar kay sonnet 4.6 pero ang presyo sentimo ra HAHAHAHA",
+    "text": "Pero ang gamit kay DeepSeek new model nila after a year, ang performance similar kay sonnet 4.6 pero ang presyo sentimo ra HAHAHAHA"
+  },
+  {
+    "id": 1031,
+    "sender": "You",
+    "timestamp": "At April 28, 2026, 8:12\u202fAM, You: almost 3 million token, wala pay $1 akong nagasto",
+    "text": "almost 3 million token, wala pay $1 akong nagasto"
+  },
+  {
+    "id": 1259,
+    "sender": "CA",
+    "timestamp": "At April 20, 2026, 5:13\u202fPM, You: Naanad ko unli akong credits nag struggle ko sa context consumption yawa $10 na charge sakoa sa claude opus gabii isa lang ka task",
+    "text": "Naanad ko unli akong credits nag struggle ko sa context consumption yawa $10 na charge sakoa sa claude opus gabii isa lang ka task"
+  },
+  {
+    "id": 1283,
+    "sender": "CA",
+    "timestamp": "At April 20, 2026, 12:58\u202fPM, CA: Koy, naa kay card pwede\nMaka swipe mga 80k, straight lang.",
+    "text": "Koy, naa kay card pwede\nMaka swipe mga 80k, straight lang."
+  },
+  {
+    "id": 1286,
+    "sender": "CA",
+    "timestamp": "At April 20, 2026, 1:22\u202fPM, CA: 50% bayad ko sa May 15. 50% pag due",
+    "text": "50% bayad ko sa May 15. 50% pag due"
+  },
+  {
+    "id": 1294,
+    "sender": "You",
+    "timestamp": "At April 20, 2026, 2:25\u202fPM, CA: D nako gusto utang naa pako 1 yr baydunun sa imoha",
+    "text": "D nako gusto utang naa pako 1 yr baydunun sa imoha"
+  },
+  {
+    "id": 1313,
+    "sender": "You",
+    "timestamp": "At April 8, 2026, 9:07\u202fPM, You: Igna ko ha kay para ma track nako kung nag send ka",
+    "text": "Koy send back 5K.  ugma pahulamon tika 20K if baydan ko"
+  },
+  {
+    "id": 1353,
+    "sender": "You",
+    "timestamp": "At April 6, 2026, 9:40\u202fPM, You: Kalimot ko sa pagibig murag 250 naman to last",
+    "text": "Kalimot ko sa pagibig murag 250 naman to last"
+  },
+  {
+    "id": 1360,
+    "sender": "CA",
+    "timestamp": "At April 7, 2026, 5:27\u202fPM, CA: Koy send back 5K.  ugma pahulamon tika 20K if baydan ko",
+    "text": "Koy send back 5K.  ugma pahulamon tika 20K if baydan ko"
+  },
+  {
+    "id": 1378,
+    "sender": "You",
+    "timestamp": "At April 5, 2026, 9:59\u202fPM, You: Kay magbayad ko spaylater now, bale 1k nlng mabilin sakong maribank bwahahahhaa",
+    "text": "Kay magbayad ko spaylater now, bale 1k nlng mabilin sakong maribank bwahahahhaa"
+  },
+  {
+    "id": 1380,
+    "sender": "You",
+    "timestamp": "At April 5, 2026, 10:23\u202fPM, You: Pwede man ko mag cashin from east west to maya naa lang charge 300 per 10k",
+    "text": "Pwede man ko mag cashin from east west to maya naa lang charge 300 per 10k"
+  },
+  {
+    "id": 1396,
+    "sender": "CA",
+    "timestamp": "At April 5, 2026, 10:50\u202fPM, You: Pwede man nako convert to 3 mos payment",
+    "text": "Pwede man nako convert to 3 mos payment"
+  },
+  {
+    "id": 1397,
+    "sender": "You",
+    "timestamp": "At April 5, 2026, 10:52\u202fPM, CA: Ah ok2. Buti integrated sa maya or maribank",
+    "text": "Ah ok2. Buti integrated sa maya or maribank"
+  },
+  {
+    "id": 1400,
+    "sender": "CA",
+    "timestamp": "At April 6, 2026, 2:26\u202fPM, CA: 5k lang mabilin cash on hand nako after bayad sa kumon nila cali",
+    "text": "5k lang mabilin cash on hand nako after bayad sa kumon nila cali"
+  },
+  {
+    "id": 1406,
+    "sender": "You",
+    "timestamp": "At April 4, 2026, 6:13\u202fAM, You: Payts na guro na hahaha 4:50 pa man boarding naka check-in nako",
+    "text": "Payts na guro na hahaha 4:50 pa man boarding naka check-in nako"
+  },
+  {
+    "id": 1415,
+    "sender": "You",
+    "timestamp": "At April 4, 2026, 12:40\u202fPM, You: Naa ka bisag 500 lang? Or 1k haha",
+    "text": "Naa ka bisag 500 lang? Or 1k haha"
+  },
+  {
+    "id": 1423,
+    "sender": "You",
+    "timestamp": "At April 4, 2026, 8:19\u202fPM, CA: Padala ko 7k unya and 10k monday",
+    "text": "Padala ko 7k unya and 10k monday"
+  },
+  {
+    "id": 1426,
+    "sender": "CA",
+    "timestamp": "At April 5, 2026, 6:45\u202fAM, CA: Makapadala ko later 7k",
+    "text": "Makapadala ko later 7k"
+  },
+  {
+    "id": 1493,
+    "sender": "CA",
+    "timestamp": "At April 1, 2026, 6:31\u202fPM, You: Pulihan dayun 5 years payts na na hahaha",
+    "text": "Pulihan dayun 5 years payts na na hahaha"
+  },
+  {
+    "id": 1551,
+    "sender": "CA",
+    "timestamp": "At March 26, 2026, 3:02\u202fPM, CA: Himala lagi wala sila nag putol? Kuyawan ko 4k akong bill",
+    "text": "Himala lagi wala sila nag putol? Kuyawan ko 4k akong bill"
+  },
+  {
+    "id": 1572,
+    "sender": "CA",
+    "timestamp": "At March 12, 2026, 5:10\u202fPM, CA: Ugma nalang atay. 20K lang diay limit sa QR",
+    "text": "Ugma nalang atay. 20K lang diay limit sa QR"
+  },
+  {
+    "id": 1578,
+    "sender": "CA",
+    "timestamp": "At March 12, 2026, 5:22\u202fPM, CA: Kay ang QR transfer limit P20K labg",
+    "text": "Kay ang QR transfer limit P20K labg"
+  },
+  {
+    "id": 1597,
+    "sender": "CA",
+    "timestamp": "At March 11, 2026, 8:41\u202fAM, You: Check price pero ana jud na 50% off lol",
+    "text": "95K selling"
+  },
+  {
+    "id": 1641,
+    "sender": "You",
+    "timestamp": "At March 7, 2026, 9:47\u202fPM, You: asa ka mag send sa 10k?",
+    "text": "asa ka mag send sa 10k?"
+  },
+  {
+    "id": 1672,
+    "sender": "CA",
+    "timestamp": "At March 3, 2026, 8:31\u202fAM, CA: Invested eh.. naa na gani ko blanket authority sa iyang bank account. $76K at my disposal.. kung kawatan ko, ipadala nako ni sa akong bank accoint hahaah",
+    "text": "Invested eh.. naa na gani ko blanket authority sa iyang bank account. $76K at my disposal.. kung kawatan ko, ipadala nako ni sa akong bank accoint hahaah"
+  },
+  {
+    "id": 1682,
+    "sender": "You",
+    "timestamp": "At February 23, 2026, 7:00\u202fPM, You",
+    "text": "\ud83c\udf89 \ud835\uddde\ud835\uddd4\ud835\udddf\ud835\udddc\ud835\udddf\ud835\uddd4\ud835\udde1\ud835\uddda\ud835\uddd4\ud835\udde1 \ud835\uddd9\ud835\uddd8\ud835\udde6\ud835\udde7\ud835\udddc\ud835\udde9\ud835\uddd4\ud835\udddf \ud835\udfee\ud835\udfec\ud835\udfee\ud835\udff2 \ud83c\udf89\n\u201cTunay Siyang Bida, ang Aming Kulturang Pamana\u201d\nHanda na ba ang GenSan? \ud83c\udf0a\u2728\nIsang linggong puno ng makulay na selebrasyon, kultura, musika, palaro, pagkain, at pagkakaisa ang ating pagsasaluhan!\nMula sa engrandeng Parada ng mga Lahi, kapanapanabik na Street Dancing Competition, makasaysayang Tribal Village, hanggang sa mga pasabog na gabi ng musika at fireworks \u2014 siguradong walang tulog, walang patid ang saya!\n\n\ud83c\udf1f \ud835\udde3\ud835\udde5\ud835\uddd8-\ud835\uddde\ud835\uddd4\ud835\udddf\ud835\udddc\ud835\udddf\ud835\uddd4\ud835\udde1\ud835\uddda\ud835\uddd4\ud835\udde1 \ud835\uddd4\ud835\uddd6\ud835\udde7\ud835\udddc\ud835\udde9\ud835\udddc\ud835\udde7\ud835\udddc\ud835\uddd8\ud835\udde6\nSimula Pebrero 18, ramdam na ang festival vibes!\n\ud83c\udfc0 DepEd Friendship Basketball\n\ud83d\udc83 4th Koryo Heneral Dance Congress\n\ud83c\udfc3 Lions Run 9\n\ud83d\udc36 Dog Show\n\ud83d\udc0e Horse Show\n\ud83d\ude4f Inter-Faith Fellowship\n\u265f Pacman Chess Tournament\nat marami pang iba!\n\n\ud83d\udd25 \ud835\uddd9\ud835\uddd8\ud835\uddd5\ud835\udde5\ud835\udde8\ud835\uddd4\ud835\udde5\ud835\uddec \ud835\udfee\ud835\udfef \u2014 GRAND OPENING DAY!\n\ud83c\udf8a Parada ng mga Barangay\n\ud83c\udfe1 Fiestahan sa Barangay\n\ud83c\udf86 Grand Fireworks Display\n\ud83c\udfa4 Live Performance of Cup of Joe\nIsang makulay at engrandeng pagbubukas sa Pioneer Avenue!\n\n\ud83c\udfb6 \ud835\uddd9\ud835\uddd8\ud835\uddd5\ud835\udde5\ud835\udde8\ud835\uddd4\ud835\udde5\ud835\uddec \ud835\udfee\ud835\udff0\u2013\ud835\udfee\ud835\udff1\n\ud83d\udc83 Sayaw Heneral Dance Showdown\n\ud83c\udfbc Musikalilangan\n\ud83d\udc51 Search for Ginang RIC 2026\n\ud83c\udf3e Indigenous Peoples Day\n\ud83c\udfa7 Battle of DJs\n\ud83c\udfb8 Live Band Performances\n\n\ud83d\udcaa \ud835\uddd9\ud835\uddd8\ud835\uddd5\ud835\udde5\ud835\udde8\ud835\uddd4\ud835\udde5\ud835\uddec \ud835\udfee\ud835\udff2\n\ud83c\udf3f Ornamental Plants Derby\n\ud83c\udf89 Fitness Fiesta (Zumba Legends)\n\ud83c\udf19 SKalilangan Youth Night\n\ud83d\udd4c Moro Day sa Tribal Village\n\n\ud83d\udc51 \ud835\uddd9\ud835\uddd8\ud835\uddd5\ud835\udde5\ud835\udde8\ud835\uddd4\ud835\udde5\ud835\uddec \ud835\udfee\ud835\udff3 \u2014 GRAND FINALE!\n\ud83c\udf05 Parada ng mga Lahi\n\ud83d\udc16 Lechon Festival\n\ud83d\udc83 Kadsagayan Street Dancing Competition\n\ud83c\udf87 Grand Fireworks Display\nAt espesyal na pagtatanghal nina:\n\ud83c\udfa4 The Danies\n\ud83c\udfac Piolo Pascual\n\n\ud83c\udf86 Isang pagdiriwang ng kultura, agrikultura, pananampalataya, kabataan, at pagkakaisa!\n\ud83c\udf89 Isang Kalilangan na mas makulay, mas masaya, at mas makasaysayan!\n\ud83d\udccd Kita-kits sa Pioneer Avenue at iba\u2019t ibang festival venues!\nSama-sama nating ipagdiwang ang ating identidad bilang mga Heneral! \ud83d\udc99\u2728\n#KalilanganFestival2026 #GenSan #TunaySiyangBida"
+  },
+  {
+    "id": 1699,
+    "sender": "CA",
+    "timestamp": "At February 27, 2026, 9:15\u202fPM, CA: Padala ko 10k.. share QR",
+    "text": "Padala ko 10k.. share QR"
+  },
+  {
+    "id": 1707,
+    "sender": "You",
+    "timestamp": "At February 23, 2026, 1:37\u202fPM, You: 124k down to 65k na ang BTC",
+    "text": "124k down to 65k na ang BTC"
+  },
+  {
+    "id": 1755,
+    "sender": "CA",
+    "timestamp": "At February 13, 2026, 5:08\u202fPM, CA: Koy i check-out daw ni kung ma Spay ni. 1700 lang dapat total including shipping",
+    "text": "Koy i check-out daw ni kung ma Spay ni. 1700 lang dapat total including shipping"
+  },
+  {
+    "id": 1758,
+    "sender": "You",
+    "timestamp": "At February 13, 2026, 5:08\u202fPM, CA: 20KG variant",
+    "text": "20KG variant"
+  },
+  {
+    "id": 1791,
+    "sender": "You",
+    "timestamp": "At February 12, 2026, 8:06\u202fAM, You: ang mapalit nimo sa 1,600 sa JB Sports kay kato lang duwa ka 10kg dumbbells haha",
+    "text": "ang mapalit nimo sa 1,600 sa JB Sports kay kato lang duwa ka 10kg dumbbells haha"
+  },
+  {
+    "id": 1801,
+    "sender": "You",
+    "timestamp": "At February 12, 2026, 8:21\u202fAM, You: 5kg ug 10kg mas ok",
+    "text": "5kg ug 10kg mas ok"
+  },
+  {
+    "id": 1803,
+    "sender": "CA",
+    "timestamp": "At February 12, 2026, 8:21\u202fAM, CA: 5KG dira",
+    "text": "5KG dira"
+  },
+  {
+    "id": 1805,
+    "sender": "You",
+    "timestamp": "At February 12, 2026, 8:22\u202fAM, CA: Kanang 10kg walay discount",
+    "text": "Kanang 10kg walay discount"
+  },
+  {
+    "id": 1836,
+    "sender": "You",
+    "timestamp": "At February 4, 2026, 1:55\u202fPM, You: Ang 15k",
+    "text": "Ang 15k"
+  },
+  {
+    "id": 1839,
+    "sender": "CA",
+    "timestamp": "At February 6, 2026, 7:47\u202fPM, CA: Bilin nako diri sa balay ang 15k?",
+    "text": "Bilin nako diri sa balay ang 15k?"
+  },
+  {
+    "id": 1848,
+    "sender": "You",
+    "timestamp": "At February 2, 2026, 9:58\u202fPM, You: Sendi sa ko 20k bi",
+    "text": "Sendi sa ko 20k bi"
+  },
+  {
+    "id": 1850,
+    "sender": "CA",
+    "timestamp": "At February 3, 2026, 12:29\u202fAM, You: Daghan ko due feb 3",
+    "text": "Daghan ko due feb 3"
+  },
+  {
+    "id": 1852,
+    "sender": "You",
+    "timestamp": "At February 3, 2026, 12:30\u202fAM, CA: Hmm hatag ko 10k ugma",
+    "text": "Hmm hatag ko 10k ugma"
+  },
+  {
+    "id": 1872,
+    "sender": "CA",
+    "timestamp": "At January 28, 2026, 7:44\u202fPM, CA: Koy, pag mata nnimo naa ko ipa try settle sa CC.. tig 2-4$ lang ni.. tax filing wala man gud ga reply ako amo",
+    "text": "Koy, pag mata nnimo naa ko ipa try settle sa CC.. tig 2-4$ lang ni.. tax filing wala man gud ga reply ako amo"
+  },
+  {
+    "id": 1885,
+    "sender": "CA",
+    "timestamp": "At January 24, 2026, 6:29\u202fPM, You: Ay gagi tag 5k na HAHAHAHA",
+    "text": "Ay gagi tag 5k na HAHAHAHA"
+  },
+  {
+    "id": 1896,
+    "sender": "CA",
+    "timestamp": "At January 24, 2026, 6:35\u202fPM, You: Naa nakoy tong 40k. Ang akoa nlng",
+    "text": "Naa nakoy tong 40k. Ang akoa nlng"
+  },
+  {
+    "id": 1917,
+    "sender": "CA",
+    "timestamp": "At January 23, 2026, 4:14\u202fPM, CA: May 10k ko",
+    "text": "May 10k ko"
+  },
+  {
+    "id": 1941,
+    "sender": "You",
+    "timestamp": "At January 22, 2026, 10:35\u202fAM, You: Bayari imong utang kay makabayad ko hahaha 30k akong bill sa shopee haha",
+    "text": "Bayari imong utang kay makabayad ko hahaha 30k akong bill sa shopee haha"
+  },
+  {
+    "id": 1981,
+    "sender": "You",
+    "timestamp": "At January 21, 2026, 9:50\u202fAM, You: Bisag SSS ma 3 months to pay lol",
+    "text": "Bisag SSS ma 3 months to pay lol"
+  },
+  {
+    "id": 2008,
+    "sender": "You",
+    "timestamp": "At January 21, 2026, 9:24\u202fAM, CA: Geh2.. pila gani ako balance 30k? Sa 30 ko na bayaran ha",
+    "text": "Geh2.. pila gani ako balance 30k? Sa 30 ko na bayaran ha"
+  },
+  {
+    "id": 2012,
+    "sender": "You",
+    "timestamp": "At January 21, 2026, 9:40\u202fAM, CA: Overdue naman nang P30k diba",
+    "text": "Overdue naman nang P30k diba"
+  },
+  {
+    "id": 2017,
+    "sender": "You",
+    "timestamp": "At January 21, 2026, 9:42\u202fAM, CA: Ipa past due lang tong P30K taman Jan 30.. bayaran ko lang + interest.. \n\nSa 25Th akong bayaran tong current january bill",
+    "text": "Ipa past due lang tong P30K taman Jan 30.. bayaran ko lang + interest.. \n\nSa 25Th akong bayaran tong current january bill"
+  },
+  {
+    "id": 2018,
+    "sender": "You",
+    "timestamp": "At January 21, 2026, 9:44\u202fAM, You: na past due gani ko BPI haha 1k kaayo haha pistiha",
+    "text": "na past due gani ko BPI haha 1k kaayo haha pistiha"
+  },
+  {
+    "id": 2021,
+    "sender": "CA",
+    "timestamp": "At January 21, 2026, 9:46\u202fAM, You: yeah walay patawad 33k man gud ako bill",
+    "text": "yeah walay patawad 33k man gud ako bill"
+  },
+  {
+    "id": 2023,
+    "sender": "You",
+    "timestamp": "At January 21, 2026, 9:46\u202fAM, You: deduct lang laptop ug maxicare",
+    "text": "Ipa past due lang tong P30K taman Jan 30.. bayaran ko lang + interest.. \u2026"
+  },
+  {
+    "id": 2027,
+    "sender": "CA",
+    "timestamp": "At January 21, 2026, 9:48\u202fAM, You: Nakuratan gani ko nahurot nako ang 75k credit sa spaylater haha gigamit man gud nako pambayad bills kay naka 3 months to pay HAHAHAHA",
+    "text": "Nakuratan gani ko nahurot nako ang 75k credit sa spaylater haha gigamit man gud nako pambayad bills kay naka 3 months to pay HAHAHAHA"
+  },
+  {
+    "id": 2029,
+    "sender": "CA",
+    "timestamp": "At January 21, 2026, 9:50\u202fAM, You: Bisag SSS ma 3 months to pay lol",
+    "text": "Bisag SSS ma 3 months to pay lol"
+  },
+  {
+    "id": 2047,
+    "sender": "CA",
+    "timestamp": "At January 13, 2026, 7:40\u202fAM, You: kuya ang 5k",
+    "text": "kuya ang 5k"
+  },
+  {
+    "id": 2053,
+    "sender": "CA",
+    "timestamp": "At January 13, 2026, 7:41\u202fAM, You: bobo maning bpi katong 8 pa diay due hahaha wtf nya 30k",
+    "text": "bobo maning bpi katong 8 pa diay due hahaha wtf nya 30k"
+  },
+  {
+    "id": 2155,
+    "sender": "You",
+    "timestamp": "At January 8, 2026, 7:24\u202fAM, You: Cloudtilt (and Loewe versions): Designed strictly for lifestyle and walking, these use \"CloudTec Phase\" technology to create a super soft, smooth feeling perfect for all-day casual wear.\n\nCloudswift: Built specifically for \"urban running,\" these feature a tougher, firmer foam designed to protect your feet from hard city concrete while keeping a secure, sock-like fit.\n\nCloud X 4 / Cloud X 6: These are versatile cross-training shoes meant for the gym, HIIT, and short runs, offering a stable and low-to-the-ground feel for lifting weights or agility drills.\n\nCloudmonster (1 & 2): These are maximum-cushioning running shoes with massive soles, designed to absorb the most impact possible for long-distance runs or spending hours on your feet.\n\nTHE ROGER Pro 2: This is a dedicated performance tennis shoe built for lateral (side-to-side) stability and court grip, making it too stiff for comfortable long-distance walking.\n\nCloudspike Amplius: This is a specialized track-and-field racing spike designed only for competitive running on rubber tracks, not for street use.",
+    "text": "Cloudtilt (and Loewe versions): Designed strictly for lifestyle and walking, these use \"CloudTec Phase\" technology to create a super soft, smooth feeling perfect for all-day casual wear.\n\nCloudswift: Built specifically for \"urban running,\" these feature a tougher, firmer foam designed to protect your feet from hard city concrete while keeping a secure, sock-like fit.\n\nCloud X 4 / Cloud X 6: These are versatile cross-training shoes meant for the gym, HIIT, and short runs, offering a stable and low-to-the-ground feel for lifting weights or agility drills.\n\nCloudmonster (1 & 2): These are maximum-cushioning running shoes with massive soles, designed to absorb the most impact possible for long-distance runs or spending hours on your feet.\n\nTHE ROGER Pro 2: This is a dedicated performance tennis shoe built for lateral (side-to-side) stability and court grip, making it too stiff for comfortable long-distance walking.\n\nCloudspike Amplius: This is a specialized track-and-field racing spike designed only for competitive running on rubber tracks, not for street use."
+  },
+  {
+    "id": 2171,
+    "sender": "You",
+    "timestamp": "At January 6, 2026, 10:19\u202fAM, You: Wala pa man diay na send ang 5k no? Ibawas nlng ang laptop didto haha",
+    "text": "Wala pa man diay na send ang 5k no? Ibawas nlng ang laptop didto haha"
+  },
+  {
+    "id": 2213,
+    "sender": "CA",
+    "timestamp": "At January 3, 2026, 9:14\u202fPM, You: Mao gi add nako nang pickleball kay 60 mins payts na",
+    "text": "Mao gi add nako nang pickleball kay 60 mins payts na"
+  },
+  {
+    "id": 2247,
+    "sender": "CA",
+    "timestamp": "At January 3, 2026, 2:39\u202fPM, CA: January mag pay naka no? December lang man taman tong 50k",
+    "text": "January mag pay naka no? December lang man taman tong 50k"
+  },
+  {
+    "id": 2279,
+    "sender": "You",
+    "timestamp": "At January 3, 2026, 2:04\u202fPM, CA: kanang 7k each 50% na na? 100% pa man na",
+    "text": "kanang 7k each 50% na na? 100% pa man na"
+  },
+  {
+    "id": 2293,
+    "sender": "CA",
+    "timestamp": "At January 3, 2026, 2:16\u202fPM, CA: pay koa dditional tonight para 30k nalang. this january nalang ha",
+    "text": "pay koa dditional tonight para 30k nalang. this january nalang ha"
+  },
+  {
+    "id": 2305,
+    "sender": "You",
+    "timestamp": "At January 3, 2026, 2:18\u202fPM, CA: +5k payment ko unya",
+    "text": "+5k payment ko unya"
+  },
+  {
+    "id": 2306,
+    "sender": "CA",
+    "timestamp": "At January 3, 2026, 2:18\u202fPM, CA: so 25K nalang",
+    "text": "so 25K nalang"
+  },
+  {
+    "id": 2309,
+    "sender": "CA",
+    "timestamp": "At January 2, 2026, 8:29\u202fPM, CA: Total payment nako P20K + P10K + 2 months na maxicare deduc",
+    "text": "Total payment nako P20K + P10K + 2 months na maxicare deduc"
+  },
+  {
+    "id": 2315,
+    "sender": "You",
+    "timestamp": "At January 3, 2026, 1:27\u202fPM, You: gi spreadsheet nako haha 75k total HAHAHAHA i verify lang transactions",
+    "text": "gi spreadsheet nako haha 75k total HAHAHAHA i verify lang transactions"
+  },
+  {
+    "id": 2316,
+    "sender": "You",
+    "timestamp": "At January 3, 2026, 1:29\u202fPM, You: https://docs.google.com/spreadsheets/d/1Au6Oiuix6IHEEuLoCJQL16_EwL1tuSklm40yx68ocps/edit?usp=sharing",
+    "text": "https://docs.google.com/spreadsheets/d/1Au6Oiuix6IHEEuLoCJQL16_EwL1tuSklm40yx68ocps/edit?usp=sharing"
+  },
+  {
+    "id": 2330,
+    "sender": "You",
+    "timestamp": "At January 2, 2026, 7:37\u202fPM, You: diba mao nang unahan sa inyo? ",
+    "text": "\ud83d\udce3GREAT NEWS!!\n FIVE\ud83d\udd90\ud83c\udffb UNITS of @[100087794331736:2048:VSM Meadows] VICTORIO are now READY FOR OCCUPANCY\n\n\ud83c\udfe1Block 6 Lot 9\n\ud83c\udfe1Block 6 Lot 16\n\ud83c\udfe1Block 6 Lot 17\n\ud83c\udfe1Block 6 Lot 18\n\ud83c\udfe1Block 6 Lot 19\n\n\ud83d\udcd0LOT AREA : 133 sq.m.\n\ud83d\udccfFLOOR AREA : 44.75 sq.m.\n\n\ud83d\udcddRESERVE NOW for Only 40,000.00 pesos.\n\ud83d\udccdLocated at Conel Road, Purok 9, Barangay Katangawan, General Santos City.\n\nNOTE: Kindly bring clear hard copies of all required documents upon reservation. You can check the comment section for the complete list of requirements for both reservation and Pag-IBIG Members.\n\n#GENSANVSMREALTYCORP.\n#VSMMeadowsGensan \n#VSM #RFO #PagibigFinancing #highlights\u30b7\u309a \nDISCLAIMER:\nNo Copyright Infringement caption intended music not mine. Music belongs to the rightful owner."
+  },
+  {
+    "id": 2338,
+    "sender": "CA",
+    "timestamp": "At January 2, 2026, 8:01\u202fPM, CA: Hatag ko 10k unya",
+    "text": "Hatag ko 10k unya"
+  },
+  {
+    "id": 2341,
+    "sender": "CA",
+    "timestamp": "At January 2, 2026, 8:01\u202fPM, You: Gago kaayo mag singil na sila sa 12 nya walay statement",
+    "text": "Gago kaayo mag singil na sila sa 12 nya walay statement"
+  },
+  {
+    "id": 2352,
+    "sender": "CA",
+    "timestamp": "At January 2, 2026, 8:29\u202fPM, CA: Total payment nako P20K + P10K + 2 months na maxicare deduc",
+    "text": "Total payment nako P20K + P10K + 2 months na maxicare deduc"
+  },
+  {
+    "id": 2365,
+    "sender": "CA",
+    "timestamp": "At December 31, 2025, 4:29\u202fPM, CA: Sale oh less than 1k",
+    "text": "Sale oh less than 1k"
+  },
+  {
+    "id": 2428,
+    "sender": "You",
+    "timestamp": "At December 28, 2025, 2:19\u202fPM, CA: 16GB ram naba to gi send nako",
+    "text": "16GB ram naba to gi send nako"
+  },
+  {
+    "id": 2451,
+    "sender": "You",
+    "timestamp": "At December 27, 2025, 1:29\u202fPM, CA: Tig 5k man",
+    "text": "Tig 5k man"
+  },
+  {
+    "id": 2460,
+    "sender": "CA",
+    "timestamp": "At December 27, 2025, 1:42\u202fPM, You: Kalimot ko haha pero naa pa man tung 20k. Ok na na para isahan. Dugay ang mga December na statement na delay2",
+    "text": "Kalimot ko haha pero naa pa man tung 20k. Ok na na para isahan. Dugay ang mga December na statement na delay2"
+  },
+  {
+    "id": 2461,
+    "sender": "You",
+    "timestamp": "At December 27, 2025, 1:43\u202fPM, CA: Add lang kog mga 15k sakto na?",
+    "text": "Add lang kog mga 15k sakto na?"
+  },
+  {
+    "id": 2499,
+    "sender": "You",
+    "timestamp": "At December 27, 2025, 10:37\u202fAM, You: Yawa na gcash 200 kaayo tubo",
+    "text": "Yawa na gcash 200 kaayo tubo"
+  },
+  {
+    "id": 2503,
+    "sender": "CA",
+    "timestamp": "At December 22, 2025, 6:09\u202fPM, You: dili to installment eh, 1 payment lang",
+    "text": "dili to installment eh, 1 payment lang"
+  },
+  {
+    "id": 2549,
+    "sender": "CA",
+    "timestamp": "At December 22, 2025, 6:08\u202fPM, CA: Naa na sila 3months na dili pay later",
+    "text": "Naa na sila 3months na dili pay later"
+  },
+  {
+    "id": 2588,
+    "sender": "CA",
+    "timestamp": "At December 12, 2025, 10:48\u202fAM, You: Coding first jud. Mao man naga generate dakog share sa revenue kay charged per consumption, dili based monthly subscription. Think of kanang mga AI coder like v0, lovable.",
+    "text": "Coding first jud. Mao man naga generate dakog share sa revenue kay charged per consumption, dili based monthly subscription. Think of kanang mga AI coder like v0, lovable."
+  },
+  {
+    "id": 2612,
+    "sender": "CA",
+    "timestamp": "At December 9, 2025, 8:06\u202fAM, CA: Koy totala daw pila na akong CC charges Nov + tong mga current swipes.. basig 100k na na. Hahaahhaha",
+    "text": "Koy totala daw pila na akong CC charges Nov + tong mga current swipes.. basig 100k na na. Hahaahhaha"
+  },
+  {
+    "id": 2651,
+    "sender": "CA",
+    "timestamp": "At December 4, 2025, 1:50\u202fPM, CA: 5 yesrs to pay",
+    "text": "credit to cash to below 1%"
+  },
+  {
+    "id": 2652,
+    "sender": "CA",
+    "timestamp": "At December 4, 2025, 1:50\u202fPM, CA: 5 yesrs to pay",
+    "text": "5 yesrs to pay"
+  },
+  {
+    "id": 2696,
+    "sender": "CA",
+    "timestamp": "At December 4, 2025, 1:49\u202fPM, You: https://l.facebook.com/l.php?u=https%3A%2F%2Fwww.unionbankph.com%2Fr%2Ftp1rewards%3Ffbclid%3DIwZXh0bgNhZW0CMTAAYnJpZBExMlFHVzNPcVNQRHhBVHVWa3NydGMGYXBwX2lkEDIyMjAzOTE3ODgyMDA4OTIAAR4mIfJXOcLL4cCURQZvc77Of-oFs9qorz_5jVopsaNAdJgetninEYi1zSQYXw_aem_YY5U3oLxfTrHGjL_1Dmf5Q&h=AT1PiIt35COMpS1tc--awAkz6n9b7rQp_QKBkTfhN7iJr0v2wnKIQRa_W0dtNVz90ahZKaztSDQiZnpraDPL-4y2rUSy2Wy7TUm9zpSwzScYL7mEbzzZ5BnAlTl7ephUGtf6nv6mnPGBD2H4&__tn__=R]-R&c[0]=AT2CJZPHfH3eEdVgFMga0dqfQ83Q33BNNGkCIn3DLxLeZ-dDD1IBUoTEno6tnIo4d3LPcxovrzTFkrMTs0fySqulk10qPiSngN2fsM8NyDNO7fTJvA8mYOnzNL65sUb-Z01wMzCWns8Jh7vcfcs_h1Yo847jRAzNJ3zeENK7zTrCttE",
+    "text": "https://l.facebook.com/l.php?u=https%3A%2F%2Fwww.unionbankph.com%2Fr%2Ftp1rewards%3Ffbclid%3DIwZXh0bgNhZW0CMTAAYnJpZBExMlFHVzNPcVNQRHhBVHVWa3NydGMGYXBwX2lkEDIyMjAzOTE3ODgyMDA4OTIAAR4mIfJXOcLL4cCURQZvc77Of-oFs9qorz_5jVopsaNAdJgetninEYi1zSQYXw_aem_YY5U3oLxfTrHGjL_1Dmf5Q&h=AT1PiIt35COMpS1tc--awAkz6n9b7rQp_QKBkTfhN7iJr0v2wnKIQRa_W0dtNVz90ahZKaztSDQiZnpraDPL-4y2rUSy2Wy7TUm9zpSwzScYL7mEbzzZ5BnAlTl7ephUGtf6nv6mnPGBD2H4&__tn__=R]-R&c[0]=AT2CJZPHfH3eEdVgFMga0dqfQ83Q33BNNGkCIn3DLxLeZ-dDD1IBUoTEno6tnIo4d3LPcxovrzTFkrMTs0fySqulk10qPiSngN2fsM8NyDNO7fTJvA8mYOnzNL65sUb-Z01wMzCWns8Jh7vcfcs_h1Yo847jRAzNJ3zeENK7zTrCttE"
+  },
+  {
+    "id": 2699,
+    "sender": "You",
+    "timestamp": "At December 4, 2025, 1:49\u202fPM, You: credit to cash to below 1%",
+    "text": "credit to cash to below 1%"
+  },
+  {
+    "id": 2700,
+    "sender": "You",
+    "timestamp": "At December 4, 2025, 1:50\u202fPM, CA: 5 yesrs to pay",
+    "text": "5 yesrs to pay"
+  },
+  {
+    "id": 2766,
+    "sender": "You",
+    "timestamp": "At December 3, 2025, 12:08\u202fPM, You: Barato raman to 5k ra",
+    "text": "Barato raman to 5k ra"
+  },
+  {
+    "id": 2822,
+    "sender": "CA",
+    "timestamp": "At December 3, 2025, 11:22\u202fAM, You: Nindot unta na 8 hours pay",
+    "text": "Nindot unta na 8 hours pay"
+  },
+  {
+    "id": 2830,
+    "sender": "CA",
+    "timestamp": "At December 3, 2025, 11:24\u202fAM, CA: $5000 monthly iya bayad ato yawa kaayo",
+    "text": "$5000 monthly iya bayad ato yawa kaayo"
+  },
+  {
+    "id": 2898,
+    "sender": "You",
+    "timestamp": "At December 2, 2025, 2:06\u202fPM, You: Mga 80k no?",
+    "text": "Mga 80k no?"
+  },
+  {
+    "id": 2906,
+    "sender": "You",
+    "timestamp": "At December 2, 2025, 2:28\u202fPM, You: Kanang 4060 or 4070 ang graphics card hahaha pawer kaayo na ba",
+    "text": "Kanang 4060 or 4070 ang graphics card hahaha pawer kaayo na ba"
+  },
+  {
+    "id": 2965,
+    "sender": "CA",
+    "timestamp": "At November 26, 2025, 11:07\u202fAM, You: 10,250 na daan kay delivery fee nya change ulam",
+    "text": "10,250 na daan kay delivery fee nya change ulam"
+  },
+  {
+    "id": 2968,
+    "sender": "CA",
+    "timestamp": "At November 26, 2025, 11:08\u202fAM, CA: 10250 + 2200",
+    "text": "10250 + 2200"
+  },
+  {
+    "id": 2969,
+    "sender": "CA",
+    "timestamp": "At November 26, 2025, 11:14\u202fAM, You: \ud83e\udeb4ORDER FORM B1\ud83e\udeb4\n\nDate: Nov 29\nTime:6pm\nComplete Name: John Pevien \nAddress: Zone 25 botanic compound, barangay city heights, near trade School. \nContact #: 09774192805\n\n9,700 + 2,200 Upgrade 40-43kg\n\n1. Beef cal change to Beef steak\n2. Chicken Afritada change to Pork humba add 200\n3. Fried Chicken\n4. Fish Fillet\n5. Sotanghon to Pork Caldereta add 150\n6. Maja\n7. Bopis\n\n9,700 + 350 sa changes+ 2,200\n\n=12,250+ 120 Delivery Fee",
+    "text": "\ud83e\udeb4ORDER FORM B1\ud83e\udeb4\n\nDate: Nov 29\nTime:6pm\nComplete Name: John Pevien \nAddress: Zone 25 botanic compound, barangay city heights, near trade School. \nContact #: 09774192805\n\n9,700 + 2,200 Upgrade 40-43kg\n\n1. Beef cal change to Beef steak\n2. Chicken Afritada change to Pork humba add 200\n3. Fried Chicken\n4. Fish Fillet\n5. Sotanghon to Pork Caldereta add 150\n6. Maja\n7. Bopis\n\n9,700 + 350 sa changes+ 2,200\n\n=12,250+ 120 Delivery Fee"
+  },
+  {
+    "id": 2974,
+    "sender": "You",
+    "timestamp": "At November 26, 2025, 5:43\u202fPM, You: Dakua diay sa 1% na interest rate oy nag offer sakoa EW. Haha dapat naa lang sa mga 0.6% akong i avail sunod.",
+    "text": "Dakua diay sa 1% na interest rate oy nag offer sakoa EW. Haha dapat naa lang sa mga 0.6% akong i avail sunod."
+  },
+  {
+    "id": 2976,
+    "sender": "You",
+    "timestamp": "At November 26, 2025, 5:55\u202fPM, CA: Standard mana",
+    "text": "Dakua diay sa 1% na interest rate oy nag offer sakoa EW. Haha dapat naa \u2026"
+  },
+  {
+    "id": 3006,
+    "sender": "CA",
+    "timestamp": "January 22, 2026, 9:08\u202fAM",
+    "text": "Buy \u3010Local Delivery\u3011Ajazz Ak820 Pro RGB Tri-Mode Gaming Mechanical Keyboard 82 Key Bluetooth 2.4GHz Wireless Gamer Keyboard Custom Gasket for Pc Laptop online today! Product brand: AJAZZ \nProduct model: AK820 \nLighting effect: RGB, 20 sets of lighting effects \nKeycap material: PBT material OEM height \nProduct size: 327\u00d7136\u00d740mm \nKey layout: 81 keys with metal volume knob \nInterface type: Type-C\nsystems: Windows7/8/10/11, Mac, Android \nPackaging list: keyboard * 1, data cable * 1, instruction manual * 1, dust cover * 1, key/switch puller 2-in-1 * 1\n - Enjoy best prices with free shipping vouchers."
+  },
+  {
+    "id": 3028,
+    "sender": "CA",
+    "timestamp": "February 13, 2026, 5:08\u202fPM",
+    "text": "Buy 6 In 1 Adjustable Dumbbell Set 20 Kg / 30 Kg Barbell / Kettlebell /Dumbbells/ Push Up Workout Set online today! Features:\n6 in 1 design 20KG adjustable Dumbbell set\nWeight plates: 1.25kg*4pcs, 1.5kg*4pcs, 2kg*4pcs\nConnector Rod: 1pc 40 CM\nDumbbell Handle: 2pcs\nCollar Nut: 4pcs\nKettlebell handle: 2pcs\nKettlebell base: 1pc\n\n6 in 1 design 30KG adjustable Dumbbell set\nWeight plates: 1.25kg*4pcs, 1.5kg*4pcs, 2kg*4pcs 2.5kg*4pcs\nConnector Rod: 1pc 40 Cm\nDumbbell Handle: 2pcs\nCollar Nut: 4pcs\nKettlebell handle: 2pcs\nKettlebell base: 1pc\nGloves & Wristbands 1 Set\n\nFeatures:\n6 in 1 design 20KG/30KG adjustable Dumbbell set\n\n1. Dumbbell Mode\n2. Light Barbell Mode\n3. Heavy Barbell Mode\n4. Kettlebell Mode\n5.Gloves \n6.Wristbands\n\nNOTE: Huwag po isabay dito ang adjustable bench. Thank you - Enjoy best prices with free shipping vouchers."
+  },
+  {
+    "id": 3048,
+    "sender": "CA",
+    "timestamp": "April 25, 2026, 5:32\u202fPM",
+    "text": "Instead of watching Netflix tonight. \n\nSpend a day mastering Claude here: claude101.com\n\nComment \"GUIDE\" if you want my prompt library, infographics, and AI guides.\n\n\ud83d\udcbe Save this to master Claude."
+  },
+  {
+    "id": 3055,
+    "sender": "You",
+    "timestamp": "May 1, 2026, 11:43\u202fAM",
+    "text": "3.5K likes, 181 comments. \"The Only 20 Ways to Make Money with AI in 2026\""
+  },
+  {
+    "id": 3060,
+    "sender": "CA",
+    "timestamp": "May 4, 2026, 2:19\u202fPM",
+    "text": "42K likes, 918 comments. \"She Sold 49% For $26 Billion\""
+  },
+  {
+    "id": 3061,
+    "sender": "You",
+    "timestamp": "May 5, 2026, 1:06\u202fAM",
+    "text": "Anthropic banned OpenClaw. Now ChatGPT powers it.\n\nOpenClaw is an AI agent that lives on your laptop.\n\nIt manages your emails, files, and calendar while you sleep.\n\n3.2M people already run it through WhatsApp and Slack.\n\nAnthropic blocked its users in April because costs got too high.\n\nOpenAI just tied ChatGPT to it for $23 a month.\n\nYour login can now control an agent that acts on your behalf.\n\nRead more on TNW: https://thenextweb.com/news/openai-openclaw-chatgpt-subscription-agent"
+  },
+  {
+    "id": 3069,
+    "sender": "You",
+    "timestamp": "May 15, 2026, 9:35\u202fAM",
+    "text": "Start your newsletter today with beehiiv! Head to https://beehiiv.link/cowwk7 and use CODIE30 to get 30% off your first 3 months.SBA lending just hit an all-..."
+  },
+  {
+    "id": 3083,
+    "sender": "You",
+    "timestamp": "July 2, 2026, 9:33\u202fAM",
+    "text": "\ud83d\udea8BREAKING: Claude\u2019s biggest update is FREE!! \n\nSonnet 5 launched today and quietly replaced the Claude everyone was using yesterday.\n\nHere is what actually changed \ud83d\udc47\ud83c\udffd\ud83d\udc47\ud83c\udffd"
+  },
+  {
+    "id": 3084,
+    "sender": "CA",
+    "timestamp": "July 6, 2026, 5:32\u202fAM",
+    "text": "\u300cNEW SALE\u300dAnker SOLIX C1000 Gen 2 Portable Power Station, 2,000W..."
+  },
+  {
+    "id": 3085,
+    "sender": "CA",
+    "timestamp": "July 6, 2026, 5:32\u202fAM",
+    "text": "Buy \u300cNEW SALE\u300dAnker SOLIX C1000 Gen 2 Portable Power Station, 2,000W (Peak 3,000W) Solar Generator, F online today! \u300cNEW SALE\u300dAnker SOLIX C1000 Gen 2 Portable Power Station, 2,000W (Peak 3,000W) Solar Generator, F - Enjoy best prices with free shipping vouchers."
+  }
+]

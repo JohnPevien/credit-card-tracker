@@ -1,0 +1,331 @@
+[
+  {
+    "msg_id": 101,
+    "sender": "CA",
+    "timestamp": "At July 4, 2026, 1:53\u202fPM, CA: Pasahan tika 450",
+    "category": "Money Transfer / Remittance",
+    "text": "Pasahan tika 450"
+  },
+  {
+    "msg_id": 202,
+    "sender": "You",
+    "timestamp": "At June 29, 2026, 12:46\u202fPM, CA: Kung 1 account lang how much? 250?",
+    "category": "Other Payment",
+    "text": "Kung 1 account lang how much? 250?"
+  },
+  {
+    "msg_id": 242,
+    "sender": "You",
+    "timestamp": "At June 25, 2026, 8:11\u202fAM, You: Typeless gamita 8,000 words per week libre",
+    "category": "Other Payment",
+    "text": "Typeless gamita 8,000 words per week libre"
+  },
+  {
+    "msg_id": 251,
+    "sender": "CA",
+    "timestamp": "At June 25, 2026, 8:31\u202fAM, You: Naa nay existing project ana openwispr pero hasol kaayo i setup. Kanang typeless lisod na na hutdon 8k words",
+    "category": "Other Payment",
+    "text": "Naa nay existing project ana openwispr pero hasol kaayo i setup. Kanang typeless lisod na na hutdon 8k words"
+  },
+  {
+    "msg_id": 464,
+    "sender": "CA",
+    "timestamp": "At June 7, 2026, 11:09\u202fPM, CA: Naa koy 30k koy. Pero i swipe among ticket sa BTS",
+    "category": "Card Swipe / Charge",
+    "text": "Naa koy 30k koy. Pero i swipe among ticket sa BTS"
+  },
+  {
+    "msg_id": 466,
+    "sender": "You",
+    "timestamp": "At June 8, 2026, 6:47\u202fAM, You: Ang 10k na bayad ha kay mag due nako 11",
+    "category": "Money Transfer / Remittance",
+    "text": "Ang 10k na bayad ha kay mag due nako 11"
+  },
+  {
+    "msg_id": 509,
+    "sender": "You",
+    "timestamp": "At June 1, 2026, 1:12\u202fPM, You: ang 10,814 + 6k i gcash nlng na tanan",
+    "category": "Money Transfer / Remittance",
+    "text": "ang 10,814 + 6k i gcash nlng na tanan"
+  },
+  {
+    "msg_id": 516,
+    "sender": "CA",
+    "timestamp": "At June 3, 2026, 10:28\u202fAM, CA: Koy, naa ka 6k gcash or e-wallet? Pahulama ko today bi. Uli nako tom",
+    "category": "Money Transfer / Remittance",
+    "text": "Koy, naa ka 6k gcash or e-wallet? Pahulama ko today bi. Uli nako tom"
+  },
+  {
+    "msg_id": 545,
+    "sender": "CA",
+    "timestamp": "At May 22, 2026, 11:11\u202fAM, CA: Less 10k",
+    "category": "Money Transfer / Remittance",
+    "text": "Less 10k"
+  },
+  {
+    "msg_id": 546,
+    "sender": "CA",
+    "timestamp": "At May 22, 2026, 11:19\u202fAM, You: Ngano less 10k?",
+    "category": "Money Transfer / Remittance",
+    "text": "Ngano less 10k?"
+  },
+  {
+    "msg_id": 547,
+    "sender": "You",
+    "timestamp": "At May 22, 2026, 11:20\u202fAM, CA: Less than 10k lang ba",
+    "category": "Money Transfer / Remittance",
+    "text": "Less than 10k lang ba"
+  },
+  {
+    "msg_id": 597,
+    "sender": "You",
+    "timestamp": "At May 15, 2026, 10:12\u202fAM, You: Naa kay 1k dira gcash? Pahulam sa bi",
+    "category": "Money Transfer / Remittance",
+    "text": "Naa kay 1k dira gcash? Pahulam sa bi"
+  },
+  {
+    "msg_id": 640,
+    "sender": "You",
+    "timestamp": "At May 15, 2026, 9:12\u202fAM, CA: Oo.. bayad ko 20K lang sa kung di ma sell tong phonr",
+    "category": "Money Transfer / Remittance",
+    "text": "Oo.. bayad ko 20K lang sa kung di ma sell tong phonr"
+  },
+  {
+    "msg_id": 791,
+    "sender": "CA",
+    "timestamp": "At May 4, 2026, 11:29\u202fAM, CA: Naka pay naman kog 16k",
+    "category": "Money Transfer / Remittance",
+    "text": "Naka pay naman kog 16k"
+  },
+  {
+    "msg_id": 961,
+    "sender": "You",
+    "timestamp": "At April 29, 2026, 7:28\u202fPM, CA: Mao ni nahitabo sa akong 1st try codexx.\n\nNag butang pa siag budget 1500-8000$ para sa dev daw hahaha",
+    "category": "Other Payment",
+    "text": "Mao ni nahitabo sa akong 1st try codexx.\n\nNag butang pa siag budget 1500-8000$ para sa dev daw hahaha"
+  },
+  {
+    "msg_id": 992,
+    "sender": "CA",
+    "timestamp": "At April 29, 2026, 7:28\u202fAM, CA: 16k na total akong nabayad",
+    "category": "Money Transfer / Remittance",
+    "text": "16k na total akong nabayad"
+  },
+  {
+    "msg_id": 1283,
+    "sender": "CA",
+    "timestamp": "At April 20, 2026, 12:58\u202fPM, CA: Koy, naa kay card pwede\nMaka swipe mga 80k, straight lang.",
+    "category": "Card Swipe / Charge",
+    "text": "Koy, naa kay card pwede\nMaka swipe mga 80k, straight lang."
+  },
+  {
+    "msg_id": 1378,
+    "sender": "You",
+    "timestamp": "At April 5, 2026, 9:59\u202fPM, You: Kay magbayad ko spaylater now, bale 1k nlng mabilin sakong maribank bwahahahhaa",
+    "category": "Money Transfer / Remittance",
+    "text": "Kay magbayad ko spaylater now, bale 1k nlng mabilin sakong maribank bwahahahhaa"
+  },
+  {
+    "msg_id": 1380,
+    "sender": "You",
+    "timestamp": "At April 5, 2026, 10:23\u202fPM, You: Pwede man ko mag cashin from east west to maya naa lang charge 300 per 10k",
+    "category": "Money Transfer / Remittance",
+    "text": "Pwede man ko mag cashin from east west to maya naa lang charge 300 per 10k"
+  },
+  {
+    "msg_id": 1400,
+    "sender": "CA",
+    "timestamp": "At April 6, 2026, 2:26\u202fPM, CA: 5k lang mabilin cash on hand nako after bayad sa kumon nila cali",
+    "category": "Money Transfer / Remittance",
+    "text": "5k lang mabilin cash on hand nako after bayad sa kumon nila cali"
+  },
+  {
+    "msg_id": 1423,
+    "sender": "You",
+    "timestamp": "At April 4, 2026, 8:19\u202fPM, CA: Padala ko 7k unya and 10k monday",
+    "category": "Money Transfer / Remittance",
+    "text": "Padala ko 7k unya and 10k monday"
+  },
+  {
+    "msg_id": 1426,
+    "sender": "CA",
+    "timestamp": "At April 5, 2026, 6:45\u202fAM, CA: Makapadala ko later 7k",
+    "category": "Money Transfer / Remittance",
+    "text": "Makapadala ko later 7k"
+  },
+  {
+    "msg_id": 1551,
+    "sender": "CA",
+    "timestamp": "At March 26, 2026, 3:02\u202fPM, CA: Himala lagi wala sila nag putol? Kuyawan ko 4k akong bill",
+    "category": "Credit Card Due / Statement",
+    "text": "Himala lagi wala sila nag putol? Kuyawan ko 4k akong bill"
+  },
+  {
+    "msg_id": 1672,
+    "sender": "CA",
+    "timestamp": "At March 3, 2026, 8:31\u202fAM, CA: Invested eh.. naa na gani ko blanket authority sa iyang bank account. $76K at my disposal.. kung kawatan ko, ipadala nako ni sa akong bank accoint hahaah",
+    "category": "Money Transfer / Remittance",
+    "text": "Invested eh.. naa na gani ko blanket authority sa iyang bank account. $76K at my disposal.. kung kawatan ko, ipadala nako ni sa akong bank accoint hahaah"
+  },
+  {
+    "msg_id": 1682,
+    "sender": "You",
+    "timestamp": "At February 23, 2026, 7:00\u202fPM, You",
+    "category": "Credit Card Due / Statement",
+    "text": "\ud83c\udf89 \ud835\uddde\ud835\uddd4\ud835\udddf\ud835\udddc\ud835\udddf\ud835\uddd4\ud835\udde1\ud835\uddda\ud835\uddd4\ud835\udde1 \ud835\uddd9\ud835\uddd8\ud835\udde6\ud835\udde7\ud835\udddc\ud835\udde9\ud835\uddd4\ud835\udddf \ud835\udfee\ud835\udfec\ud835\udfee\ud835\udff2 \ud83c\udf89\n\u201cTunay Siyang Bida, ang Aming Kulturang Pamana\u201d\nHanda na ba ang GenSan? \ud83c\udf0a\u2728\nIsang linggong puno ng makulay na selebrasyon, kultura, musika, palaro, pagkain, at pagkakaisa ang ating pagsasaluhan!\nMula sa engrandeng Parada ng mga Lahi, kapanapanabik na Street Dancing Competition, makasaysayang Tribal Village, hanggang sa mga pasabog na gabi ng musika at fireworks \u2014 siguradong walang tulog, walang patid ang saya!\n\n\ud83c\udf1f \ud835\udde3\ud835\udde5\ud835\uddd8-\ud835\uddde\ud835\uddd4\ud835\udddf\ud835\udddc\ud835\udddf\ud835\uddd4\ud835\udde1\ud835\uddda\ud835\uddd4\ud835\udde1 \ud835\uddd4\ud835\uddd6\ud835\udde7\ud835\udddc\ud835\udde9\ud835\udddc\ud835\udde7\ud835\udddc\ud835\uddd8\ud835\udde6\nSimula Pebrero 18, ramdam na ang festival vibes!\n\ud83c\udfc0 DepEd Friendship Basketball\n\ud83d\udc83 4th Koryo Heneral Dance Congress\n\ud83c\udfc3 Lions Run 9\n\ud83d\udc36 Dog Show\n\ud83d\udc0e Horse Show\n\ud83d\ude4f Inter-Faith Fellowship\n\u265f Pacman Chess Tournament\nat marami pang iba!\n\n\ud83d\udd25 \ud835\uddd9\ud835\uddd8\ud835\uddd5\ud835\udde5\ud835\udde8\ud835\uddd4\ud835\udde5\ud835\uddec \ud835\udfee\ud835\udfef \u2014 GRAND OPENING DAY!\n\ud83c\udf8a Parada ng mga Barangay\n\ud83c\udfe1 Fiestahan sa Barangay\n\ud83c\udf86 Grand Fireworks Display\n\ud83c\udfa4 Live Performance of Cup of Joe\nIsang makulay at engrandeng pagbubukas sa Pioneer Avenue!\n\n\ud83c\udfb6 \ud835\uddd9\ud835\uddd8\ud835\uddd5\ud835\udde5\ud835\udde8\ud835\uddd4\ud835\udde5\ud835\uddec \ud835\udfee\ud835\udff0\u2013\ud835\udfee\ud835\udff1\n\ud83d\udc83 Sayaw Heneral Dance Showdown\n\ud83c\udfbc Musikalilangan\n\ud83d\udc51 Search for Ginang RIC 2026\n\ud83c\udf3e Indigenous Peoples Day\n\ud83c\udfa7 Battle of DJs\n\ud83c\udfb8 Live Band Performances\n\n\ud83d\udcaa \ud835\uddd9\ud835\uddd8\ud835\uddd5\ud835\udde5\ud835\udde8\ud835\uddd4\ud835\udde5\ud835\uddec \ud835\udfee\ud835\udff2\n\ud83c\udf3f Ornamental Plants Derby\n\ud83c\udf89 Fitness Fiesta (Zumba Legends)\n\ud83c\udf19 SKalilangan Youth Night\n\ud83d\udd4c Moro Day sa Tribal Village\n\n\ud83d\udc51 \ud835\uddd9\ud835\uddd8\ud835\uddd5\ud835\udde5\ud835\udde8\ud835\uddd4\ud835\udde5\ud835\uddec \ud835\udfee\ud835\udff3 \u2014 GRAND FINALE!\n\ud83c\udf05 Parada ng mga Lahi\n\ud83d\udc16 Lechon Festival\n\ud83d\udc83 Kadsagayan Street Dancing Competition\n\ud83c\udf87 Grand Fireworks Display\nAt espesyal na pagtatanghal nina:\n\ud83c\udfa4 The Danies\n\ud83c\udfac Piolo Pascual\n\n\ud83c\udf86 Isang pagdiriwang ng kultura, agrikultura, pananampalataya, kabataan, at pagkakaisa!\n\ud83c\udf89 Isang Kalilangan na mas makulay, mas masaya, at mas makasaysayan!\n\ud83d\udccd Kita-kits sa Pioneer Avenue at iba\u2019t ibang festival venues!\nSama-sama nating ipagdiwang ang ating identidad bilang mga Heneral! \ud83d\udc99\u2728\n#KalilanganFestival2026 #GenSan #TunaySiyangBida"
+  },
+  {
+    "msg_id": 1699,
+    "sender": "CA",
+    "timestamp": "At February 27, 2026, 9:15\u202fPM, CA: Padala ko 10k.. share QR",
+    "category": "Money Transfer / Remittance",
+    "text": "Padala ko 10k.. share QR"
+  },
+  {
+    "msg_id": 1755,
+    "sender": "CA",
+    "timestamp": "At February 13, 2026, 5:08\u202fPM, CA: Koy i check-out daw ni kung ma Spay ni. 1700 lang dapat total including shipping",
+    "category": "Other Payment",
+    "text": "Koy i check-out daw ni kung ma Spay ni. 1700 lang dapat total including shipping"
+  },
+  {
+    "msg_id": 1763,
+    "sender": "CA",
+    "timestamp": "At February 16, 2026, 10:52\u202fAM, You: Pero kung 1 week na nya way charge2 sulit na kaayo imong 400 hahaha",
+    "category": "Other Payment",
+    "text": "Pero kung 1 week na nya way charge2 sulit na kaayo imong 400 hahaha"
+  },
+  {
+    "msg_id": 1941,
+    "sender": "You",
+    "timestamp": "At January 22, 2026, 10:35\u202fAM, You: Bayari imong utang kay makabayad ko hahaha 30k akong bill sa shopee haha",
+    "category": "Credit Card Due / Statement",
+    "text": "Bayari imong utang kay makabayad ko hahaha 30k akong bill sa shopee haha"
+  },
+  {
+    "msg_id": 2008,
+    "sender": "You",
+    "timestamp": "At January 21, 2026, 9:24\u202fAM, CA: Geh2.. pila gani ako balance 30k? Sa 30 ko na bayaran ha",
+    "category": "Other Payment",
+    "text": "Geh2.. pila gani ako balance 30k? Sa 30 ko na bayaran ha"
+  },
+  {
+    "msg_id": 2018,
+    "sender": "You",
+    "timestamp": "At January 21, 2026, 9:44\u202fAM, You: na past due gani ko BPI haha 1k kaayo haha pistiha",
+    "category": "Credit Card Due / Statement",
+    "text": "na past due gani ko BPI haha 1k kaayo haha pistiha"
+  },
+  {
+    "msg_id": 2021,
+    "sender": "CA",
+    "timestamp": "At January 21, 2026, 9:46\u202fAM, You: yeah walay patawad 33k man gud ako bill",
+    "category": "Credit Card Due / Statement",
+    "text": "yeah walay patawad 33k man gud ako bill"
+  },
+  {
+    "msg_id": 2027,
+    "sender": "CA",
+    "timestamp": "At January 21, 2026, 9:48\u202fAM, You: Nakuratan gani ko nahurot nako ang 75k credit sa spaylater haha gigamit man gud nako pambayad bills kay naka 3 months to pay HAHAHAHA",
+    "category": "Money Transfer / Remittance",
+    "text": "Nakuratan gani ko nahurot nako ang 75k credit sa spaylater haha gigamit man gud nako pambayad bills kay naka 3 months to pay HAHAHAHA"
+  },
+  {
+    "msg_id": 2053,
+    "sender": "CA",
+    "timestamp": "At January 13, 2026, 7:41\u202fAM, You: bobo maning bpi katong 8 pa diay due hahaha wtf nya 30k",
+    "category": "Credit Card Due / Statement",
+    "text": "bobo maning bpi katong 8 pa diay due hahaha wtf nya 30k"
+  },
+  {
+    "msg_id": 2126,
+    "sender": "CA",
+    "timestamp": "At January 8, 2026, 11:01\u202fAM, You: * Gemini (1Y) \u2013 $20\n* Gemini ultra (1M) - $28\n* Lovable pro (1Y) - $75\n* Repliet Core (1Y) - $65\n* Gamma Pro (1Y) \u2013 $65\n* n8n starter (1Y) - $65\n* Warp.dev (1Y) - 50$\n* Bolt (1Y) \u2013 $40\n* Mobbin Pro (1Y) - $35\n* Coursera Plus - $35\n* Adobe CC (4M) - $35\n* Descript Creator (1Y) - $35\n* Wisper flow (1Y) - $35\n* ChatPrd (1Y) - $35\n* Superhuman (1Y) - $35\n* Granola Business (1Y) - $35\n* Linear Business (1Y) - $35\n* Raycast Pro (1Y) - $35\n* Magic Pattern (1Y) - $35\n* Eleven labs (3M) - $28\n* Data Camp (6M) - $28\n* Udemy (2Y) - $128\n* Canva Pro (1Y) - $10\n* ChatGpt plus (1M) - $10\n* Notion Business (3M) - $28\n* Notion business (6M) - $48\n* Notion business (1Y) - $78\n* Linkedin Business (2M) - 21$\n* Linkedin Business (1Y) - $115\n* Sales Core (1Y) - $299\n* Sales Advanced (1M) - $69\n* Capcut Pro (1M) - 7$",
+    "category": "Software & Subscriptions",
+    "text": "* Gemini (1Y) \u2013 $20\n* Gemini ultra (1M) - $28\n* Lovable pro (1Y) - $75\n* Repliet Core (1Y) - $65\n* Gamma Pro (1Y) \u2013 $65\n* n8n starter (1Y) - $65\n* Warp.dev (1Y) - 50$\n* Bolt (1Y) \u2013 $40\n* Mobbin Pro (1Y) - $35\n* Coursera Plus - $35\n* Adobe CC (4M) - $35\n* Descript Creator (1Y) - $35\n* Wisper flow (1Y) - $35\n* ChatPrd (1Y) - $35\n* Superhuman (1Y) - $35\n* Granola Business (1Y) - $35\n* Linear Business (1Y) - $35\n* Raycast Pro (1Y) - $35\n* Magic Pattern (1Y) - $35\n* Eleven labs (3M) - $28\n* Data Camp (6M) - $28\n* Udemy (2Y) - $128\n* Canva Pro (1Y) - $10\n* ChatGpt plus (1M) - $10\n* Notion Business (3M) - $28\n* Notion business (6M) - $48\n* Notion business (1Y) - $78\n* Linkedin Business (2M) - 21$\n* Linkedin Business (1Y) - $115\n* Sales Core (1Y) - $299\n* Sales Advanced (1M) - $69\n* Capcut Pro (1M) - 7$"
+  },
+  {
+    "msg_id": 2247,
+    "sender": "CA",
+    "timestamp": "At January 3, 2026, 2:39\u202fPM, CA: January mag pay naka no? December lang man taman tong 50k",
+    "category": "Other Payment",
+    "text": "January mag pay naka no? December lang man taman tong 50k"
+  },
+  {
+    "msg_id": 2293,
+    "sender": "CA",
+    "timestamp": "At January 3, 2026, 2:16\u202fPM, CA: pay koa dditional tonight para 30k nalang. this january nalang ha",
+    "category": "Other Payment",
+    "text": "pay koa dditional tonight para 30k nalang. this january nalang ha"
+  },
+  {
+    "msg_id": 2305,
+    "sender": "You",
+    "timestamp": "At January 3, 2026, 2:18\u202fPM, CA: +5k payment ko unya",
+    "category": "Money Transfer / Remittance",
+    "text": "+5k payment ko unya"
+  },
+  {
+    "msg_id": 2330,
+    "sender": "You",
+    "timestamp": "At January 2, 2026, 7:37\u202fPM, You: diba mao nang unahan sa inyo? ",
+    "category": "Credit Card Due / Statement",
+    "text": "\ud83d\udce3GREAT NEWS!!\n FIVE\ud83d\udd90\ud83c\udffb UNITS of @[100087794331736:2048:VSM Meadows] VICTORIO are now READY FOR OCCUPANCY\n\n\ud83c\udfe1Block 6 Lot 9\n\ud83c\udfe1Block 6 Lot 16\n\ud83c\udfe1Block 6 Lot 17\n\ud83c\udfe1Block 6 Lot 18\n\ud83c\udfe1Block 6 Lot 19\n\n\ud83d\udcd0LOT AREA : 133 sq.m.\n\ud83d\udccfFLOOR AREA : 44.75 sq.m.\n\n\ud83d\udcddRESERVE NOW for Only 40,000.00 pesos.\n\ud83d\udccdLocated at Conel Road, Purok 9, Barangay Katangawan, General Santos City.\n\nNOTE: Kindly bring clear hard copies of all required documents upon reservation. You can check the comment section for the complete list of requirements for both reservation and Pag-IBIG Members.\n\n#GENSANVSMREALTYCORP.\n#VSMMeadowsGensan \n#VSM #RFO #PagibigFinancing #highlights\u30b7\u309a \nDISCLAIMER:\nNo Copyright Infringement caption intended music not mine. Music belongs to the rightful owner."
+  },
+  {
+    "msg_id": 2365,
+    "sender": "CA",
+    "timestamp": "At December 31, 2025, 4:29\u202fPM, CA: Sale oh less than 1k",
+    "category": "Other Payment",
+    "text": "Sale oh less than 1k"
+  },
+  {
+    "msg_id": 2460,
+    "sender": "CA",
+    "timestamp": "At December 27, 2025, 1:42\u202fPM, You: Kalimot ko haha pero naa pa man tung 20k. Ok na na para isahan. Dugay ang mga December na statement na delay2",
+    "category": "Money Transfer / Remittance",
+    "text": "Kalimot ko haha pero naa pa man tung 20k. Ok na na para isahan. Dugay ang mga December na statement na delay2"
+  },
+  {
+    "msg_id": 2499,
+    "sender": "You",
+    "timestamp": "At December 27, 2025, 10:37\u202fAM, You: Yawa na gcash 200 kaayo tubo",
+    "category": "Money Transfer / Remittance",
+    "text": "Yawa na gcash 200 kaayo tubo"
+  },
+  {
+    "msg_id": 2612,
+    "sender": "CA",
+    "timestamp": "At December 9, 2025, 8:06\u202fAM, CA: Koy totala daw pila na akong CC charges Nov + tong mga current swipes.. basig 100k na na. Hahaahhaha",
+    "category": "Card Swipe / Charge",
+    "text": "Koy totala daw pila na akong CC charges Nov + tong mga current swipes.. basig 100k na na. Hahaahhaha"
+  },
+  {
+    "msg_id": 2696,
+    "sender": "CA",
+    "timestamp": "At December 4, 2025, 1:49\u202fPM, You: https://l.facebook.com/l.php?u=https%3A%2F%2Fwww.unionbankph.com%2Fr%2Ftp1rewards%3Ffbclid%3DIwZXh0bgNhZW0CMTAAYnJpZBExMlFHVzNPcVNQRHhBVHVWa3NydGMGYXBwX2lkEDIyMjAzOTE3ODgyMDA4OTIAAR4mIfJXOcLL4cCURQZvc77Of-oFs9qorz_5jVopsaNAdJgetninEYi1zSQYXw_aem_YY5U3oLxfTrHGjL_1Dmf5Q&h=AT1PiIt35COMpS1tc--awAkz6n9b7rQp_QKBkTfhN7iJr0v2wnKIQRa_W0dtNVz90ahZKaztSDQiZnpraDPL-4y2rUSy2Wy7TUm9zpSwzScYL7mEbzzZ5BnAlTl7ephUGtf6nv6mnPGBD2H4&__tn__=R]-R&c[0]=AT2CJZPHfH3eEdVgFMga0dqfQ83Q33BNNGkCIn3DLxLeZ-dDD1IBUoTEno6tnIo4d3LPcxovrzTFkrMTs0fySqulk10qPiSngN2fsM8NyDNO7fTJvA8mYOnzNL65sUb-Z01wMzCWns8Jh7vcfcs_h1Yo847jRAzNJ3zeENK7zTrCttE",
+    "category": "Credit Card Due / Statement",
+    "text": "https://l.facebook.com/l.php?u=https%3A%2F%2Fwww.unionbankph.com%2Fr%2Ftp1rewards%3Ffbclid%3DIwZXh0bgNhZW0CMTAAYnJpZBExMlFHVzNPcVNQRHhBVHVWa3NydGMGYXBwX2lkEDIyMjAzOTE3ODgyMDA4OTIAAR4mIfJXOcLL4cCURQZvc77Of-oFs9qorz_5jVopsaNAdJgetninEYi1zSQYXw_aem_YY5U3oLxfTrHGjL_1Dmf5Q&h=AT1PiIt35COMpS1tc--awAkz6n9b7rQp_QKBkTfhN7iJr0v2wnKIQRa_W0dtNVz90ahZKaztSDQiZnpraDPL-4y2rUSy2Wy7TUm9zpSwzScYL7mEbzzZ5BnAlTl7ephUGtf6nv6mnPGBD2H4&__tn__=R]-R&c[0]=AT2CJZPHfH3eEdVgFMga0dqfQ83Q33BNNGkCIn3DLxLeZ-dDD1IBUoTEno6tnIo4d3LPcxovrzTFkrMTs0fySqulk10qPiSngN2fsM8NyDNO7fTJvA8mYOnzNL65sUb-Z01wMzCWns8Jh7vcfcs_h1Yo847jRAzNJ3zeENK7zTrCttE"
+  },
+  {
+    "msg_id": 2830,
+    "sender": "CA",
+    "timestamp": "At December 3, 2025, 11:24\u202fAM, CA: $5000 monthly iya bayad ato yawa kaayo",
+    "category": "Other Payment",
+    "text": "$5000 monthly iya bayad ato yawa kaayo"
+  },
+  {
+    "msg_id": 3006,
+    "sender": "CA",
+    "timestamp": "January 22, 2026, 9:08\u202fAM",
+    "category": "Other Payment",
+    "text": "Buy \u3010Local Delivery\u3011Ajazz Ak820 Pro RGB Tri-Mode Gaming Mechanical Keyboard 82 Key Bluetooth 2.4GHz Wireless Gamer Keyboard Custom Gasket for Pc Laptop online today! Product brand: AJAZZ \nProduct model: AK820 \nLighting effect: RGB, 20 sets of lighting effects \nKeycap material: PBT material OEM height \nProduct size: 327\u00d7136\u00d740mm \nKey layout: 81 keys with metal volume knob \nInterface type: Type-C\nsystems: Windows7/8/10/11, Mac, Android \nPackaging list: keyboard * 1, data cable * 1, instruction manual * 1, dust cover * 1, key/switch puller 2-in-1 * 1\n - Enjoy best prices with free shipping vouchers."
+  },
+  {
+    "msg_id": 3060,
+    "sender": "CA",
+    "timestamp": "May 4, 2026, 2:19\u202fPM",
+    "category": "Credit Card Due / Statement",
+    "text": "42K likes, 918 comments. \"She Sold 49% For $26 Billion\""
+  }
+]
